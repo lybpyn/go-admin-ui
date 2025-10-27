@@ -4,6 +4,22 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
+          <el-form-item label="开始展示时间" prop="startTime"><el-input
+            v-model="queryParams.startTime"
+            placeholder="请输入开始展示时间"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="结束展示时间" prop="endTime"><el-input
+            v-model="queryParams.endTime"
+            placeholder="请输入结束展示时间"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
 
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -14,7 +30,7 @@
         <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:hsMerchants:add']"
+              v-permisaction="['admin:hsCarouselBanner:add']"
               type="primary"
               icon="el-icon-plus"
               size="mini"
@@ -24,7 +40,7 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:hsMerchants:edit']"
+              v-permisaction="['admin:hsCarouselBanner:edit']"
               type="success"
               icon="el-icon-edit"
               size="mini"
@@ -35,7 +51,7 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:hsMerchants:remove']"
+              v-permisaction="['admin:hsCarouselBanner:remove']"
               type="danger"
               icon="el-icon-delete"
               size="mini"
@@ -46,63 +62,56 @@
           </el-col>
         </el-row>
 
-        <el-table v-loading="loading" :data="hsMerchantsList" @selection-change="handleSelectionChange">
+        <el-table v-loading="loading" :data="hsCarouselBannerList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" /><el-table-column
-            label="外部/内部唯一编码 (可用于对接第三方)"
+            label="标题"
             align="center"
-            prop="merchantCode"
+            prop="title"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="卡商名称/公司名"
+            label="图片地址"
             align="center"
-            prop="name"
+            prop="imageUrl"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="联系人姓名"
+            label="跳转地址"
             align="center"
-            prop="contactName"
+            prop="linkUrl"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="联系人电话"
+            label="排序，小的优先"
             align="center"
-            prop="contactPhone"
+            prop="sortOrder"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="联系人邮箱"
+            label="开始展示时间"
             align="center"
-            prop="contactEmail"
+            prop="startTime"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="国家/地区 ISO2 (如 CN, US)"
+          >
+            <template slot-scope="scope">
+              <span>{{ parseTime(scope.row.startTime) }}</span>
+            </template>
+          </el-table-column><el-table-column
+            label="结束展示时间"
             align="center"
-            prop="country"
+            prop="endTime"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="状态: 0=禁用,1=启用,2=冻结"
+          >
+            <template slot-scope="scope">
+              <span>{{ parseTime(scope.row.endTime) }}</span>
+            </template>
+          </el-table-column><el-table-column
+            label="0=下线,1=上线"
             align="center"
             prop="status"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="日限额 (可选)"
-            align="center"
-            prop="dailyLimit"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="备注/其他说明"
-            align="center"
-            prop="note"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="扩展信息: 如资质文件url、合同信息等"
-            align="center"
-            prop="extra"
             :show-overflow-tooltip="true"
           />
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
                 slot="reference"
-                v-permisaction="['admin:hsMerchants:edit']"
+                v-permisaction="['admin:hsCarouselBanner:edit']"
                 size="mini"
                 type="text"
                 icon="el-icon-edit"
@@ -117,7 +126,7 @@
               >
                 <el-button
                   slot="reference"
-                  v-permisaction="['admin:hsMerchants:remove']"
+                  v-permisaction="['admin:hsCarouselBanner:remove']"
                   size="mini"
                   type="text"
                   icon="el-icon-delete"
@@ -140,64 +149,48 @@
         <el-dialog :title="title" :visible.sync="open" width="500px">
           <el-form ref="form" :model="form" :rules="rules" label-width="80px">
 
-            <el-form-item label="外部/内部唯一编码 (可用于对接第三方)" prop="merchantCode">
+            <el-form-item label="标题" prop="title">
               <el-input
-                v-model="form.merchantCode"
-                placeholder="外部/内部唯一编码 (可用于对接第三方)"
+                v-model="form.title"
+                placeholder="标题"
               />
             </el-form-item>
-            <el-form-item label="卡商名称/公司名" prop="name">
+            <el-form-item label="图片地址" prop="imageUrl">
               <el-input
-                v-model="form.name"
-                placeholder="卡商名称/公司名"
+                v-model="form.imageUrl"
+                placeholder="图片地址"
               />
             </el-form-item>
-            <el-form-item label="联系人姓名" prop="contactName">
+            <el-form-item label="跳转地址" prop="linkUrl">
               <el-input
-                v-model="form.contactName"
-                placeholder="联系人姓名"
+                v-model="form.linkUrl"
+                placeholder="跳转地址"
               />
             </el-form-item>
-            <el-form-item label="联系人电话" prop="contactPhone">
+            <el-form-item label="排序，小的优先" prop="sortOrder">
               <el-input
-                v-model="form.contactPhone"
-                placeholder="联系人电话"
+                v-model="form.sortOrder"
+                placeholder="排序，小的优先"
               />
             </el-form-item>
-            <el-form-item label="联系人邮箱" prop="contactEmail">
-              <el-input
-                v-model="form.contactEmail"
-                placeholder="联系人邮箱"
+            <el-form-item label="开始展示时间" prop="startTime">
+              <el-date-picker
+                v-model="form.startTime"
+                type="datetime"
+                placeholder="选择日期"
               />
             </el-form-item>
-            <el-form-item label="国家/地区 ISO2 (如 CN, US)" prop="country">
-              <el-input
-                v-model="form.country"
-                placeholder="国家/地区 ISO2 (如 CN, US)"
+            <el-form-item label="结束展示时间" prop="endTime">
+              <el-date-picker
+                v-model="form.endTime"
+                type="datetime"
+                placeholder="选择日期"
               />
             </el-form-item>
-            <el-form-item label="状态: 0=禁用,1=启用,2=冻结" prop="status">
+            <el-form-item label="0=下线,1=上线" prop="status">
               <el-input
                 v-model="form.status"
-                placeholder="状态: 0=禁用,1=启用,2=冻结"
-              />
-            </el-form-item>
-            <el-form-item label="日限额 (可选)" prop="dailyLimit">
-              <el-input
-                v-model="form.dailyLimit"
-                placeholder="日限额 (可选)"
-              />
-            </el-form-item>
-            <el-form-item label="备注/其他说明" prop="note">
-              <el-input
-                v-model="form.note"
-                placeholder="备注/其他说明"
-              />
-            </el-form-item>
-            <el-form-item label="扩展信息: 如资质文件url、合同信息等" prop="extra">
-              <el-input
-                v-model="form.extra"
-                placeholder="扩展信息: 如资质文件url、合同信息等"
+                placeholder="0=下线,1=上线"
               />
             </el-form-item>
           </el-form>
@@ -212,10 +205,10 @@
 </template>
 
 <script>
-import { addHsMerchants, delHsMerchants, getHsMerchants, listHsMerchants, updateHsMerchants } from '@/api/admin/hs-merchants'
+import { addHsCarouselBanner, delHsCarouselBanner, getHsCarouselBanner, listHsCarouselBanner, updateHsCarouselBanner } from '@/api/admin/hs-carousel-banner'
 
 export default {
-  name: 'HsMerchants',
+  name: 'HsCarouselBanner',
   components: {
   },
   data() {
@@ -237,21 +230,25 @@ export default {
       isEdit: false,
       // 类型数据字典
       typeOptions: [],
-      hsMerchantsList: [],
+      hsCarouselBannerList: [],
 
       // 关系表类型
 
       // 查询参数
       queryParams: {
         pageIndex: 1,
-        pageSize: 10
+        pageSize: 10,
+        startTime: undefined,
+        endTime: undefined
 
       },
       // 表单参数
       form: {
       },
       // 表单校验
-      rules: {}
+      rules: { startTime: [{ required: true, message: '开始展示时间不能为空', trigger: 'blur' }],
+        endTime: [{ required: true, message: '结束展示时间不能为空', trigger: 'blur' }]
+      }
     }
   },
   created() {
@@ -261,8 +258,8 @@ export default {
     /** 查询参数列表 */
     getList() {
       this.loading = true
-      listHsMerchants(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-        this.hsMerchantsList = response.data.list
+      listHsCarouselBanner(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+        this.hsCarouselBannerList = response.data.list
         this.total = response.data.count
         this.loading = false
       }
@@ -278,16 +275,13 @@ export default {
       this.form = {
 
         id: undefined,
-        merchantCode: undefined,
-        name: undefined,
-        contactName: undefined,
-        contactPhone: undefined,
-        contactEmail: undefined,
-        country: undefined,
-        status: undefined,
-        dailyLimit: undefined,
-        note: undefined,
-        extra: undefined
+        title: undefined,
+        imageUrl: undefined,
+        linkUrl: undefined,
+        sortOrder: undefined,
+        startTime: undefined,
+        endTime: undefined,
+        status: undefined
       }
       this.resetForm('form')
     },
@@ -314,7 +308,7 @@ export default {
     handleAdd() {
       this.reset()
       this.open = true
-      this.title = '添加卡商管理表'
+      this.title = '添加首页轮播广告'
       this.isEdit = false
     },
     // 多选框选中数据
@@ -328,10 +322,10 @@ export default {
       this.reset()
       const id =
                 row.id || this.ids
-      getHsMerchants(id).then(response => {
+      getHsCarouselBanner(id).then(response => {
         this.form = response.data
         this.open = true
-        this.title = '修改卡商管理表'
+        this.title = '修改首页轮播广告'
         this.isEdit = true
       })
     },
@@ -340,7 +334,7 @@ export default {
       this.$refs['form'].validate(valid => {
         if (valid) {
           if (this.form.id !== undefined) {
-            updateHsMerchants(this.form).then(response => {
+            updateHsCarouselBanner(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess(response.msg)
                 this.open = false
@@ -350,7 +344,7 @@ export default {
               }
             })
           } else {
-            addHsMerchants(this.form).then(response => {
+            addHsCarouselBanner(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess(response.msg)
                 this.open = false
@@ -372,7 +366,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        return delHsMerchants({ 'ids': Ids })
+        return delHsCarouselBanner({ 'ids': Ids })
       }).then((response) => {
         if (response.code === 200) {
           this.msgSuccess(response.msg)

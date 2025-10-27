@@ -14,7 +14,7 @@
         <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:hsMerchants:add']"
+              v-permisaction="['admin:hsConfigCheckinRewards:add']"
               type="primary"
               icon="el-icon-plus"
               size="mini"
@@ -24,7 +24,7 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:hsMerchants:edit']"
+              v-permisaction="['admin:hsConfigCheckinRewards:edit']"
               type="success"
               icon="el-icon-edit"
               size="mini"
@@ -35,7 +35,7 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:hsMerchants:remove']"
+              v-permisaction="['admin:hsConfigCheckinRewards:remove']"
               type="danger"
               icon="el-icon-delete"
               size="mini"
@@ -46,63 +46,33 @@
           </el-col>
         </el-row>
 
-        <el-table v-loading="loading" :data="hsMerchantsList" @selection-change="handleSelectionChange">
+        <el-table v-loading="loading" :data="hsConfigCheckinRewardsList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" /><el-table-column
-            label="外部/内部唯一编码 (可用于对接第三方)"
+            label="连续签到天数"
             align="center"
-            prop="merchantCode"
+            prop="consecutiveDays"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="卡商名称/公司名"
+            label="经验值奖励"
             align="center"
-            prop="name"
+            prop="experienceReward"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="联系人姓名"
+            label="额外奖励配置(JSON格式)"
             align="center"
-            prop="contactName"
+            prop="extraRewards"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="联系人电话"
+            label="是否启用"
             align="center"
-            prop="contactPhone"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="联系人邮箱"
-            align="center"
-            prop="contactEmail"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="国家/地区 ISO2 (如 CN, US)"
-            align="center"
-            prop="country"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="状态: 0=禁用,1=启用,2=冻结"
-            align="center"
-            prop="status"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="日限额 (可选)"
-            align="center"
-            prop="dailyLimit"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="备注/其他说明"
-            align="center"
-            prop="note"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="扩展信息: 如资质文件url、合同信息等"
-            align="center"
-            prop="extra"
+            prop="isActive"
             :show-overflow-tooltip="true"
           />
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
                 slot="reference"
-                v-permisaction="['admin:hsMerchants:edit']"
+                v-permisaction="['admin:hsConfigCheckinRewards:edit']"
                 size="mini"
                 type="text"
                 icon="el-icon-edit"
@@ -117,7 +87,7 @@
               >
                 <el-button
                   slot="reference"
-                  v-permisaction="['admin:hsMerchants:remove']"
+                  v-permisaction="['admin:hsConfigCheckinRewards:remove']"
                   size="mini"
                   type="text"
                   icon="el-icon-delete"
@@ -140,64 +110,28 @@
         <el-dialog :title="title" :visible.sync="open" width="500px">
           <el-form ref="form" :model="form" :rules="rules" label-width="80px">
 
-            <el-form-item label="外部/内部唯一编码 (可用于对接第三方)" prop="merchantCode">
+            <el-form-item label="连续签到天数" prop="consecutiveDays">
               <el-input
-                v-model="form.merchantCode"
-                placeholder="外部/内部唯一编码 (可用于对接第三方)"
+                v-model="form.consecutiveDays"
+                placeholder="连续签到天数"
               />
             </el-form-item>
-            <el-form-item label="卡商名称/公司名" prop="name">
+            <el-form-item label="经验值奖励" prop="experienceReward">
               <el-input
-                v-model="form.name"
-                placeholder="卡商名称/公司名"
+                v-model="form.experienceReward"
+                placeholder="经验值奖励"
               />
             </el-form-item>
-            <el-form-item label="联系人姓名" prop="contactName">
+            <el-form-item label="额外奖励配置(JSON格式)" prop="extraRewards">
               <el-input
-                v-model="form.contactName"
-                placeholder="联系人姓名"
+                v-model="form.extraRewards"
+                placeholder="额外奖励配置(JSON格式)"
               />
             </el-form-item>
-            <el-form-item label="联系人电话" prop="contactPhone">
+            <el-form-item label="是否启用" prop="isActive">
               <el-input
-                v-model="form.contactPhone"
-                placeholder="联系人电话"
-              />
-            </el-form-item>
-            <el-form-item label="联系人邮箱" prop="contactEmail">
-              <el-input
-                v-model="form.contactEmail"
-                placeholder="联系人邮箱"
-              />
-            </el-form-item>
-            <el-form-item label="国家/地区 ISO2 (如 CN, US)" prop="country">
-              <el-input
-                v-model="form.country"
-                placeholder="国家/地区 ISO2 (如 CN, US)"
-              />
-            </el-form-item>
-            <el-form-item label="状态: 0=禁用,1=启用,2=冻结" prop="status">
-              <el-input
-                v-model="form.status"
-                placeholder="状态: 0=禁用,1=启用,2=冻结"
-              />
-            </el-form-item>
-            <el-form-item label="日限额 (可选)" prop="dailyLimit">
-              <el-input
-                v-model="form.dailyLimit"
-                placeholder="日限额 (可选)"
-              />
-            </el-form-item>
-            <el-form-item label="备注/其他说明" prop="note">
-              <el-input
-                v-model="form.note"
-                placeholder="备注/其他说明"
-              />
-            </el-form-item>
-            <el-form-item label="扩展信息: 如资质文件url、合同信息等" prop="extra">
-              <el-input
-                v-model="form.extra"
-                placeholder="扩展信息: 如资质文件url、合同信息等"
+                v-model="form.isActive"
+                placeholder="是否启用"
               />
             </el-form-item>
           </el-form>
@@ -212,10 +146,10 @@
 </template>
 
 <script>
-import { addHsMerchants, delHsMerchants, getHsMerchants, listHsMerchants, updateHsMerchants } from '@/api/admin/hs-merchants'
+import { addHsConfigCheckinRewards, delHsConfigCheckinRewards, getHsConfigCheckinRewards, listHsConfigCheckinRewards, updateHsConfigCheckinRewards } from '@/api/admin/hs-config-checkin-rewards'
 
 export default {
-  name: 'HsMerchants',
+  name: 'HsConfigCheckinRewards',
   components: {
   },
   data() {
@@ -237,7 +171,7 @@ export default {
       isEdit: false,
       // 类型数据字典
       typeOptions: [],
-      hsMerchantsList: [],
+      hsConfigCheckinRewardsList: [],
 
       // 关系表类型
 
@@ -261,8 +195,8 @@ export default {
     /** 查询参数列表 */
     getList() {
       this.loading = true
-      listHsMerchants(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-        this.hsMerchantsList = response.data.list
+      listHsConfigCheckinRewards(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+        this.hsConfigCheckinRewardsList = response.data.list
         this.total = response.data.count
         this.loading = false
       }
@@ -278,16 +212,10 @@ export default {
       this.form = {
 
         id: undefined,
-        merchantCode: undefined,
-        name: undefined,
-        contactName: undefined,
-        contactPhone: undefined,
-        contactEmail: undefined,
-        country: undefined,
-        status: undefined,
-        dailyLimit: undefined,
-        note: undefined,
-        extra: undefined
+        consecutiveDays: undefined,
+        experienceReward: undefined,
+        extraRewards: undefined,
+        isActive: undefined
       }
       this.resetForm('form')
     },
@@ -314,7 +242,7 @@ export default {
     handleAdd() {
       this.reset()
       this.open = true
-      this.title = '添加卡商管理表'
+      this.title = '添加签到奖励配置表'
       this.isEdit = false
     },
     // 多选框选中数据
@@ -328,10 +256,10 @@ export default {
       this.reset()
       const id =
                 row.id || this.ids
-      getHsMerchants(id).then(response => {
+      getHsConfigCheckinRewards(id).then(response => {
         this.form = response.data
         this.open = true
-        this.title = '修改卡商管理表'
+        this.title = '修改签到奖励配置表'
         this.isEdit = true
       })
     },
@@ -340,7 +268,7 @@ export default {
       this.$refs['form'].validate(valid => {
         if (valid) {
           if (this.form.id !== undefined) {
-            updateHsMerchants(this.form).then(response => {
+            updateHsConfigCheckinRewards(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess(response.msg)
                 this.open = false
@@ -350,7 +278,7 @@ export default {
               }
             })
           } else {
-            addHsMerchants(this.form).then(response => {
+            addHsConfigCheckinRewards(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess(response.msg)
                 this.open = false
@@ -372,7 +300,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        return delHsMerchants({ 'ids': Ids })
+        return delHsConfigCheckinRewards({ 'ids': Ids })
       }).then((response) => {
         if (response.code === 200) {
           this.msgSuccess(response.msg)

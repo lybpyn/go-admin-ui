@@ -14,7 +14,7 @@
         <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:hsMerchants:add']"
+              v-permisaction="['admin:hsConfigRegions:add']"
               type="primary"
               icon="el-icon-plus"
               size="mini"
@@ -24,7 +24,7 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:hsMerchants:edit']"
+              v-permisaction="['admin:hsConfigRegions:edit']"
               type="success"
               icon="el-icon-edit"
               size="mini"
@@ -35,7 +35,7 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:hsMerchants:remove']"
+              v-permisaction="['admin:hsConfigRegions:remove']"
               type="danger"
               icon="el-icon-delete"
               size="mini"
@@ -46,63 +46,13 @@
           </el-col>
         </el-row>
 
-        <el-table v-loading="loading" :data="hsMerchantsList" @selection-change="handleSelectionChange">
-          <el-table-column type="selection" width="55" align="center" /><el-table-column
-            label="外部/内部唯一编码 (可用于对接第三方)"
-            align="center"
-            prop="merchantCode"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="卡商名称/公司名"
-            align="center"
-            prop="name"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="联系人姓名"
-            align="center"
-            prop="contactName"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="联系人电话"
-            align="center"
-            prop="contactPhone"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="联系人邮箱"
-            align="center"
-            prop="contactEmail"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="国家/地区 ISO2 (如 CN, US)"
-            align="center"
-            prop="country"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="状态: 0=禁用,1=启用,2=冻结"
-            align="center"
-            prop="status"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="日限额 (可选)"
-            align="center"
-            prop="dailyLimit"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="备注/其他说明"
-            align="center"
-            prop="note"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="扩展信息: 如资质文件url、合同信息等"
-            align="center"
-            prop="extra"
-            :show-overflow-tooltip="true"
-          />
+        <el-table v-loading="loading" :data="hsConfigRegionsList" @selection-change="handleSelectionChange">
+          <el-table-column type="selection" width="55" align="center" />
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
                 slot="reference"
-                v-permisaction="['admin:hsMerchants:edit']"
+                v-permisaction="['admin:hsConfigRegions:edit']"
                 size="mini"
                 type="text"
                 icon="el-icon-edit"
@@ -117,7 +67,7 @@
               >
                 <el-button
                   slot="reference"
-                  v-permisaction="['admin:hsMerchants:remove']"
+                  v-permisaction="['admin:hsConfigRegions:remove']"
                   size="mini"
                   type="text"
                   icon="el-icon-delete"
@@ -140,64 +90,22 @@
         <el-dialog :title="title" :visible.sync="open" width="500px">
           <el-form ref="form" :model="form" :rules="rules" label-width="80px">
 
-            <el-form-item label="外部/内部唯一编码 (可用于对接第三方)" prop="merchantCode">
-              <el-input
-                v-model="form.merchantCode"
-                placeholder="外部/内部唯一编码 (可用于对接第三方)"
-              />
-            </el-form-item>
-            <el-form-item label="卡商名称/公司名" prop="name">
+            <el-form-item label="地区名称" prop="name">
               <el-input
                 v-model="form.name"
-                placeholder="卡商名称/公司名"
+                placeholder="地区名称"
               />
             </el-form-item>
-            <el-form-item label="联系人姓名" prop="contactName">
+            <el-form-item label="地区代码，如 CN、US、JP 等" prop="code">
               <el-input
-                v-model="form.contactName"
-                placeholder="联系人姓名"
+                v-model="form.code"
+                placeholder="地区代码，如 CN、US、JP 等"
               />
             </el-form-item>
-            <el-form-item label="联系人电话" prop="contactPhone">
+            <el-form-item label="是否启用：1=启用，0=禁用" prop="isActive">
               <el-input
-                v-model="form.contactPhone"
-                placeholder="联系人电话"
-              />
-            </el-form-item>
-            <el-form-item label="联系人邮箱" prop="contactEmail">
-              <el-input
-                v-model="form.contactEmail"
-                placeholder="联系人邮箱"
-              />
-            </el-form-item>
-            <el-form-item label="国家/地区 ISO2 (如 CN, US)" prop="country">
-              <el-input
-                v-model="form.country"
-                placeholder="国家/地区 ISO2 (如 CN, US)"
-              />
-            </el-form-item>
-            <el-form-item label="状态: 0=禁用,1=启用,2=冻结" prop="status">
-              <el-input
-                v-model="form.status"
-                placeholder="状态: 0=禁用,1=启用,2=冻结"
-              />
-            </el-form-item>
-            <el-form-item label="日限额 (可选)" prop="dailyLimit">
-              <el-input
-                v-model="form.dailyLimit"
-                placeholder="日限额 (可选)"
-              />
-            </el-form-item>
-            <el-form-item label="备注/其他说明" prop="note">
-              <el-input
-                v-model="form.note"
-                placeholder="备注/其他说明"
-              />
-            </el-form-item>
-            <el-form-item label="扩展信息: 如资质文件url、合同信息等" prop="extra">
-              <el-input
-                v-model="form.extra"
-                placeholder="扩展信息: 如资质文件url、合同信息等"
+                v-model="form.isActive"
+                placeholder="是否启用：1=启用，0=禁用"
               />
             </el-form-item>
           </el-form>
@@ -212,10 +120,10 @@
 </template>
 
 <script>
-import { addHsMerchants, delHsMerchants, getHsMerchants, listHsMerchants, updateHsMerchants } from '@/api/admin/hs-merchants'
+import { addHsConfigRegions, delHsConfigRegions, getHsConfigRegions, listHsConfigRegions, updateHsConfigRegions } from '@/api/admin/hs-config-regions'
 
 export default {
-  name: 'HsMerchants',
+  name: 'HsConfigRegions',
   components: {
   },
   data() {
@@ -237,7 +145,7 @@ export default {
       isEdit: false,
       // 类型数据字典
       typeOptions: [],
-      hsMerchantsList: [],
+      hsConfigRegionsList: [],
 
       // 关系表类型
 
@@ -261,8 +169,8 @@ export default {
     /** 查询参数列表 */
     getList() {
       this.loading = true
-      listHsMerchants(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-        this.hsMerchantsList = response.data.list
+      listHsConfigRegions(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+        this.hsConfigRegionsList = response.data.list
         this.total = response.data.count
         this.loading = false
       }
@@ -278,16 +186,9 @@ export default {
       this.form = {
 
         id: undefined,
-        merchantCode: undefined,
         name: undefined,
-        contactName: undefined,
-        contactPhone: undefined,
-        contactEmail: undefined,
-        country: undefined,
-        status: undefined,
-        dailyLimit: undefined,
-        note: undefined,
-        extra: undefined
+        code: undefined,
+        isActive: undefined
       }
       this.resetForm('form')
     },
@@ -314,7 +215,7 @@ export default {
     handleAdd() {
       this.reset()
       this.open = true
-      this.title = '添加卡商管理表'
+      this.title = '添加系统地区表（注册地区选择）'
       this.isEdit = false
     },
     // 多选框选中数据
@@ -328,10 +229,10 @@ export default {
       this.reset()
       const id =
                 row.id || this.ids
-      getHsMerchants(id).then(response => {
+      getHsConfigRegions(id).then(response => {
         this.form = response.data
         this.open = true
-        this.title = '修改卡商管理表'
+        this.title = '修改系统地区表（注册地区选择）'
         this.isEdit = true
       })
     },
@@ -340,7 +241,7 @@ export default {
       this.$refs['form'].validate(valid => {
         if (valid) {
           if (this.form.id !== undefined) {
-            updateHsMerchants(this.form).then(response => {
+            updateHsConfigRegions(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess(response.msg)
                 this.open = false
@@ -350,7 +251,7 @@ export default {
               }
             })
           } else {
-            addHsMerchants(this.form).then(response => {
+            addHsConfigRegions(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess(response.msg)
                 this.open = false
@@ -372,7 +273,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        return delHsMerchants({ 'ids': Ids })
+        return delHsConfigRegions({ 'ids': Ids })
       }).then((response) => {
         if (response.code === 200) {
           this.msgSuccess(response.msg)

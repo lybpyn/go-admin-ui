@@ -14,7 +14,7 @@
         <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:hsMerchants:add']"
+              v-permisaction="['admin:hsConfigSupportedChainsCoin:add']"
               type="primary"
               icon="el-icon-plus"
               size="mini"
@@ -24,7 +24,7 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:hsMerchants:edit']"
+              v-permisaction="['admin:hsConfigSupportedChainsCoin:edit']"
               type="success"
               icon="el-icon-edit"
               size="mini"
@@ -35,7 +35,7 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:hsMerchants:remove']"
+              v-permisaction="['admin:hsConfigSupportedChainsCoin:remove']"
               type="danger"
               icon="el-icon-delete"
               size="mini"
@@ -46,63 +46,88 @@
           </el-col>
         </el-row>
 
-        <el-table v-loading="loading" :data="hsMerchantsList" @selection-change="handleSelectionChange">
+        <el-table v-loading="loading" :data="hsConfigSupportedChainsCoinList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" /><el-table-column
-            label="外部/内部唯一编码 (可用于对接第三方)"
+            label="链代码，如 TRC20 / ERC20 / BEP20"
             align="center"
-            prop="merchantCode"
+            prop="chainCode"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="卡商名称/公司名"
+            label="链名称，如 Tron / Ethereum / BSC"
             align="center"
-            prop="name"
+            prop="chainName"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="联系人姓名"
+            label="主币，如 TRX / ETH / BNB"
             align="center"
-            prop="contactName"
+            prop="nativeSymbol"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="联系人电话"
+            label="当前链支持提现的币种"
             align="center"
-            prop="contactPhone"
+            prop="withdrawCoin"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="联系人邮箱"
+            label="网络类型：mainnet/testnet"
             align="center"
-            prop="contactEmail"
+            prop="network"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="国家/地区 ISO2 (如 CN, US)"
+            label="区块浏览器URL前缀"
             align="center"
-            prop="country"
+            prop="explorerUrl"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="状态: 0=禁用,1=启用,2=冻结"
+            label="RPC节点或API Endpoint"
+            align="center"
+            prop="rpcEndpoint"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="链ID（EVM链使用）"
+            align="center"
+            prop="chainId"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="提现是否启用：1=启用，0=关闭"
+            align="center"
+            prop="withdrawEnabled"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="充值是否启用：1=启用，0=关闭"
+            align="center"
+            prop="depositEnabled"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="最小提现金额"
+            align="center"
+            prop="minWithdrawAmount"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="固定提现手续费（USDT）"
+            align="center"
+            prop="withdrawFee"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="状态：1=启用，0=停用"
             align="center"
             prop="status"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="日限额 (可选)"
+            label="排序权重"
             align="center"
-            prop="dailyLimit"
+            prop="sortOrder"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="备注/其他说明"
+            label="备注说明"
             align="center"
-            prop="note"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="扩展信息: 如资质文件url、合同信息等"
-            align="center"
-            prop="extra"
+            prop="remark"
             :show-overflow-tooltip="true"
           />
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
                 slot="reference"
-                v-permisaction="['admin:hsMerchants:edit']"
+                v-permisaction="['admin:hsConfigSupportedChainsCoin:edit']"
                 size="mini"
                 type="text"
                 icon="el-icon-edit"
@@ -117,7 +142,7 @@
               >
                 <el-button
                   slot="reference"
-                  v-permisaction="['admin:hsMerchants:remove']"
+                  v-permisaction="['admin:hsConfigSupportedChainsCoin:remove']"
                   size="mini"
                   type="text"
                   icon="el-icon-delete"
@@ -140,64 +165,94 @@
         <el-dialog :title="title" :visible.sync="open" width="500px">
           <el-form ref="form" :model="form" :rules="rules" label-width="80px">
 
-            <el-form-item label="外部/内部唯一编码 (可用于对接第三方)" prop="merchantCode">
+            <el-form-item label="链代码，如 TRC20 / ERC20 / BEP20" prop="chainCode">
               <el-input
-                v-model="form.merchantCode"
-                placeholder="外部/内部唯一编码 (可用于对接第三方)"
+                v-model="form.chainCode"
+                placeholder="链代码，如 TRC20 / ERC20 / BEP20"
               />
             </el-form-item>
-            <el-form-item label="卡商名称/公司名" prop="name">
+            <el-form-item label="链名称，如 Tron / Ethereum / BSC" prop="chainName">
               <el-input
-                v-model="form.name"
-                placeholder="卡商名称/公司名"
+                v-model="form.chainName"
+                placeholder="链名称，如 Tron / Ethereum / BSC"
               />
             </el-form-item>
-            <el-form-item label="联系人姓名" prop="contactName">
+            <el-form-item label="主币，如 TRX / ETH / BNB" prop="nativeSymbol">
               <el-input
-                v-model="form.contactName"
-                placeholder="联系人姓名"
+                v-model="form.nativeSymbol"
+                placeholder="主币，如 TRX / ETH / BNB"
               />
             </el-form-item>
-            <el-form-item label="联系人电话" prop="contactPhone">
+            <el-form-item label="当前链支持提现的币种" prop="withdrawCoin">
               <el-input
-                v-model="form.contactPhone"
-                placeholder="联系人电话"
+                v-model="form.withdrawCoin"
+                placeholder="当前链支持提现的币种"
               />
             </el-form-item>
-            <el-form-item label="联系人邮箱" prop="contactEmail">
+            <el-form-item label="网络类型：mainnet/testnet" prop="network">
               <el-input
-                v-model="form.contactEmail"
-                placeholder="联系人邮箱"
+                v-model="form.network"
+                placeholder="网络类型：mainnet/testnet"
               />
             </el-form-item>
-            <el-form-item label="国家/地区 ISO2 (如 CN, US)" prop="country">
+            <el-form-item label="区块浏览器URL前缀" prop="explorerUrl">
               <el-input
-                v-model="form.country"
-                placeholder="国家/地区 ISO2 (如 CN, US)"
+                v-model="form.explorerUrl"
+                placeholder="区块浏览器URL前缀"
               />
             </el-form-item>
-            <el-form-item label="状态: 0=禁用,1=启用,2=冻结" prop="status">
+            <el-form-item label="RPC节点或API Endpoint" prop="rpcEndpoint">
+              <el-input
+                v-model="form.rpcEndpoint"
+                placeholder="RPC节点或API Endpoint"
+              />
+            </el-form-item>
+            <el-form-item label="链ID（EVM链使用）" prop="chainId">
+              <el-input
+                v-model="form.chainId"
+                placeholder="链ID（EVM链使用）"
+              />
+            </el-form-item>
+            <el-form-item label="提现是否启用：1=启用，0=关闭" prop="withdrawEnabled">
+              <el-input
+                v-model="form.withdrawEnabled"
+                placeholder="提现是否启用：1=启用，0=关闭"
+              />
+            </el-form-item>
+            <el-form-item label="充值是否启用：1=启用，0=关闭" prop="depositEnabled">
+              <el-input
+                v-model="form.depositEnabled"
+                placeholder="充值是否启用：1=启用，0=关闭"
+              />
+            </el-form-item>
+            <el-form-item label="最小提现金额" prop="minWithdrawAmount">
+              <el-input
+                v-model="form.minWithdrawAmount"
+                placeholder="最小提现金额"
+              />
+            </el-form-item>
+            <el-form-item label="固定提现手续费（USDT）" prop="withdrawFee">
+              <el-input
+                v-model="form.withdrawFee"
+                placeholder="固定提现手续费（USDT）"
+              />
+            </el-form-item>
+            <el-form-item label="状态：1=启用，0=停用" prop="status">
               <el-input
                 v-model="form.status"
-                placeholder="状态: 0=禁用,1=启用,2=冻结"
+                placeholder="状态：1=启用，0=停用"
               />
             </el-form-item>
-            <el-form-item label="日限额 (可选)" prop="dailyLimit">
+            <el-form-item label="排序权重" prop="sortOrder">
               <el-input
-                v-model="form.dailyLimit"
-                placeholder="日限额 (可选)"
+                v-model="form.sortOrder"
+                placeholder="排序权重"
               />
             </el-form-item>
-            <el-form-item label="备注/其他说明" prop="note">
+            <el-form-item label="备注说明" prop="remark">
               <el-input
-                v-model="form.note"
-                placeholder="备注/其他说明"
-              />
-            </el-form-item>
-            <el-form-item label="扩展信息: 如资质文件url、合同信息等" prop="extra">
-              <el-input
-                v-model="form.extra"
-                placeholder="扩展信息: 如资质文件url、合同信息等"
+                v-model="form.remark"
+                placeholder="备注说明"
               />
             </el-form-item>
           </el-form>
@@ -212,10 +267,10 @@
 </template>
 
 <script>
-import { addHsMerchants, delHsMerchants, getHsMerchants, listHsMerchants, updateHsMerchants } from '@/api/admin/hs-merchants'
+import { addHsConfigSupportedChainsCoin, delHsConfigSupportedChainsCoin, getHsConfigSupportedChainsCoin, listHsConfigSupportedChainsCoin, updateHsConfigSupportedChainsCoin } from '@/api/admin/hs-config-supported-chains-coin'
 
 export default {
-  name: 'HsMerchants',
+  name: 'HsConfigSupportedChainsCoin',
   components: {
   },
   data() {
@@ -237,7 +292,7 @@ export default {
       isEdit: false,
       // 类型数据字典
       typeOptions: [],
-      hsMerchantsList: [],
+      hsConfigSupportedChainsCoinList: [],
 
       // 关系表类型
 
@@ -261,8 +316,8 @@ export default {
     /** 查询参数列表 */
     getList() {
       this.loading = true
-      listHsMerchants(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-        this.hsMerchantsList = response.data.list
+      listHsConfigSupportedChainsCoin(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+        this.hsConfigSupportedChainsCoinList = response.data.list
         this.total = response.data.count
         this.loading = false
       }
@@ -278,16 +333,21 @@ export default {
       this.form = {
 
         id: undefined,
-        merchantCode: undefined,
-        name: undefined,
-        contactName: undefined,
-        contactPhone: undefined,
-        contactEmail: undefined,
-        country: undefined,
+        chainCode: undefined,
+        chainName: undefined,
+        nativeSymbol: undefined,
+        withdrawCoin: undefined,
+        network: undefined,
+        explorerUrl: undefined,
+        rpcEndpoint: undefined,
+        chainId: undefined,
+        withdrawEnabled: undefined,
+        depositEnabled: undefined,
+        minWithdrawAmount: undefined,
+        withdrawFee: undefined,
         status: undefined,
-        dailyLimit: undefined,
-        note: undefined,
-        extra: undefined
+        sortOrder: undefined,
+        remark: undefined
       }
       this.resetForm('form')
     },
@@ -314,7 +374,7 @@ export default {
     handleAdd() {
       this.reset()
       this.open = true
-      this.title = '添加卡商管理表'
+      this.title = '添加系统支持的区块链网络配置表'
       this.isEdit = false
     },
     // 多选框选中数据
@@ -328,10 +388,10 @@ export default {
       this.reset()
       const id =
                 row.id || this.ids
-      getHsMerchants(id).then(response => {
+      getHsConfigSupportedChainsCoin(id).then(response => {
         this.form = response.data
         this.open = true
-        this.title = '修改卡商管理表'
+        this.title = '修改系统支持的区块链网络配置表'
         this.isEdit = true
       })
     },
@@ -340,7 +400,7 @@ export default {
       this.$refs['form'].validate(valid => {
         if (valid) {
           if (this.form.id !== undefined) {
-            updateHsMerchants(this.form).then(response => {
+            updateHsConfigSupportedChainsCoin(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess(response.msg)
                 this.open = false
@@ -350,7 +410,7 @@ export default {
               }
             })
           } else {
-            addHsMerchants(this.form).then(response => {
+            addHsConfigSupportedChainsCoin(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess(response.msg)
                 this.open = false
@@ -372,7 +432,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        return delHsMerchants({ 'ids': Ids })
+        return delHsConfigSupportedChainsCoin({ 'ids': Ids })
       }).then((response) => {
         if (response.code === 200) {
           this.msgSuccess(response.msg)

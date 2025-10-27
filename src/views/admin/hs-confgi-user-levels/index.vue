@@ -14,7 +14,7 @@
         <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:hsMerchants:add']"
+              v-permisaction="['admin:hsConfgiUserLevels:add']"
               type="primary"
               icon="el-icon-plus"
               size="mini"
@@ -24,7 +24,7 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:hsMerchants:edit']"
+              v-permisaction="['admin:hsConfgiUserLevels:edit']"
               type="success"
               icon="el-icon-edit"
               size="mini"
@@ -35,7 +35,7 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:hsMerchants:remove']"
+              v-permisaction="['admin:hsConfgiUserLevels:remove']"
               type="danger"
               icon="el-icon-delete"
               size="mini"
@@ -46,63 +46,53 @@
           </el-col>
         </el-row>
 
-        <el-table v-loading="loading" :data="hsMerchantsList" @selection-change="handleSelectionChange">
+        <el-table v-loading="loading" :data="hsConfgiUserLevelsList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" /><el-table-column
-            label="外部/内部唯一编码 (可用于对接第三方)"
+            label="等级名称"
             align="center"
-            prop="merchantCode"
+            prop="levelName"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="卡商名称/公司名"
+            label="升级所需经验值"
             align="center"
-            prop="name"
+            prop="upExperience"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="联系人姓名"
+            label="等级图标URL"
             align="center"
-            prop="contactName"
+            prop="levelIcon"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="联系人电话"
+            label="等级特权配置(JSON格式)"
             align="center"
-            prop="contactPhone"
+            prop="levelPrivileges"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="联系人邮箱"
+            label="一级分成奖励"
             align="center"
-            prop="contactEmail"
+            prop="firstInviteCommossions"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="国家/地区 ISO2 (如 CN, US)"
+            label="二级分成奖励"
             align="center"
-            prop="country"
+            prop="secondInviteCommossions"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="状态: 0=禁用,1=启用,2=冻结"
+            label="排序顺序"
             align="center"
-            prop="status"
+            prop="sortOrder"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="日限额 (可选)"
+            label="是否启用"
             align="center"
-            prop="dailyLimit"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="备注/其他说明"
-            align="center"
-            prop="note"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="扩展信息: 如资质文件url、合同信息等"
-            align="center"
-            prop="extra"
+            prop="isActive"
             :show-overflow-tooltip="true"
           />
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
                 slot="reference"
-                v-permisaction="['admin:hsMerchants:edit']"
+                v-permisaction="['admin:hsConfgiUserLevels:edit']"
                 size="mini"
                 type="text"
                 icon="el-icon-edit"
@@ -117,7 +107,7 @@
               >
                 <el-button
                   slot="reference"
-                  v-permisaction="['admin:hsMerchants:remove']"
+                  v-permisaction="['admin:hsConfgiUserLevels:remove']"
                   size="mini"
                   type="text"
                   icon="el-icon-delete"
@@ -140,64 +130,52 @@
         <el-dialog :title="title" :visible.sync="open" width="500px">
           <el-form ref="form" :model="form" :rules="rules" label-width="80px">
 
-            <el-form-item label="外部/内部唯一编码 (可用于对接第三方)" prop="merchantCode">
+            <el-form-item label="等级名称" prop="levelName">
               <el-input
-                v-model="form.merchantCode"
-                placeholder="外部/内部唯一编码 (可用于对接第三方)"
+                v-model="form.levelName"
+                placeholder="等级名称"
               />
             </el-form-item>
-            <el-form-item label="卡商名称/公司名" prop="name">
+            <el-form-item label="升级所需经验值" prop="upExperience">
               <el-input
-                v-model="form.name"
-                placeholder="卡商名称/公司名"
+                v-model="form.upExperience"
+                placeholder="升级所需经验值"
               />
             </el-form-item>
-            <el-form-item label="联系人姓名" prop="contactName">
+            <el-form-item label="等级图标URL" prop="levelIcon">
               <el-input
-                v-model="form.contactName"
-                placeholder="联系人姓名"
+                v-model="form.levelIcon"
+                placeholder="等级图标URL"
               />
             </el-form-item>
-            <el-form-item label="联系人电话" prop="contactPhone">
+            <el-form-item label="等级特权配置(JSON格式)" prop="levelPrivileges">
               <el-input
-                v-model="form.contactPhone"
-                placeholder="联系人电话"
+                v-model="form.levelPrivileges"
+                placeholder="等级特权配置(JSON格式)"
               />
             </el-form-item>
-            <el-form-item label="联系人邮箱" prop="contactEmail">
+            <el-form-item label="一级分成奖励" prop="firstInviteCommossions">
               <el-input
-                v-model="form.contactEmail"
-                placeholder="联系人邮箱"
+                v-model="form.firstInviteCommossions"
+                placeholder="一级分成奖励"
               />
             </el-form-item>
-            <el-form-item label="国家/地区 ISO2 (如 CN, US)" prop="country">
+            <el-form-item label="二级分成奖励" prop="secondInviteCommossions">
               <el-input
-                v-model="form.country"
-                placeholder="国家/地区 ISO2 (如 CN, US)"
+                v-model="form.secondInviteCommossions"
+                placeholder="二级分成奖励"
               />
             </el-form-item>
-            <el-form-item label="状态: 0=禁用,1=启用,2=冻结" prop="status">
+            <el-form-item label="排序顺序" prop="sortOrder">
               <el-input
-                v-model="form.status"
-                placeholder="状态: 0=禁用,1=启用,2=冻结"
+                v-model="form.sortOrder"
+                placeholder="排序顺序"
               />
             </el-form-item>
-            <el-form-item label="日限额 (可选)" prop="dailyLimit">
+            <el-form-item label="是否启用" prop="isActive">
               <el-input
-                v-model="form.dailyLimit"
-                placeholder="日限额 (可选)"
-              />
-            </el-form-item>
-            <el-form-item label="备注/其他说明" prop="note">
-              <el-input
-                v-model="form.note"
-                placeholder="备注/其他说明"
-              />
-            </el-form-item>
-            <el-form-item label="扩展信息: 如资质文件url、合同信息等" prop="extra">
-              <el-input
-                v-model="form.extra"
-                placeholder="扩展信息: 如资质文件url、合同信息等"
+                v-model="form.isActive"
+                placeholder="是否启用"
               />
             </el-form-item>
           </el-form>
@@ -212,10 +190,10 @@
 </template>
 
 <script>
-import { addHsMerchants, delHsMerchants, getHsMerchants, listHsMerchants, updateHsMerchants } from '@/api/admin/hs-merchants'
+import { addHsConfgiUserLevels, delHsConfgiUserLevels, getHsConfgiUserLevels, listHsConfgiUserLevels, updateHsConfgiUserLevels } from '@/api/admin/hs-confgi-user-levels'
 
 export default {
-  name: 'HsMerchants',
+  name: 'HsConfgiUserLevels',
   components: {
   },
   data() {
@@ -237,7 +215,7 @@ export default {
       isEdit: false,
       // 类型数据字典
       typeOptions: [],
-      hsMerchantsList: [],
+      hsConfgiUserLevelsList: [],
 
       // 关系表类型
 
@@ -261,8 +239,8 @@ export default {
     /** 查询参数列表 */
     getList() {
       this.loading = true
-      listHsMerchants(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-        this.hsMerchantsList = response.data.list
+      listHsConfgiUserLevels(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+        this.hsConfgiUserLevelsList = response.data.list
         this.total = response.data.count
         this.loading = false
       }
@@ -278,16 +256,14 @@ export default {
       this.form = {
 
         id: undefined,
-        merchantCode: undefined,
-        name: undefined,
-        contactName: undefined,
-        contactPhone: undefined,
-        contactEmail: undefined,
-        country: undefined,
-        status: undefined,
-        dailyLimit: undefined,
-        note: undefined,
-        extra: undefined
+        levelName: undefined,
+        upExperience: undefined,
+        levelIcon: undefined,
+        levelPrivileges: undefined,
+        firstInviteCommossions: undefined,
+        secondInviteCommossions: undefined,
+        sortOrder: undefined,
+        isActive: undefined
       }
       this.resetForm('form')
     },
@@ -314,7 +290,7 @@ export default {
     handleAdd() {
       this.reset()
       this.open = true
-      this.title = '添加卡商管理表'
+      this.title = '添加用户等级配置表'
       this.isEdit = false
     },
     // 多选框选中数据
@@ -328,10 +304,10 @@ export default {
       this.reset()
       const id =
                 row.id || this.ids
-      getHsMerchants(id).then(response => {
+      getHsConfgiUserLevels(id).then(response => {
         this.form = response.data
         this.open = true
-        this.title = '修改卡商管理表'
+        this.title = '修改用户等级配置表'
         this.isEdit = true
       })
     },
@@ -340,7 +316,7 @@ export default {
       this.$refs['form'].validate(valid => {
         if (valid) {
           if (this.form.id !== undefined) {
-            updateHsMerchants(this.form).then(response => {
+            updateHsConfgiUserLevels(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess(response.msg)
                 this.open = false
@@ -350,7 +326,7 @@ export default {
               }
             })
           } else {
-            addHsMerchants(this.form).then(response => {
+            addHsConfgiUserLevels(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess(response.msg)
                 this.open = false
@@ -372,7 +348,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        return delHsMerchants({ 'ids': Ids })
+        return delHsConfgiUserLevels({ 'ids': Ids })
       }).then((response) => {
         if (response.code === 200) {
           this.msgSuccess(response.msg)

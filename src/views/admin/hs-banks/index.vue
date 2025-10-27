@@ -47,7 +47,52 @@
         </el-row>
 
         <el-table v-loading="loading" :data="hsBanksList" @selection-change="handleSelectionChange">
-          <el-table-column type="selection" width="55" align="center" />
+          <el-table-column type="selection" width="55" align="center" /><el-table-column
+            label="银行编码/银行行号，如 SWIFT/BIC 或自定义编码"
+            align="center"
+            prop="bankCode"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="银行名称"
+            align="center"
+            prop="name"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="国家 ISO2"
+            align="center"
+            prop="country"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="SWIFT/BIC (如适用)"
+            align="center"
+            prop="swiftCode"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="路由/清算号(如 ABA)"
+            align="center"
+            prop="routingNumber"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="是否支持国际汇款: 0否,1是"
+            align="center"
+            prop="supportsInternational"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="状态: 0=禁用,1=启用"
+            align="center"
+            prop="status"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label=""
+            align="center"
+            prop="note"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="扩展字段，例如银行支付说明、证件要求等"
+            align="center"
+            prop="extra"
+            :show-overflow-tooltip="true"
+          />
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
