@@ -4,9 +4,9 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-          <el-form-item label="用户名（可选展示用）" prop="username"><el-input
+          <el-form-item label="用户名" prop="username"><el-input
             v-model="queryParams.username"
-            placeholder="请输入用户名（可选展示用）"
+            placeholder="请输入用户名"
             clearable
             size="small"
             @keyup.enter.native="handleQuery"
@@ -80,7 +80,7 @@
 
         <el-table v-loading="loading" :data="hsUsersList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" /><el-table-column
-            label="用户名（可选展示用）"
+            label="用户名"
             align="center"
             prop="username"
             :show-overflow-tooltip="true"

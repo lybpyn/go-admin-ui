@@ -88,7 +88,7 @@
 
         <el-table v-loading="loading" :data="hsUserWithdrawalList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" /><el-table-column
-            label="提现单号，唯一"
+            label="提现单号"
             align="center"
             prop="withdrawNo"
             :show-overflow-tooltip="true"
@@ -98,7 +98,7 @@
             prop="userId"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="ISO 4217币种代码，如 USD/CNY"
+            label="币种代码"
             align="center"
             prop="currency"
             :show-overflow-tooltip="true"
@@ -113,22 +113,22 @@
             prop="fee"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="实际出账金额（amount - fee）"
+            label="实际出账金额"
             align="center"
             prop="netAmount"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="提现方式：bank/paypal/crypto/…"
+            label="提现方式"
             align="center"
             prop="method"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="提现账户信息（脱敏）"
+            label="提现账户信息"
             align="center"
             prop="accountInfo"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="状态：pending/review/processing/success/failed/canceled"
+            label="状态"
             align="center"
             prop="status"
             :show-overflow-tooltip="true"
@@ -328,7 +328,7 @@ export default {
     handleUpdate(row) {
       this.reset()
       const id =
-                row.id || this.ids
+                  row.id || this.ids
       getHsUserWithdrawal(id).then(response => {
         this.form = response.data
         this.open = true

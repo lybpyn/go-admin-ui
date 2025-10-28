@@ -4,17 +4,17 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-          <el-form-item label="设备唯一标识" prop="deviceId"><el-input
+          <el-form-item label="设备标识" prop="deviceId"><el-input
             v-model="queryParams.deviceId"
-            placeholder="请输入设备唯一标识"
+            placeholder="请输入设备标识"
             clearable
             size="small"
             @keyup.enter.native="handleQuery"
           />
           </el-form-item>
-          <el-form-item label="用户ID（未绑定为0）" prop="userId"><el-input
+          <el-form-item label="用户ID" prop="userId"><el-input
             v-model="queryParams.userId"
-            placeholder="请输入用户ID（未绑定为0）"
+            placeholder="请输入用户ID"
             clearable
             size="small"
             @keyup.enter.native="handleQuery"

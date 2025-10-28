@@ -125,6 +125,7 @@ const mutations = {
     state.topbarRouters = routes // .concat(index)
   },
   SET_SIDEBAR_ROUTERS: (state, routes) => {
+    console.log(routes)
     state.sidebarRouters = routes
   }
 }
@@ -151,6 +152,7 @@ const actions = {
           commit('SET_ROUTES', asyncRoutes)
           const sidebarRoutes = []
           generaMenu(sidebarRoutes, loadMenuData)
+          console.log(constantRoutes.concat(sidebarRoutes))
           commit('SET_SIDEBAR_ROUTERS', constantRoutes.concat(sidebarRoutes))
           commit('SET_DEFAULT_ROUTES', sidebarRoutes)
           commit('SET_TOPBAR_ROUTES', sidebarRoutes)

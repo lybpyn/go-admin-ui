@@ -69,7 +69,7 @@
             prop="userId"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="链类型，例如 TRC20、ERC20、BEP20"
+            label="链类型"
             align="center"
             prop="configSupportedChainsCoinId"
             :show-overflow-tooltip="true"
@@ -84,16 +84,19 @@
             prop="label"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="是否默认提现地址：0=否，1=是"
+            label="是否默认提现地址"
             align="center"
             prop="isDefault"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          />
+          <el-table-column
             label="状态：1=启用，0=禁用，2=待审核，-1=拒绝"
             align="center"
             prop="status"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          />
+
+          <el-table-column
             label="添加时的IP地址"
             align="center"
             prop="createdIp"

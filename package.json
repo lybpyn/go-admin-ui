@@ -6,6 +6,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "NODE_OPTIONS=--openssl-legacy-provider vue-cli-service serve",
+    "serve": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service serve",
     "build:prod": "NODE_OPTIONS=--openssl-legacy-provider vue-cli-service build",
     "build:stage": "NODE_OPTIONS=--openssl-legacy-provider vue-cli-service build --mode staging",
     "prod": "NODE_OPTIONS=--openssl-legacy-provider vue-cli-service build --mode production",

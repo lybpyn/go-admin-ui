@@ -50,6 +50,7 @@ export default {
     },
     // 所有的路由信息
     routers() {
+      console.log('11111', this.$store.state.permission.topbarRouters)
       return this.$store.state.permission.topbarRouters
     },
     // 设置子路由
@@ -119,7 +120,17 @@ export default {
           }
         })
       }
-      this.$store.commit('permission/SET_SIDEBAR_ROUTERS', routes)
+      // 修复路由数据不完整的问题，添加对嵌套路由的处理
+      if (routes.length > 0) {
+        routes = routes.filter(route => route.children || !route.hidden)
+        routes.forEach(route => {
+          if (route.children && route.children.length > 0) {
+            route.children = route.children.filter(child => !child.hidden)
+          }
+        })
+      }
+      // console.log(routes)
+      // this.$store.commit('permission/SET_SIDEBAR_ROUTERS', routes)
     }
   }
 }

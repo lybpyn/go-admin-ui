@@ -56,9 +56,7 @@ export default {
       return !this.sidebar.opened
     }
   },
-  mounted() {
-
-  },
+  mounted() {},
   methods: {
 
   }
