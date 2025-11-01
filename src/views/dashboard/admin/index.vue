@@ -2,7 +2,7 @@
   <div class="dashboard-editor-container">
     <el-row :gutter="12">
       <el-col :sm="24" :xs="24" :md="6" :xl="6" :lg="6" :style="{ marginBottom: '12px' }">
-        <chart-card title="总销售额" total="￥126,560">
+        <chart-card title="总礼品卡核销额" total="￥126,560">
           <el-tooltip slot="action" class="item" effect="dark" content="指标说明" placement="top-start">
             <i class="el-icon-warning-outline" />
           </el-tooltip>
@@ -14,7 +14,7 @@
               <span slot="term">日同比</span>
             </trend>
           </div>
-          <template slot="footer">日均销售额<span>￥ 234.56</span></template>
+          <template slot="footer">日均礼品卡核销额<span>￥ 234.56</span></template>
         </chart-card>
       </el-col>
       <el-col :sm="24" :xs="24" :md="6" :xl="6" :lg="6" :style="{ marginBottom: '12px' }">
@@ -29,18 +29,18 @@
         </chart-card>
       </el-col>
       <el-col :sm="24" :xs="24" :md="6" :xl="6" :lg="6" :style="{ marginBottom: '12px' }">
-        <chart-card title="支付笔数" :total="6560">
+        <chart-card title="提现笔数" :total="6560">
           <el-tooltip slot="action" class="item" effect="dark" content="指标说明" placement="top-start">
             <i class="el-icon-warning-outline" />
           </el-tooltip>
           <div>
             <mini-bar />
           </div>
-          <template slot="footer">转化率 <span>60%</span></template>
+          <template slot="footer">占比 <span>60%</span></template>
         </chart-card>
       </el-col>
       <el-col :sm="24" :xs="24" :md="6" :xl="6" :lg="6" :style="{ marginBottom: '12px' }">
-        <chart-card title="运营活动效果" total="78%">
+        <chart-card title="订单数量" total="78%">
           <el-tooltip slot="action" class="item" effect="dark" content="指标说明" placement="top-start">
             <i class="el-icon-warning-outline" />
           </el-tooltip>
@@ -49,10 +49,10 @@
           </div>
           <template slot="footer">
             <trend flag="top" style="margin-right: 16px;" rate="12">
-              <span slot="term">同周比</span>
+              <span slot="term">同占比</span>
             </trend>
             <trend flag="bottom" rate="80">
-              <span slot="term">日环比</span>
+              <span slot="term">日占比</span>
             </trend>
           </template>
         </chart-card>
@@ -62,23 +62,23 @@
     <el-card :bordered="false" :body-style="{padding: '0'}">
       <div class="salesCard">
         <el-tabs>
-          <el-tab-pane label="销售额">
+          <el-tab-pane label="礼品卡核销额">
             <el-row>
               <el-col :xl="16" :lg="12" :md="12" :sm="24" :xs="24">
-                <bar :list="barData" title="销售额排行" />
+                <bar :list="barData" title="礼品卡核销额排行" />
               </el-col>
               <el-col :xl="8" :lg="12" :md="12" :sm="24" :xs="24">
-                <rank-list title="门店销售排行榜" :list="rankList" />
+                <rank-list title="礼品卡核销排行榜" :list="rankList" />
               </el-col>
             </el-row>
           </el-tab-pane>
           <el-tab-pane label="访问量">
             <el-row>
               <el-col :xl="16" :lg="12" :md="12" :sm="24" :xs="24">
-                <bar :list="barData2" title="销售额趋势" />
+                <bar :list="barData2" title="访问量" />
               </el-col>
               <el-col :xl="8" :lg="12" :md="12" :sm="24" :xs="24">
-                <rank-list title="门店销售排行榜" :list="rankList" />
+                <rank-list title="礼品卡核销排行榜" :list="rankList" />
               </el-col>
             </el-row>
           </el-tab-pane>
@@ -114,7 +114,7 @@ for (let i = 0; i < 12; i += 1) {
 const rankList = []
 for (let i = 0; i < 7; i++) {
   rankList.push({
-    name: '白鹭岛 ' + (i + 1) + ' 号店',
+    name: '用户 ' + (i + 1) + '',
     total: 1234.56 - i * 100
   })
 }
