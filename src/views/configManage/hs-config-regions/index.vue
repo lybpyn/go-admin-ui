@@ -48,6 +48,24 @@
 
         <el-table v-loading="loading" :data="hsConfigRegionsList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
+          <el-table-column
+            label="地区名称"
+            align="center"
+            prop="name"
+            :show-overflow-tooltip="true"
+          />
+          <el-table-column
+            label="地区代码"
+            align="center"
+            prop="code"
+            :show-overflow-tooltip="true"
+          />
+          <el-table-column
+            label="是否启用：1=启用，0=禁用"
+            align="center"
+            prop="isActive"
+            :show-overflow-tooltip="true"
+          />
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
