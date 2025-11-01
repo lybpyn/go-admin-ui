@@ -83,29 +83,41 @@
             label="用户名"
             align="center"
             prop="username"
-            :show-overflow-tooltip="true"
           /><el-table-column
-            label=""
+            label="密码Hash"
             align="center"
             prop="passwordHash"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label=""
+            label="姓名"
             align="center"
             prop="firstname"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label=""
+            label="姓氏"
             align="center"
             prop="lastname"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          />
+          <el-table-column
             label="头像URL"
             align="center"
             prop="avatar"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label=""
+          >
+            <template v-slot="scope">
+              <el-image
+                v-if="scope.row.avatar"
+                :src="scope.row.avatar"
+                fit="fill"
+                :preview-src-list="[scope.row.avatar]"
+                style="width: 40px; height: 40px; border-radius: 50%;"
+              />
+              <span v-else>-</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="余额"
             align="center"
             prop="balance"
             :show-overflow-tooltip="true"
@@ -125,21 +137,32 @@
             prop="totalExperience"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label=""
+            label="邀请码"
             align="center"
             prop="inviteCode"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="状态：1正常，0封禁"
+          />
+          <el-table-column
+            label="状态"
             align="center"
             prop="status"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label=""
+          >
+            <template v-slot="scope">
+              <el-tag v-if="scope.row.status == 1" type="primary">正常</el-tag>
+              <el-tag v-if="scope.row.status == 0" type="danger">封禁</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="创建时间"
             align="center"
-            prop="version"
+            prop="createTime"
             :show-overflow-tooltip="true"
-          />
+          >
+            <template v-slot="scope">
+              <span>{{ scope.row.createdAt.split('T')[0] }}</span>
+            </template>
+          </el-table-column>
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
