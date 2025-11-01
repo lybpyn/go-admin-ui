@@ -200,8 +200,35 @@
         />
 
         <!-- 添加或修改对话框 -->
-        <el-dialog :title="title" :visible.sync="open" width="500px">
-          <el-form ref="form" :model="form" :rules="rules" label-width="80px" />
+        <el-dialog :title="title" :visible.sync="open" width="700px">
+          <el-form ref="form" :model="form" :rules="rules" label-width="120px">
+            <el-form-item label="通道回执流水号" prop="channelTxnId">
+              <el-input v-model="form.channelTxnId" placeholder="请输入通道回执流水号" />
+            </el-form-item>
+            <el-form-item label="状态" prop="status">
+              <el-select v-model="form.status" placeholder="是否前台显示" clearable size="small">
+                <el-option label="pending" value="pending" />
+                <el-option label="review" value="review" />
+                <el-option label="processing" value="processing" />
+                <el-option label="success" value="success" />
+                <el-option label="failed" value="failed" />
+                <el-option label="canceled" value="canceled" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="备注" prop="reason">
+              <el-input v-model="form.reason" type="textarea" placeholder="失败/取消原因" />
+            </el-form-item>
+            <el-form-item label="处理完成时间" prop="processedAt">
+              <el-date-picker
+                v-model="form.processedAt"
+                type="datetime"
+                value-format="yyyy-MM-dd HH:mm:ss"
+                placeholder="选择处理完成时间"
+                clearable
+                size="small"
+              />
+            </el-form-item>
+          </el-form>
           <div slot="footer" class="dialog-footer">
             <el-button type="primary" @click="submitForm">确 定</el-button>
             <el-button @click="cancel">取 消</el-button>

@@ -44,3 +44,11 @@ export function delOrdGiftcardWriteoffs(data) {
   })
 }
 
+// 礼品卡核销
+export function processOrdGiftcardWriteoffs(data) {
+  return request({
+    url: '/api/v1/admin/writeoffs',
+    method: 'post',
+    data: data
+  })
+}
