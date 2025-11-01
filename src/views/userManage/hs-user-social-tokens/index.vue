@@ -56,22 +56,28 @@
 
         <el-table v-loading="loading" :data="hsUserSocialTokensList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" /><el-table-column
-            label=""
+            label="用户ID"
             align="center"
             prop="userId"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="google, apple, twitter, etc."
+          />
+          <el-table-column
+            label="登录方式"
             align="center"
             prop="provider"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label=""
+          >
+            <template slot-scope="scope">
+              <span>{{ scope.row.provider }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="访问令牌"
             align="center"
             prop="accessToken"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label=""
+            label="刷新令牌"
             align="center"
             prop="refreshToken"
             :show-overflow-tooltip="true"
@@ -81,17 +87,17 @@
             prop="expiresIn"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label=""
+            label="令牌类型"
             align="center"
             prop="tokenType"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label=""
+            label="范围"
             align="center"
             prop="scope"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label=""
+            label="时间"
             align="center"
             prop="issuedAt"
             :show-overflow-tooltip="true"
