@@ -4,33 +4,89 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-          <el-form-item label="地区名称" prop="name"><el-input
-            v-model="queryParams.name"
-            placeholder="请输入地区名称"
+          <el-form-item label="" prop="userId"><el-input
+            v-model="queryParams.userId"
+            placeholder="请输入"
             clearable
             size="small"
             @keyup.enter.native="handleQuery"
           />
           </el-form-item>
-          <el-form-item label="地区货币" prop="currencyCode"><el-input
+          <el-form-item label="币种代码，如 USD/CNY/USDT" prop="currencyCode"><el-input
             v-model="queryParams.currencyCode"
-            placeholder="请输入地区货币"
+            placeholder="请输入币种代码，如 USD/CNY/USDT"
             clearable
             size="small"
             @keyup.enter.native="handleQuery"
           />
           </el-form-item>
-          <el-form-item label="地区代码，如 CN、US、JP 等" prop="code"><el-input
-            v-model="queryParams.code"
-            placeholder="请输入地区代码，如 CN、US、JP 等"
+          <el-form-item label="1=冻结增加，-1=冻结减少(解冻)" prop="direction"><el-input
+            v-model="queryParams.direction"
+            placeholder="请输入1=冻结增加，-1=冻结减少(解冻)"
             clearable
             size="small"
             @keyup.enter.native="handleQuery"
           />
           </el-form-item>
-          <el-form-item label="是否启用：1=启用，0=禁用" prop="isActive"><el-input
-            v-model="queryParams.isActive"
-            placeholder="请输入是否启用：1=启用，0=禁用"
+          <el-form-item label="冻结或解冻金额" prop="amount"><el-input
+            v-model="queryParams.amount"
+            placeholder="请输入冻结或解冻金额"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="变动前冻结余额" prop="frozenBefore"><el-input
+            v-model="queryParams.frozenBefore"
+            placeholder="请输入变动前冻结余额"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="变动后冻结余额" prop="frozenAfter"><el-input
+            v-model="queryParams.frozenAfter"
+            placeholder="请输入变动后冻结余额"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="业务类型：invite_commissions/order_rebate等" prop="bizType"><el-input
+            v-model="queryParams.bizType"
+            placeholder="请输入业务类型：invite_commissions/order_rebate等"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="业务单号" prop="bizId"><el-input
+            v-model="queryParams.bizId"
+            placeholder="请输入业务单号"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="幂等键" prop="idempotencyKey"><el-input
+            v-model="queryParams.idempotencyKey"
+            placeholder="请输入幂等键"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="" prop="remark"><el-input
+            v-model="queryParams.remark"
+            placeholder="请输入"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="1=已冻结或解冻，0=待处理，-1=冲正" prop="status"><el-input
+            v-model="queryParams.status"
+            placeholder="请输入1=已冻结或解冻，0=待处理，-1=冲正"
             clearable
             size="small"
             @keyup.enter.native="handleQuery"
@@ -46,7 +102,7 @@
         <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:hsConfigRegions:add']"
+              v-permisaction="['admin:hsUserFrozenLedger:add']"
               type="primary"
               icon="el-icon-plus"
               size="mini"
@@ -56,7 +112,7 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:hsConfigRegions:edit']"
+              v-permisaction="['admin:hsUserFrozenLedger:edit']"
               type="success"
               icon="el-icon-edit"
               size="mini"
@@ -67,7 +123,7 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:hsConfigRegions:remove']"
+              v-permisaction="['admin:hsUserFrozenLedger:remove']"
               type="danger"
               icon="el-icon-delete"
               size="mini"
@@ -78,33 +134,68 @@
           </el-col>
         </el-row>
 
-        <el-table v-loading="loading" :data="hsConfigRegionsList" @selection-change="handleSelectionChange">
+        <el-table v-loading="loading" :data="hsUserFrozenLedgerList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" /><el-table-column
-            label="地区名称"
+            label=""
             align="center"
-            prop="name"
+            prop="userId"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="地区货币"
+            label="币种代码，如 USD/CNY/USDT"
             align="center"
             prop="currencyCode"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="地区代码，如 CN、US、JP 等"
+            label="1=冻结增加，-1=冻结减少(解冻)"
             align="center"
-            prop="code"
+            prop="direction"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="是否启用：1=启用，0=禁用"
+            label="冻结或解冻金额"
             align="center"
-            prop="isActive"
+            prop="amount"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="变动前冻结余额"
+            align="center"
+            prop="frozenBefore"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="变动后冻结余额"
+            align="center"
+            prop="frozenAfter"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="业务类型：invite_commissions/order_rebate等"
+            align="center"
+            prop="bizType"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="业务单号"
+            align="center"
+            prop="bizId"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="幂等键"
+            align="center"
+            prop="idempotencyKey"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label=""
+            align="center"
+            prop="remark"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="1=已冻结或解冻，0=待处理，-1=冲正"
+            align="center"
+            prop="status"
             :show-overflow-tooltip="true"
           />
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
                 slot="reference"
-                v-permisaction="['admin:hsConfigRegions:edit']"
+                v-permisaction="['admin:hsUserFrozenLedger:edit']"
                 size="mini"
                 type="text"
                 icon="el-icon-edit"
@@ -119,7 +210,7 @@
               >
                 <el-button
                   slot="reference"
-                  v-permisaction="['admin:hsConfigRegions:remove']"
+                  v-permisaction="['admin:hsUserFrozenLedger:remove']"
                   size="mini"
                   type="text"
                   icon="el-icon-delete"
@@ -140,33 +231,7 @@
 
         <!-- 添加或修改对话框 -->
         <el-dialog :title="title" :visible.sync="open" width="500px">
-          <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-
-            <el-form-item label="地区名称" prop="name">
-              <el-input
-                v-model="form.name"
-                placeholder="地区名称"
-              />
-            </el-form-item>
-            <el-form-item label="地区货币" prop="currencyCode">
-              <el-input
-                v-model="form.currencyCode"
-                placeholder="地区货币"
-              />
-            </el-form-item>
-            <el-form-item label="地区代码，如 CN、US、JP 等" prop="code">
-              <el-input
-                v-model="form.code"
-                placeholder="地区代码，如 CN、US、JP 等"
-              />
-            </el-form-item>
-            <el-form-item label="是否启用：1=启用，0=禁用" prop="isActive">
-              <el-input
-                v-model="form.isActive"
-                placeholder="是否启用：1=启用，0=禁用"
-              />
-            </el-form-item>
-          </el-form>
+          <el-form ref="form" :model="form" :rules="rules" label-width="80px" />
           <div slot="footer" class="dialog-footer">
             <el-button type="primary" @click="submitForm">确 定</el-button>
             <el-button @click="cancel">取 消</el-button>
@@ -178,10 +243,10 @@
 </template>
 
 <script>
-import { addHsConfigRegions, delHsConfigRegions, getHsConfigRegions, listHsConfigRegions, updateHsConfigRegions } from '@/api/admin/hs-config-regions'
+import { addHsUserFrozenLedger, delHsUserFrozenLedger, getHsUserFrozenLedger, listHsUserFrozenLedger, updateHsUserFrozenLedger } from '@/api/admin/hs-user-frozen-ledger'
 
 export default {
-  name: 'HsConfigRegions',
+  name: 'HsUserFrozenLedger',
   components: {
   },
   data() {
@@ -203,7 +268,7 @@ export default {
       isEdit: false,
       // 类型数据字典
       typeOptions: [],
-      hsConfigRegionsList: [],
+      hsUserFrozenLedgerList: [],
 
       // 关系表类型
 
@@ -211,20 +276,34 @@ export default {
       queryParams: {
         pageIndex: 1,
         pageSize: 10,
-        name: undefined,
+        userId: undefined,
         currencyCode: undefined,
-        code: undefined,
-        isActive: undefined
+        direction: undefined,
+        amount: undefined,
+        frozenBefore: undefined,
+        frozenAfter: undefined,
+        bizType: undefined,
+        bizId: undefined,
+        idempotencyKey: undefined,
+        remark: undefined,
+        status: undefined
 
       },
       // 表单参数
       form: {
       },
       // 表单校验
-      rules: { name: [{ required: true, message: '地区名称不能为空', trigger: 'blur' }],
-        currencyCode: [{ required: true, message: '地区货币不能为空', trigger: 'blur' }],
-        code: [{ required: true, message: '地区代码，如 CN、US、JP 等不能为空', trigger: 'blur' }],
-        isActive: [{ required: true, message: '是否启用：1=启用，0=禁用不能为空', trigger: 'blur' }]
+      rules: { userId: [{ required: true, message: '不能为空', trigger: 'blur' }],
+        currencyCode: [{ required: true, message: '币种代码，如 USD/CNY/USDT不能为空', trigger: 'blur' }],
+        direction: [{ required: true, message: '1=冻结增加，-1=冻结减少(解冻)不能为空', trigger: 'blur' }],
+        amount: [{ required: true, message: '冻结或解冻金额不能为空', trigger: 'blur' }],
+        frozenBefore: [{ required: true, message: '变动前冻结余额不能为空', trigger: 'blur' }],
+        frozenAfter: [{ required: true, message: '变动后冻结余额不能为空', trigger: 'blur' }],
+        bizType: [{ required: true, message: '业务类型：invite_commissions/order_rebate等不能为空', trigger: 'blur' }],
+        bizId: [{ required: true, message: '业务单号不能为空', trigger: 'blur' }],
+        idempotencyKey: [{ required: true, message: '幂等键不能为空', trigger: 'blur' }],
+        remark: [{ required: true, message: '不能为空', trigger: 'blur' }],
+        status: [{ required: true, message: '1=已冻结或解冻，0=待处理，-1=冲正不能为空', trigger: 'blur' }]
       }
     }
   },
@@ -235,8 +314,8 @@ export default {
     /** 查询参数列表 */
     getList() {
       this.loading = true
-      listHsConfigRegions(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-        this.hsConfigRegionsList = response.data.list
+      listHsUserFrozenLedger(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+        this.hsUserFrozenLedgerList = response.data.list
         this.total = response.data.count
         this.loading = false
       }
@@ -251,11 +330,7 @@ export default {
     reset() {
       this.form = {
 
-        id: undefined,
-        name: undefined,
-        currencyCode: undefined,
-        code: undefined,
-        isActive: undefined
+        id: undefined
       }
       this.resetForm('form')
     },
@@ -282,7 +357,7 @@ export default {
     handleAdd() {
       this.reset()
       this.open = true
-      this.title = '添加系统地区表（注册地区选择）'
+      this.title = '添加用户冻结余额流水'
       this.isEdit = false
     },
     // 多选框选中数据
@@ -296,10 +371,10 @@ export default {
       this.reset()
       const id =
                 row.id || this.ids
-      getHsConfigRegions(id).then(response => {
+      getHsUserFrozenLedger(id).then(response => {
         this.form = response.data
         this.open = true
-        this.title = '修改系统地区表（注册地区选择）'
+        this.title = '修改用户冻结余额流水'
         this.isEdit = true
       })
     },
@@ -308,7 +383,7 @@ export default {
       this.$refs['form'].validate(valid => {
         if (valid) {
           if (this.form.id !== undefined) {
-            updateHsConfigRegions(this.form).then(response => {
+            updateHsUserFrozenLedger(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess(response.msg)
                 this.open = false
@@ -318,7 +393,7 @@ export default {
               }
             })
           } else {
-            addHsConfigRegions(this.form).then(response => {
+            addHsUserFrozenLedger(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess(response.msg)
                 this.open = false
@@ -340,7 +415,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        return delHsConfigRegions({ 'ids': Ids })
+        return delHsUserFrozenLedger({ 'ids': Ids })
       }).then((response) => {
         if (response.code === 200) {
           this.msgSuccess(response.msg)

@@ -4,38 +4,6 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-          <el-form-item label="地区名称" prop="name"><el-input
-            v-model="queryParams.name"
-            placeholder="请输入地区名称"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="地区货币" prop="currencyCode"><el-input
-            v-model="queryParams.currencyCode"
-            placeholder="请输入地区货币"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="地区代码，如 CN、US、JP 等" prop="code"><el-input
-            v-model="queryParams.code"
-            placeholder="请输入地区代码，如 CN、US、JP 等"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="是否启用：1=启用，0=禁用" prop="isActive"><el-input
-            v-model="queryParams.isActive"
-            placeholder="请输入是否启用：1=启用，0=禁用"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
 
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -46,7 +14,7 @@
         <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:hsConfigRegions:add']"
+              v-permisaction="['admin:hsReceivingAccounts:add']"
               type="primary"
               icon="el-icon-plus"
               size="mini"
@@ -56,7 +24,7 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:hsConfigRegions:edit']"
+              v-permisaction="['admin:hsReceivingAccounts:edit']"
               type="success"
               icon="el-icon-edit"
               size="mini"
@@ -67,7 +35,7 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:hsConfigRegions:remove']"
+              v-permisaction="['admin:hsReceivingAccounts:remove']"
               type="danger"
               icon="el-icon-delete"
               size="mini"
@@ -78,33 +46,13 @@
           </el-col>
         </el-row>
 
-        <el-table v-loading="loading" :data="hsConfigRegionsList" @selection-change="handleSelectionChange">
-          <el-table-column type="selection" width="55" align="center" /><el-table-column
-            label="地区名称"
-            align="center"
-            prop="name"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="地区货币"
-            align="center"
-            prop="currencyCode"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="地区代码，如 CN、US、JP 等"
-            align="center"
-            prop="code"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="是否启用：1=启用，0=禁用"
-            align="center"
-            prop="isActive"
-            :show-overflow-tooltip="true"
-          />
+        <el-table v-loading="loading" :data="hsReceivingAccountsList" @selection-change="handleSelectionChange">
+          <el-table-column type="selection" width="55" align="center" />
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
                 slot="reference"
-                v-permisaction="['admin:hsConfigRegions:edit']"
+                v-permisaction="['admin:hsReceivingAccounts:edit']"
                 size="mini"
                 type="text"
                 icon="el-icon-edit"
@@ -119,7 +67,7 @@
               >
                 <el-button
                   slot="reference"
-                  v-permisaction="['admin:hsConfigRegions:remove']"
+                  v-permisaction="['admin:hsReceivingAccounts:remove']"
                   size="mini"
                   type="text"
                   icon="el-icon-delete"
@@ -142,28 +90,106 @@
         <el-dialog :title="title" :visible.sync="open" width="500px">
           <el-form ref="form" :model="form" :rules="rules" label-width="80px">
 
-            <el-form-item label="地区名称" prop="name">
+            <el-form-item label="关联 merchants.id" prop="merchantId">
               <el-input
-                v-model="form.name"
-                placeholder="地区名称"
+                v-model="form.merchantId"
+                placeholder="关联 merchants.id"
               />
             </el-form-item>
-            <el-form-item label="地区货币" prop="currencyCode">
+            <el-form-item label="关联 banks.id (如果是银行账户)" prop="bankId">
+              <el-input
+                v-model="form.bankId"
+                placeholder="关联 banks.id (如果是银行账户)"
+              />
+            </el-form-item>
+            <el-form-item label="账户名/收款人名称" prop="accountName">
+              <el-input
+                v-model="form.accountName"
+                placeholder="账户名/收款人名称"
+              />
+            </el-form-item>
+            <el-form-item label="账号（可能为卡号/IBAN/虚拟账号）" prop="accountNumber">
+              <el-input
+                v-model="form.accountNumber"
+                placeholder="账号（可能为卡号/IBAN/虚拟账号）"
+              />
+            </el-form-item>
+            <el-form-item label="货币代码 (USD/CNY/...)" prop="currencyCode">
               <el-input
                 v-model="form.currencyCode"
-                placeholder="地区货币"
+                placeholder="货币代码 (USD/CNY/...)"
               />
             </el-form-item>
-            <el-form-item label="地区代码，如 CN、US、JP 等" prop="code">
+            <el-form-item label="单次最小收款金额" prop="minAmount">
               <el-input
-                v-model="form.code"
-                placeholder="地区代码，如 CN、US、JP 等"
+                v-model="form.minAmount"
+                placeholder="单次最小收款金额"
               />
             </el-form-item>
-            <el-form-item label="是否启用：1=启用，0=禁用" prop="isActive">
+            <el-form-item label="单次最大收款金额 (NULL 表示无限制)" prop="maxAmount">
               <el-input
-                v-model="form.isActive"
-                placeholder="是否启用：1=启用，0=禁用"
+                v-model="form.maxAmount"
+                placeholder="单次最大收款金额 (NULL 表示无限制)"
+              />
+            </el-form-item>
+            <el-form-item label="每日上限 (平台/风控)" prop="dailyLimit">
+              <el-input
+                v-model="form.dailyLimit"
+                placeholder="每日上限 (平台/风控)"
+              />
+            </el-form-item>
+            <el-form-item label="是否默认收款账号: 0否,1是" prop="isDefault">
+              <el-input
+                v-model="form.isDefault"
+                placeholder="是否默认收款账号: 0否,1是"
+              />
+            </el-form-item>
+            <el-form-item label="是否启用自动转出/自动结算" prop="autoTransferEnabled">
+              <el-input
+                v-model="form.autoTransferEnabled"
+                placeholder="是否启用自动转出/自动结算"
+              />
+            </el-form-item>
+            <el-form-item label="自动转出阈值 (达到该金额触发)" prop="autoTransferThreshold">
+              <el-input
+                v-model="form.autoTransferThreshold"
+                placeholder="自动转出阈值 (达到该金额触发)"
+              />
+            </el-form-item>
+            <el-form-item label="风控阈值(超过则人工审核) —— 可与汇率表联动计算" prop="riskThresholdAmount">
+              <el-input
+                v-model="form.riskThresholdAmount"
+                placeholder="风控阈值(超过则人工审核) —— 可与汇率表联动计算"
+              />
+            </el-form-item>
+            <el-form-item label="状态:0=禁用,1=启用,2=待审核" prop="status">
+              <el-input
+                v-model="form.status"
+                placeholder="状态:0=禁用,1=启用,2=待审核"
+              />
+            </el-form-item>
+            <el-form-item label="接口/通道类型，如 bank_transfer, third_party_api 等" prop="interfaceType">
+              <el-input
+                v-model="form.interfaceType"
+                placeholder="接口/通道类型，如 bank_transfer, third_party_api 等"
+              />
+            </el-form-item>
+            <el-form-item label="接口配置信息（JSON）: 如 api_key, secret, callback_url, 接口码等" prop="interfaceConfig">
+              <el-input
+                v-model="form.interfaceConfig"
+                placeholder="接口配置信息（JSON）: 如 api_key, secret, callback_url, 接口码等"
+              />
+            </el-form-item>
+            <el-form-item label="允许接收国家数组" prop="allowedCountries">
+              <el-input
+                v-model="form.allowedCountries"
+                placeholder="允许接收国家数组"
+              />
+            </el-form-item>
+            <el-form-item label="" prop="note">
+              <el-input
+                v-model="form.note"
+                placeholder=""
               />
             </el-form-item>
           </el-form>
@@ -178,10 +204,10 @@
 </template>
 
 <script>
-import { addHsConfigRegions, delHsConfigRegions, getHsConfigRegions, listHsConfigRegions, updateHsConfigRegions } from '@/api/admin/hs-config-regions'
+import { addHsReceivingAccounts, delHsReceivingAccounts, getHsReceivingAccounts, listHsReceivingAccounts, updateHsReceivingAccounts } from '@/api/admin/hs-receiving-accounts'
 
 export default {
-  name: 'HsConfigRegions',
+  name: 'HsReceivingAccounts',
   components: {
   },
   data() {
@@ -203,29 +229,21 @@ export default {
       isEdit: false,
       // 类型数据字典
       typeOptions: [],
-      hsConfigRegionsList: [],
+      hsReceivingAccountsList: [],
 
       // 关系表类型
 
       // 查询参数
       queryParams: {
         pageIndex: 1,
-        pageSize: 10,
-        name: undefined,
-        currencyCode: undefined,
-        code: undefined,
-        isActive: undefined
+        pageSize: 10
 
       },
       // 表单参数
       form: {
       },
       // 表单校验
-      rules: { name: [{ required: true, message: '地区名称不能为空', trigger: 'blur' }],
-        currencyCode: [{ required: true, message: '地区货币不能为空', trigger: 'blur' }],
-        code: [{ required: true, message: '地区代码，如 CN、US、JP 等不能为空', trigger: 'blur' }],
-        isActive: [{ required: true, message: '是否启用：1=启用，0=禁用不能为空', trigger: 'blur' }]
-      }
+      rules: {}
     }
   },
   created() {
@@ -235,8 +253,8 @@ export default {
     /** 查询参数列表 */
     getList() {
       this.loading = true
-      listHsConfigRegions(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-        this.hsConfigRegionsList = response.data.list
+      listHsReceivingAccounts(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+        this.hsReceivingAccountsList = response.data.list
         this.total = response.data.count
         this.loading = false
       }
@@ -252,10 +270,23 @@ export default {
       this.form = {
 
         id: undefined,
-        name: undefined,
+        merchantId: undefined,
+        bankId: undefined,
+        accountName: undefined,
+        accountNumber: undefined,
         currencyCode: undefined,
-        code: undefined,
-        isActive: undefined
+        minAmount: undefined,
+        maxAmount: undefined,
+        dailyLimit: undefined,
+        isDefault: undefined,
+        autoTransferEnabled: undefined,
+        autoTransferThreshold: undefined,
+        riskThresholdAmount: undefined,
+        status: undefined,
+        interfaceType: undefined,
+        interfaceConfig: undefined,
+        allowedCountries: undefined,
+        note: undefined
       }
       this.resetForm('form')
     },
@@ -282,7 +313,7 @@ export default {
     handleAdd() {
       this.reset()
       this.open = true
-      this.title = '添加系统地区表（注册地区选择）'
+      this.title = '添加收款账号/设置表 (关联卡商与银行或通道)'
       this.isEdit = false
     },
     // 多选框选中数据
@@ -296,10 +327,10 @@ export default {
       this.reset()
       const id =
                 row.id || this.ids
-      getHsConfigRegions(id).then(response => {
+      getHsReceivingAccounts(id).then(response => {
         this.form = response.data
         this.open = true
-        this.title = '修改系统地区表（注册地区选择）'
+        this.title = '修改收款账号/设置表 (关联卡商与银行或通道)'
         this.isEdit = true
       })
     },
@@ -308,7 +339,7 @@ export default {
       this.$refs['form'].validate(valid => {
         if (valid) {
           if (this.form.id !== undefined) {
-            updateHsConfigRegions(this.form).then(response => {
+            updateHsReceivingAccounts(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess(response.msg)
                 this.open = false
@@ -318,7 +349,7 @@ export default {
               }
             })
           } else {
-            addHsConfigRegions(this.form).then(response => {
+            addHsReceivingAccounts(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess(response.msg)
                 this.open = false
@@ -340,7 +371,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        return delHsConfigRegions({ 'ids': Ids })
+        return delHsReceivingAccounts({ 'ids': Ids })
       }).then((response) => {
         if (response.code === 200) {
           this.msgSuccess(response.msg)

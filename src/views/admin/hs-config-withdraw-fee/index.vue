@@ -4,25 +4,33 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-          <el-form-item label="地区名称" prop="name"><el-input
-            v-model="queryParams.name"
-            placeholder="请输入地区名称"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="地区货币" prop="currencyCode"><el-input
+          <el-form-item label="币种代码，如 USD/CNY/USDT" prop="currencyCode"><el-input
             v-model="queryParams.currencyCode"
-            placeholder="请输入地区货币"
+            placeholder="请输入币种代码，如 USD/CNY/USDT"
             clearable
             size="small"
             @keyup.enter.native="handleQuery"
           />
           </el-form-item>
-          <el-form-item label="地区代码，如 CN、US、JP 等" prop="code"><el-input
-            v-model="queryParams.code"
-            placeholder="请输入地区代码，如 CN、US、JP 等"
+          <el-form-item label="最小提现金额" prop="minAmount"><el-input
+            v-model="queryParams.minAmount"
+            placeholder="请输入最小提现金额"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="最大提现金额" prop="maxAmount"><el-input
+            v-model="queryParams.maxAmount"
+            placeholder="请输入最大提现金额"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="手续费率（例如 0.015 表示 1.5%）" prop="feeRate"><el-input
+            v-model="queryParams.feeRate"
+            placeholder="请输入手续费率（例如 0.015 表示 1.5%）"
             clearable
             size="small"
             @keyup.enter.native="handleQuery"
@@ -46,7 +54,7 @@
         <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:hsConfigRegions:add']"
+              v-permisaction="['admin:hsConfigWithdrawFee:add']"
               type="primary"
               icon="el-icon-plus"
               size="mini"
@@ -56,7 +64,7 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:hsConfigRegions:edit']"
+              v-permisaction="['admin:hsConfigWithdrawFee:edit']"
               type="success"
               icon="el-icon-edit"
               size="mini"
@@ -67,7 +75,7 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:hsConfigRegions:remove']"
+              v-permisaction="['admin:hsConfigWithdrawFee:remove']"
               type="danger"
               icon="el-icon-delete"
               size="mini"
@@ -78,21 +86,26 @@
           </el-col>
         </el-row>
 
-        <el-table v-loading="loading" :data="hsConfigRegionsList" @selection-change="handleSelectionChange">
+        <el-table v-loading="loading" :data="hsConfigWithdrawFeeList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" /><el-table-column
-            label="地区名称"
-            align="center"
-            prop="name"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="地区货币"
+            label="币种代码，如 USD/CNY/USDT"
             align="center"
             prop="currencyCode"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="地区代码，如 CN、US、JP 等"
+            label="最小提现金额"
             align="center"
-            prop="code"
+            prop="minAmount"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="最大提现金额"
+            align="center"
+            prop="maxAmount"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="手续费率（例如 0.015 表示 1.5%）"
+            align="center"
+            prop="feeRate"
             :show-overflow-tooltip="true"
           /><el-table-column
             label="是否启用：1=启用，0=禁用"
@@ -104,7 +117,7 @@
             <template slot-scope="scope">
               <el-button
                 slot="reference"
-                v-permisaction="['admin:hsConfigRegions:edit']"
+                v-permisaction="['admin:hsConfigWithdrawFee:edit']"
                 size="mini"
                 type="text"
                 icon="el-icon-edit"
@@ -119,7 +132,7 @@
               >
                 <el-button
                   slot="reference"
-                  v-permisaction="['admin:hsConfigRegions:remove']"
+                  v-permisaction="['admin:hsConfigWithdrawFee:remove']"
                   size="mini"
                   type="text"
                   icon="el-icon-delete"
@@ -142,22 +155,28 @@
         <el-dialog :title="title" :visible.sync="open" width="500px">
           <el-form ref="form" :model="form" :rules="rules" label-width="80px">
 
-            <el-form-item label="地区名称" prop="name">
-              <el-input
-                v-model="form.name"
-                placeholder="地区名称"
-              />
-            </el-form-item>
-            <el-form-item label="地区货币" prop="currencyCode">
+            <el-form-item label="币种代码，如 USD/CNY/USDT" prop="currencyCode">
               <el-input
                 v-model="form.currencyCode"
-                placeholder="地区货币"
+                placeholder="币种代码，如 USD/CNY/USDT"
               />
             </el-form-item>
-            <el-form-item label="地区代码，如 CN、US、JP 等" prop="code">
+            <el-form-item label="最小提现金额" prop="minAmount">
               <el-input
-                v-model="form.code"
-                placeholder="地区代码，如 CN、US、JP 等"
+                v-model="form.minAmount"
+                placeholder="最小提现金额"
+              />
+            </el-form-item>
+            <el-form-item label="最大提现金额" prop="maxAmount">
+              <el-input
+                v-model="form.maxAmount"
+                placeholder="最大提现金额"
+              />
+            </el-form-item>
+            <el-form-item label="手续费率（例如 0.015 表示 1.5%）" prop="feeRate">
+              <el-input
+                v-model="form.feeRate"
+                placeholder="手续费率（例如 0.015 表示 1.5%）"
               />
             </el-form-item>
             <el-form-item label="是否启用：1=启用，0=禁用" prop="isActive">
@@ -178,10 +197,10 @@
 </template>
 
 <script>
-import { addHsConfigRegions, delHsConfigRegions, getHsConfigRegions, listHsConfigRegions, updateHsConfigRegions } from '@/api/admin/hs-config-regions'
+import { addHsConfigWithdrawFee, delHsConfigWithdrawFee, getHsConfigWithdrawFee, listHsConfigWithdrawFee, updateHsConfigWithdrawFee } from '@/api/admin/hs-config-withdraw-fee'
 
 export default {
-  name: 'HsConfigRegions',
+  name: 'HsConfigWithdrawFee',
   components: {
   },
   data() {
@@ -203,7 +222,7 @@ export default {
       isEdit: false,
       // 类型数据字典
       typeOptions: [],
-      hsConfigRegionsList: [],
+      hsConfigWithdrawFeeList: [],
 
       // 关系表类型
 
@@ -211,9 +230,10 @@ export default {
       queryParams: {
         pageIndex: 1,
         pageSize: 10,
-        name: undefined,
         currencyCode: undefined,
-        code: undefined,
+        minAmount: undefined,
+        maxAmount: undefined,
+        feeRate: undefined,
         isActive: undefined
 
       },
@@ -221,9 +241,10 @@ export default {
       form: {
       },
       // 表单校验
-      rules: { name: [{ required: true, message: '地区名称不能为空', trigger: 'blur' }],
-        currencyCode: [{ required: true, message: '地区货币不能为空', trigger: 'blur' }],
-        code: [{ required: true, message: '地区代码，如 CN、US、JP 等不能为空', trigger: 'blur' }],
+      rules: { currencyCode: [{ required: true, message: '币种代码，如 USD/CNY/USDT不能为空', trigger: 'blur' }],
+        minAmount: [{ required: true, message: '最小提现金额不能为空', trigger: 'blur' }],
+        maxAmount: [{ required: true, message: '最大提现金额不能为空', trigger: 'blur' }],
+        feeRate: [{ required: true, message: '手续费率（例如 0.015 表示 1.5%）不能为空', trigger: 'blur' }],
         isActive: [{ required: true, message: '是否启用：1=启用，0=禁用不能为空', trigger: 'blur' }]
       }
     }
@@ -235,8 +256,8 @@ export default {
     /** 查询参数列表 */
     getList() {
       this.loading = true
-      listHsConfigRegions(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-        this.hsConfigRegionsList = response.data.list
+      listHsConfigWithdrawFee(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+        this.hsConfigWithdrawFeeList = response.data.list
         this.total = response.data.count
         this.loading = false
       }
@@ -252,9 +273,10 @@ export default {
       this.form = {
 
         id: undefined,
-        name: undefined,
         currencyCode: undefined,
-        code: undefined,
+        minAmount: undefined,
+        maxAmount: undefined,
+        feeRate: undefined,
         isActive: undefined
       }
       this.resetForm('form')
@@ -282,7 +304,7 @@ export default {
     handleAdd() {
       this.reset()
       this.open = true
-      this.title = '添加系统地区表（注册地区选择）'
+      this.title = '添加提现费率与限制配置表'
       this.isEdit = false
     },
     // 多选框选中数据
@@ -296,10 +318,10 @@ export default {
       this.reset()
       const id =
                 row.id || this.ids
-      getHsConfigRegions(id).then(response => {
+      getHsConfigWithdrawFee(id).then(response => {
         this.form = response.data
         this.open = true
-        this.title = '修改系统地区表（注册地区选择）'
+        this.title = '修改提现费率与限制配置表'
         this.isEdit = true
       })
     },
@@ -308,7 +330,7 @@ export default {
       this.$refs['form'].validate(valid => {
         if (valid) {
           if (this.form.id !== undefined) {
-            updateHsConfigRegions(this.form).then(response => {
+            updateHsConfigWithdrawFee(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess(response.msg)
                 this.open = false
@@ -318,7 +340,7 @@ export default {
               }
             })
           } else {
-            addHsConfigRegions(this.form).then(response => {
+            addHsConfigWithdrawFee(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess(response.msg)
                 this.open = false
@@ -340,7 +362,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        return delHsConfigRegions({ 'ids': Ids })
+        return delHsConfigWithdrawFee({ 'ids': Ids })
       }).then((response) => {
         if (response.code === 200) {
           this.msgSuccess(response.msg)
