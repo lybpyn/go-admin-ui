@@ -4,6 +4,22 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
+          <el-form-item label="排序顺序" prop="sortOrder"><el-input
+            v-model="queryParams.sortOrder"
+            placeholder="请输入排序顺序"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="是否启用" prop="isActive"><el-input
+            v-model="queryParams.isActive"
+            placeholder="请输入是否启用"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
 
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -66,16 +82,6 @@
             label="等级特权配置(JSON格式)"
             align="center"
             prop="levelPrivileges"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="一级分成奖励"
-            align="center"
-            prop="firstInviteCommossions"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="二级分成奖励"
-            align="center"
-            prop="secondInviteCommossions"
             :show-overflow-tooltip="true"
           /><el-table-column
             label="排序顺序"
@@ -154,18 +160,6 @@
                 placeholder="等级特权配置(JSON格式)"
               />
             </el-form-item>
-            <el-form-item label="一级分成奖励" prop="firstInviteCommossions">
-              <el-input
-                v-model="form.firstInviteCommossions"
-                placeholder="一级分成奖励"
-              />
-            </el-form-item>
-            <el-form-item label="二级分成奖励" prop="secondInviteCommossions">
-              <el-input
-                v-model="form.secondInviteCommossions"
-                placeholder="二级分成奖励"
-              />
-            </el-form-item>
             <el-form-item label="排序顺序" prop="sortOrder">
               <el-input
                 v-model="form.sortOrder"
@@ -222,14 +216,18 @@ export default {
       // 查询参数
       queryParams: {
         pageIndex: 1,
-        pageSize: 10
+        pageSize: 10,
+        sortOrder: undefined,
+        isActive: undefined
 
       },
       // 表单参数
       form: {
       },
       // 表单校验
-      rules: {}
+      rules: { sortOrder: [{ required: true, message: '排序顺序不能为空', trigger: 'blur' }],
+        isActive: [{ required: true, message: '是否启用不能为空', trigger: 'blur' }]
+      }
     }
   },
   created() {
@@ -260,8 +258,6 @@ export default {
         upExperience: undefined,
         levelIcon: undefined,
         levelPrivileges: undefined,
-        firstInviteCommossions: undefined,
-        secondInviteCommossions: undefined,
         sortOrder: undefined,
         isActive: undefined
       }

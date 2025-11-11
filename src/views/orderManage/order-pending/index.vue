@@ -4,14 +4,16 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-
+          <el-form-item label="用户ID:">
+            <el-input v-model="queryParams.userId" placeholder="请输入用户ID" clearable size="small" @keyup.enter.native="handleQuery" />
+          </el-form-item>
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
             <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
           </el-form-item>
         </el-form>
 
-        <el-row :gutter="10" class="mb8">
+        <!-- <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
             <el-button
               v-permisaction="['admin:ordUserOrders:add']"
@@ -44,7 +46,7 @@
             >删除
             </el-button>
           </el-col>
-        </el-row>
+        </el-row> -->
 
         <el-table v-loading="loading" :data="ordUserOrdersList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" /><el-table-column
@@ -68,12 +70,12 @@
             prop="orderNo"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="礼品卡id"
+            label="礼品卡"
             align="center"
             prop="giftcardId"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="卡片类型(Physical,Code,Receipy,Cash Receipt)"
+            label="卡片类型"
             align="center"
             prop="cardType"
             :show-overflow-tooltip="true"
@@ -88,7 +90,7 @@
             prop="balance"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="币种，例如 USD, CNY"
+            label="币种"
             align="center"
             prop="currency"
             :show-overflow-tooltip="true"
@@ -102,12 +104,22 @@
             align="center"
             prop="rate"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="订单状态: 0=待支付,1=已支付,2=已发卡,3=已完成,4=已取消"
+          />
+          <el-table-column
+            label="订单状态"
             align="center"
             prop="status"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          >
+            <template slot-scope="scope">
+              <el-tag v-if="scope.row.status == 0" type="info">待支付</el-tag>
+              <el-tag v-if="scope.row.status == 1" type="success">已支付</el-tag>
+              <el-tag v-if="scope.row.status == 2" type="success">已发卡</el-tag>
+              <el-tag v-if="scope.row.status == 3" type="success">已完成</el-tag>
+              <el-tag v-if="scope.row.status == 4" type="danger">已取消</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column
             label=""
             align="center"
             prop="cardExtra"
@@ -131,9 +143,18 @@
               <span>{{ parseTime(scope.row.canceledAt) }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+          <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="200">
             <template slot-scope="scope">
               <el-button
+                slot="reference"
+                size="mini"
+                type="text"
+                icon="el-icon-edit"
+                @click="handleProcess(scope.row)"
+              >
+                处理
+              </el-button>
+              <!-- <el-button
                 slot="reference"
                 v-permisaction="['admin:ordUserOrders:edit']"
                 size="mini"
@@ -156,7 +177,7 @@
                   icon="el-icon-delete"
                 >删除
                 </el-button>
-              </el-popconfirm>
+              </el-popconfirm> -->
             </template>
           </el-table-column>
         </el-table>
@@ -239,11 +260,14 @@
                 placeholder="汇率"
               />
             </el-form-item>
-            <el-form-item label="订单状态: 0=待支付,1=已支付,2=已发卡,3=已完成,4=已取消" prop="status">
-              <el-input
-                v-model="form.status"
-                placeholder="订单状态: 0=待支付,1=已支付,2=已发卡,3=已完成,4=已取消"
-              />
+            <el-form-item label="订单状态" prop="status">
+              <el-select v-model="form.status" placeholder="请选择订单状态">
+                <el-option value="0">待支付</el-option>
+                <el-option value="1">已支付</el-option>
+                <el-option value="2">已发卡</el-option>
+                <el-option value="3">已完成</el-option>
+                <el-option value="4">已取消</el-option>
+              </el-select>
             </el-form-item>
             <el-form-item label="" prop="cardExtra">
               <el-input
@@ -277,7 +301,7 @@
 </template>
 
 <script>
-import { addOrdUserOrders, delOrdUserOrders, getOrdUserOrders, listOrdUserOrders, updateOrdUserOrders } from '@/api/admin/ord-user-orders'
+import { addOrdUserOrders, delOrdUserOrders, getOrdUserOrders, listOrdUserOrders, updateOrdUserOrders, acceptOrdUserOrders } from '@/api/admin/ord-user-orders'
 
 export default {
   name: 'OrdUserOrders',
@@ -309,8 +333,8 @@ export default {
       // 查询参数
       queryParams: {
         pageIndex: 1,
-        pageSize: 10
-
+        pageSize: 10,
+        status: 1
       },
       // 表单参数
       form: {
@@ -452,6 +476,21 @@ export default {
           this.msgError(response.msg)
         }
       }).catch(function() {
+      })
+    },
+    /** 处理订单处理按钮操作 */
+    handleProcess(row) {
+      acceptOrdUserOrders(row.id).then(response => {
+        if (response.code === 200) {
+          this.$router.push({
+            path: '/orderManage/order-process',
+            query: {
+              id: row.id
+            }
+          })
+        } else {
+          this.msgError(response.msg)
+        }
       })
     }
   }

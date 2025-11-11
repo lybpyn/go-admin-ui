@@ -4,6 +4,38 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
+          <el-form-item label="地区名称" prop="name"><el-input
+            v-model="queryParams.name"
+            placeholder="请输入地区名称"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="地区货币" prop="currencyCode"><el-input
+            v-model="queryParams.currencyCode"
+            placeholder="请输入地区货币"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="地区代码，如 CN、US、JP 等" prop="code"><el-input
+            v-model="queryParams.code"
+            placeholder="请输入地区代码，如 CN、US、JP 等"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="是否启用：1=启用，0=禁用" prop="isActive"><el-input
+            v-model="queryParams.isActive"
+            placeholder="请输入是否启用：1=启用，0=禁用"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
 
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -47,20 +79,22 @@
         </el-row>
 
         <el-table v-loading="loading" :data="hsConfigRegionsList" @selection-change="handleSelectionChange">
-          <el-table-column type="selection" width="55" align="center" />
-          <el-table-column
+          <el-table-column type="selection" width="55" align="center" /><el-table-column
             label="地区名称"
             align="center"
             prop="name"
             :show-overflow-tooltip="true"
-          />
-          <el-table-column
-            label="地区代码"
+          /><el-table-column
+            label="地区货币"
+            align="center"
+            prop="currencyCode"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="地区代码，如 CN、US、JP 等"
             align="center"
             prop="code"
             :show-overflow-tooltip="true"
-          />
-          <el-table-column
+          /><el-table-column
             label="是否启用：1=启用，0=禁用"
             align="center"
             prop="isActive"
@@ -112,6 +146,12 @@
               <el-input
                 v-model="form.name"
                 placeholder="地区名称"
+              />
+            </el-form-item>
+            <el-form-item label="地区货币" prop="currencyCode">
+              <el-input
+                v-model="form.currencyCode"
+                placeholder="地区货币"
               />
             </el-form-item>
             <el-form-item label="地区代码，如 CN、US、JP 等" prop="code">
@@ -170,14 +210,22 @@ export default {
       // 查询参数
       queryParams: {
         pageIndex: 1,
-        pageSize: 10
+        pageSize: 10,
+        name: undefined,
+        currencyCode: undefined,
+        code: undefined,
+        isActive: undefined
 
       },
       // 表单参数
       form: {
       },
       // 表单校验
-      rules: {}
+      rules: { name: [{ required: true, message: '地区名称不能为空', trigger: 'blur' }],
+        currencyCode: [{ required: true, message: '地区货币不能为空', trigger: 'blur' }],
+        code: [{ required: true, message: '地区代码，如 CN、US、JP 等不能为空', trigger: 'blur' }],
+        isActive: [{ required: true, message: '是否启用：1=启用，0=禁用不能为空', trigger: 'blur' }]
+      }
     }
   },
   created() {
@@ -205,6 +253,7 @@ export default {
 
         id: undefined,
         name: undefined,
+        currencyCode: undefined,
         code: undefined,
         isActive: undefined
       }

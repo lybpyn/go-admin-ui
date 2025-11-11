@@ -114,9 +114,9 @@
                 placeholder="账号（可能为卡号/IBAN/虚拟账号）"
               />
             </el-form-item>
-            <el-form-item label="货币代码 (USD/CNY/...)" prop="currency">
+            <el-form-item label="货币代码 (USD/CNY/...)" prop="currencyCode">
               <el-input
-                v-model="form.currency"
+                v-model="form.currencyCode"
                 placeholder="货币代码 (USD/CNY/...)"
               />
             </el-form-item>
@@ -183,7 +183,7 @@
             <el-form-item label="允许接收国家数组" prop="allowedCountries">
               <el-input
                 v-model="form.allowedCountries"
-                placeholder="允许接收国家数组，例如 ['CN','US']"
+                placeholder="允许接收国家数组"
               />
             </el-form-item>
             <el-form-item label="" prop="note">
@@ -274,7 +274,7 @@ export default {
         bankId: undefined,
         accountName: undefined,
         accountNumber: undefined,
-        currency: undefined,
+        currencyCode: undefined,
         minAmount: undefined,
         maxAmount: undefined,
         dailyLimit: undefined,

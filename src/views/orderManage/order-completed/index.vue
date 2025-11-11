@@ -4,41 +4,8 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-          <el-form-item label="用户名" prop="username"><el-input
-            v-model="queryParams.username"
-            placeholder="请输入用户名"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="姓" prop="firstname"><el-input
-            v-model="queryParams.firstname"
-            placeholder="请输入"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="名" prop="lastname"><el-input
-            v-model="queryParams.lastname"
-            placeholder="请输入"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="状态" prop="status">
-            <el-select
-              v-model="queryParams.status"
-              placeholder="请选择状态"
-              clearable
-              size="small"
-              @keyup.enter.native="handleQuery"
-            >
-              <el-option label="正常" value="1" />
-              <el-option label="封禁" value="0" />
-            </el-select>
+          <el-form-item label="用户ID:">
+            <el-input v-model="queryParams.userId" placeholder="请输入用户ID" clearable size="small" @keyup.enter.native="handleQuery" />
           </el-form-item>
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -46,10 +13,10 @@
           </el-form-item>
         </el-form>
 
-        <el-row :gutter="10" class="mb8">
+        <!-- <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:hsUsers:add']"
+              v-permisaction="['admin:ordUserOrders:add']"
               type="primary"
               icon="el-icon-plus"
               size="mini"
@@ -59,7 +26,7 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:hsUsers:edit']"
+              v-permisaction="['admin:ordUserOrders:edit']"
               type="success"
               icon="el-icon-edit"
               size="mini"
@@ -70,7 +37,7 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:hsUsers:remove']"
+              v-permisaction="['admin:ordUserOrders:remove']"
               type="danger"
               icon="el-icon-delete"
               size="mini"
@@ -79,113 +46,118 @@
             >删除
             </el-button>
           </el-col>
-        </el-row>
+        </el-row> -->
 
-        <el-table v-loading="loading" :data="hsUsersList" @selection-change="handleSelectionChange">
+        <el-table v-loading="loading" :data="ordUserOrdersList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" /><el-table-column
-            label="用户名"
+            label="用户ID"
             align="center"
-            prop="username"
+            prop="userId"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="密码"
-            align="center"
-            prop="passwordHash"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="名"
-            align="center"
-            prop="firstname"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="姓"
-            align="center"
-            prop="lastname"
-            :show-overflow-tooltip="true"
-          />
-          <el-table-column
-            label="头像URL"
-            align="center"
-            prop="avatar"
-            :show-overflow-tooltip="true"
-          >
-            <template slot-scope="scope">
-              <el-image
-                :src="scope.row.avatar"
-                fit="fill"
-                :preview-src-list="[scope.row.avatar]"
-                style="width: 40px; height: 40px; border-radius: 50%;"
-              />
-            </template>
-          </el-table-column>
-          <el-table-column
-            label="可用余额"
-            align="center"
-            prop="balance"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="冻结余额"
-            align="center"
-            prop="frozenBalance"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="用户等级ID"
-            align="center"
-            prop="levelId"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="当前经验"
-            align="center"
-            prop="experience"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="区域id"
+            label="地区ID"
             align="center"
             prop="regionId"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="累计经验"
+            label="分类ID"
             align="center"
-            prop="totalExperience"
+            prop="categoryId"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="邀请码"
+            label="订单号"
             align="center"
-            prop="inviteCode"
+            prop="orderNo"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="礼品卡"
+            align="center"
+            prop="giftcardId"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="卡片类型"
+            align="center"
+            prop="cardType"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="礼品卡卡号验证码"
+            align="center"
+            prop="giftCardCode"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="卡余额"
+            align="center"
+            prop="balance"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="币种"
+            align="center"
+            prop="currency"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="折扣"
+            align="center"
+            prop="discountRate"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="汇率"
+            align="center"
+            prop="rate"
             :show-overflow-tooltip="true"
           />
           <el-table-column
-            label="状态"
+            label="订单状态"
             align="center"
             prop="status"
             :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
-              <el-tag v-if="scope.row.status == 1" type="info">正常</el-tag>
-              <el-tag v-if="scope.row.status == 0" type="danger">封禁</el-tag>
+              <el-tag v-if="scope.row.status == 0" type="info">待支付</el-tag>
+              <el-tag v-if="scope.row.status == 1" type="success">已支付</el-tag>
+              <el-tag v-if="scope.row.status == 2" type="success">已发卡</el-tag>
+              <el-tag v-if="scope.row.status == 3" type="success">已完成</el-tag>
+              <el-tag v-if="scope.row.status == 4" type="danger">已取消</el-tag>
             </template>
           </el-table-column>
           <el-table-column
-            label="注册时间"
+            label=""
             align="center"
-            prop="processedAt"
+            prop="cardExtra"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="完成时间"
+            align="center"
+            prop="completedAt"
             :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
-              <span>{{ parseTime(scope.row.createdAt) }}</span>
+              <span>{{ parseTime(scope.row.completedAt) }}</span>
+            </template>
+          </el-table-column><el-table-column
+            label="取消时间"
+            align="center"
+            prop="canceledAt"
+            :show-overflow-tooltip="true"
+          >
+            <template slot-scope="scope">
+              <span>{{ parseTime(scope.row.canceledAt) }}</span>
             </template>
           </el-table-column>
-          <!-- <el-table-column
-            label="版本"
-            align="center"
-            prop="version"
-            :show-overflow-tooltip="true"
-          /> -->
-          <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+          <!-- <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="200">
             <template slot-scope="scope">
               <el-button
                 slot="reference"
-                v-permisaction="['admin:hsUsers:edit']"
+                v-permisaction="['admin:ordUserOrders:edit']"
+                size="mini"
+                type="text"
+                icon="el-icon-edit"
+                @click="handleUpdate(scope.row)"
+              >
+                处理
+              </el-button>
+              <el-button
+                slot="reference"
+                v-permisaction="['admin:ordUserOrders:edit']"
                 size="mini"
                 type="text"
                 icon="el-icon-edit"
@@ -200,7 +172,7 @@
               >
                 <el-button
                   slot="reference"
-                  v-permisaction="['admin:hsUsers:remove']"
+                  v-permisaction="['admin:ordUserOrders:remove']"
                   size="mini"
                   type="text"
                   icon="el-icon-delete"
@@ -208,7 +180,7 @@
                 </el-button>
               </el-popconfirm>
             </template>
-          </el-table-column>
+          </el-table-column> -->
         </el-table>
 
         <pagination
@@ -223,28 +195,100 @@
         <el-dialog :title="title" :visible.sync="open" width="500px">
           <el-form ref="form" :model="form" :rules="rules" label-width="80px">
 
-            <el-form-item label="名" prop="lastname">
+            <el-form-item label="用户ID" prop="userId">
               <el-input
-                v-model="form.lastname"
+                v-model="form.userId"
+                placeholder="用户ID"
+              />
+            </el-form-item>
+            <el-form-item label="地区ID" prop="regionId">
+              <el-input
+                v-model="form.regionId"
+                placeholder="地区ID"
+              />
+            </el-form-item>
+            <el-form-item label="分类ID" prop="categoryId">
+              <el-input
+                v-model="form.categoryId"
+                placeholder="分类ID"
+              />
+            </el-form-item>
+            <el-form-item label="订单号" prop="orderNo">
+              <el-input
+                v-model="form.orderNo"
+                placeholder="订单号"
+              />
+            </el-form-item>
+            <el-form-item label="礼品卡id" prop="giftcardId">
+              <el-input
+                v-model="form.giftcardId"
+                placeholder="礼品卡id"
+              />
+            </el-form-item>
+            <el-form-item label="卡片类型(Physical,Code,Receipy,Cash Receipt)" prop="cardType">
+              <el-input
+                v-model="form.cardType"
+                placeholder="卡片类型(Physical,Code,Receipy,Cash Receipt)"
+              />
+            </el-form-item>
+            <el-form-item label="礼品卡卡号验证码" prop="giftCardCode">
+              <el-input
+                v-model="form.giftCardCode"
+                placeholder="礼品卡卡号验证码"
+              />
+            </el-form-item>
+            <el-form-item label="卡余额" prop="balance">
+              <el-input
+                v-model="form.balance"
+                placeholder="卡余额"
+              />
+            </el-form-item>
+            <el-form-item label="币种，例如 USD, CNY" prop="currency">
+              <el-input
+                v-model="form.currency"
+                placeholder="币种，例如 USD, CNY"
+              />
+            </el-form-item>
+            <el-form-item label="折扣" prop="discountRate">
+              <el-input
+                v-model="form.discountRate"
+                placeholder="折扣"
+              />
+            </el-form-item>
+            <el-form-item label="汇率" prop="rate">
+              <el-input
+                v-model="form.rate"
+                placeholder="汇率"
+              />
+            </el-form-item>
+            <el-form-item label="订单状态" prop="status">
+              <el-select v-model="form.status" placeholder="请选择订单状态">
+                <el-option value="0">待支付</el-option>
+                <el-option value="1">已支付</el-option>
+                <el-option value="2">已发卡</el-option>
+                <el-option value="3">已完成</el-option>
+                <el-option value="4">已取消</el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="" prop="cardExtra">
+              <el-input
+                v-model="form.cardExtra"
                 placeholder=""
               />
             </el-form-item>
-            <el-form-item label="可用余额" prop="balance">
-              <el-input
-                v-model="form.balance"
-                placeholder="可用余额"
+            <el-form-item label="完成时间" prop="completedAt">
+              <el-date-picker
+                v-model="form.completedAt"
+                type="datetime"
+                placeholder="选择日期"
               />
             </el-form-item>
-            <el-form-item label="状态" prop="status">
-              <el-select
-                v-model="form.status"
-                placeholder="请选择状态"
-                clearable
-                size="small"
-              >
-                <el-option label="正常" value="1" />
-                <el-option label="封禁" value="0" />
-              </el-select>
+            <el-form-item label="取消时间" prop="canceledAt">
+              <el-date-picker
+                v-model="form.canceledAt"
+                type="datetime"
+                placeholder="选择日期"
+              />
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
@@ -258,10 +302,10 @@
 </template>
 
 <script>
-import { addHsUsers, delHsUsers, getHsUsers, listHsUsers, updateHsUsers } from '@/api/admin/hs-users'
+import { addOrdUserOrders, delOrdUserOrders, getOrdUserOrders, listOrdUserOrders, updateOrdUserOrders } from '@/api/admin/ord-user-orders'
 
 export default {
-  name: 'HsUsers',
+  name: 'OrdUserOrders',
   components: {
   },
   data() {
@@ -283,7 +327,7 @@ export default {
       isEdit: false,
       // 类型数据字典
       typeOptions: [],
-      hsUsersList: [],
+      ordUserOrdersList: [],
 
       // 关系表类型
 
@@ -291,41 +335,13 @@ export default {
       queryParams: {
         pageIndex: 1,
         pageSize: 10,
-        username: undefined,
-        passwordHash: undefined,
-        firstname: undefined,
-        lastname: undefined,
-        avatar: undefined,
-        balance: undefined,
-        frozenBalance: undefined,
-        levelId: undefined,
-        experience: undefined,
-        regionId: undefined,
-        totalExperience: undefined,
-        inviteCode: undefined,
-        status: undefined,
-        version: undefined
-
+        status: 3
       },
       // 表单参数
       form: {
       },
       // 表单校验
-      rules: { username: [{ required: true, message: '用户名（可选展示用）不能为空', trigger: 'blur' }],
-        passwordHash: [{ required: true, message: '不能为空', trigger: 'blur' }],
-        firstname: [{ required: true, message: '不能为空', trigger: 'blur' }],
-        lastname: [{ required: true, message: '不能为空', trigger: 'blur' }],
-        avatar: [{ required: true, message: '头像URL不能为空', trigger: 'blur' }],
-        balance: [{ required: true, message: '可用余额不能为空', trigger: 'blur' }],
-        frozenBalance: [{ required: true, message: '冻结余额不能为空', trigger: 'blur' }],
-        levelId: [{ required: true, message: '用户等级ID不能为空', trigger: 'blur' }],
-        experience: [{ required: true, message: '当前经验不能为空', trigger: 'blur' }],
-        regionId: [{ required: true, message: '区域id不能为空', trigger: 'blur' }],
-        totalExperience: [{ required: true, message: '累计经验不能为空', trigger: 'blur' }],
-        inviteCode: [{ required: true, message: '不能为空', trigger: 'blur' }],
-        status: [{ required: true, message: '状态：1正常，0封禁不能为空', trigger: 'blur' }],
-        version: [{ required: true, message: '不能为空', trigger: 'blur' }]
-      }
+      rules: {}
     }
   },
   created() {
@@ -335,8 +351,8 @@ export default {
     /** 查询参数列表 */
     getList() {
       this.loading = true
-      listHsUsers(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-        this.hsUsersList = response.data.list
+      listOrdUserOrders(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+        this.ordUserOrdersList = response.data.list
         this.total = response.data.count
         this.loading = false
       }
@@ -352,9 +368,21 @@ export default {
       this.form = {
 
         id: undefined,
-        lastname: undefined,
-        avatar: undefined,
-        status: undefined
+        userId: undefined,
+        regionId: undefined,
+        categoryId: undefined,
+        orderNo: undefined,
+        giftcardId: undefined,
+        cardType: undefined,
+        giftCardCode: undefined,
+        balance: undefined,
+        currency: undefined,
+        discountRate: undefined,
+        rate: undefined,
+        status: undefined,
+        cardExtra: undefined,
+        completedAt: undefined,
+        canceledAt: undefined
       }
       this.resetForm('form')
     },
@@ -381,7 +409,7 @@ export default {
     handleAdd() {
       this.reset()
       this.open = true
-      this.title = '添加用户主表'
+      this.title = '添加礼品卡订单表'
       this.isEdit = false
     },
     // 多选框选中数据
@@ -395,10 +423,10 @@ export default {
       this.reset()
       const id =
                 row.id || this.ids
-      getHsUsers(id).then(response => {
+      getOrdUserOrders(id).then(response => {
         this.form = response.data
         this.open = true
-        this.title = '修改用户主表'
+        this.title = '修改礼品卡订单表'
         this.isEdit = true
       })
     },
@@ -407,7 +435,7 @@ export default {
       this.$refs['form'].validate(valid => {
         if (valid) {
           if (this.form.id !== undefined) {
-            updateHsUsers(this.form).then(response => {
+            updateOrdUserOrders(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess(response.msg)
                 this.open = false
@@ -417,7 +445,7 @@ export default {
               }
             })
           } else {
-            addHsUsers(this.form).then(response => {
+            addOrdUserOrders(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess(response.msg)
                 this.open = false
@@ -439,7 +467,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        return delHsUsers({ 'ids': Ids })
+        return delOrdUserOrders({ 'ids': Ids })
       }).then((response) => {
         if (response.code === 200) {
           this.msgSuccess(response.msg)

@@ -3,26 +3,26 @@
   <BasicLayout>
     <template #wrapper>
       <el-card class="box-card">
-        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-          <el-form-item label="用户ID" prop="userId"><el-input
-            v-model="queryParams.userId"
-            placeholder="请输入用户ID"
+        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="100px">
+          <!-- <el-form-item label="用户" prop="cardHolderName"><el-input
+            v-model="queryParams.cardHolderName"
+            placeholder="请输入用户"
             clearable
             size="small"
             @keyup.enter.native="handleQuery"
           />
-          </el-form-item>
-          <el-form-item label="银行ID（关联hs_banks表）" prop="bankId"><el-input
+          </el-form-item> -->
+          <el-form-item label="银行ID" prop="bankId"><el-input
             v-model="queryParams.bankId"
-            placeholder="请输入银行ID（关联hs_banks表）"
+            placeholder="请输入银行ID"
             clearable
             size="small"
             @keyup.enter.native="handleQuery"
           />
           </el-form-item>
-          <el-form-item label="银行卡号（加密存储）" prop="cardNumber"><el-input
+          <el-form-item label="银行卡号" prop="cardNumber"><el-input
             v-model="queryParams.cardNumber"
-            placeholder="请输入银行卡号（加密存储）"
+            placeholder="请输入银行卡号"
             clearable
             size="small"
             @keyup.enter.native="handleQuery"
@@ -44,7 +44,7 @@
         </el-form>
 
         <el-row :gutter="10" class="mb8">
-          <el-col :span="1.5">
+          <!-- <el-col :span="1.5">
             <el-button
               v-permisaction="['admin:hsUserBankCards:add']"
               type="primary"
@@ -64,7 +64,7 @@
               @click="handleUpdate"
             >修改
             </el-button>
-          </el-col>
+          </el-col> -->
           <el-col :span="1.5">
             <el-button
               v-permisaction="['admin:hsUserBankCards:remove']"
@@ -85,7 +85,7 @@
             prop="userId"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="银行ID（关联hs_banks表）"
+            label="银行ID"
             align="center"
             prop="bankId"
             :show-overflow-tooltip="true"
@@ -95,7 +95,7 @@
             prop="bankName"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="银行卡号（加密存储）"
+            label="银行卡号"
             align="center"
             prop="cardNumber"
             :show-overflow-tooltip="true"
@@ -104,12 +104,19 @@
             align="center"
             prop="cardHolderName"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="卡片类型：1=储蓄卡，2=信用卡"
+          />
+          <el-table-column
+            label="卡片类型"
             align="center"
             prop="cardType"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          >
+            <template slot-scope="scope">
+              <el-tag v-if="scope.row.cardType == 1">储蓄卡</el-tag>
+              <el-tag v-else>信用卡</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column
             label="开户行/支行名称"
             align="center"
             prop="branchName"
@@ -120,21 +127,35 @@
             prop="phone"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="身份证号（加密存储）"
+            label="身份证号"
             align="center"
             prop="idCard"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="是否默认银行卡：0=否，1=是"
+          />
+          <el-table-column
+            label="是否默认银行卡"
             align="center"
             prop="isDefault"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="状态：0=禁用，1=启用，2=审核中"
+          >
+            <template slot-scope="scope">
+              <el-tag v-if="scope.row.isDefault === 1" type="success">是</el-tag>
+              <el-tag v-else>否</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="状态"
             align="center"
             prop="status"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          >
+            <template slot-scope="scope">
+              <el-tag v-if="scope.row.status == 0" type="danger">禁用</el-tag>
+              <el-tag v-else-if="scope.row.status == 1" type="success">启用</el-tag>
+              <el-tag v-else>审核中</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column
             label="备注"
             align="center"
             prop="remark"

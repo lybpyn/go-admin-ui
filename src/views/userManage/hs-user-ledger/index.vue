@@ -12,9 +12,97 @@
             @keyup.enter.native="handleQuery"
           />
           </el-form-item>
+          <el-form-item label="ISO 4217，例如 USD/CNY" prop="currencyCode"><el-input
+            v-model="queryParams.currencyCode"
+            placeholder="请输入ISO 4217，例如 USD/CNY"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="1=入账(credit), -1=出账(debit)" prop="direction"><el-input
+            v-model="queryParams.direction"
+            placeholder="请输入1=入账(credit), -1=出账(debit)"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="本次发生额，>0" prop="amount"><el-input
+            v-model="queryParams.amount"
+            placeholder="请输入本次发生额，>0"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="记账前余额" prop="balanceBefore"><el-input
+            v-model="queryParams.balanceBefore"
+            placeholder="请输入记账前余额"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="记账后余额" prop="balanceAfter"><el-input
+            v-model="queryParams.balanceAfter"
+            placeholder="请输入记账后余额"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="业务类型：order_settlement/withdraw/withdraw_fee/withdraw_reversal/manual_adjust_*/freeze, unfreeze等" prop="bizType"><el-input
+            v-model="queryParams.bizType"
+            placeholder="请输入业务类型：order_settlement/withdraw/withdraw_fee/withdraw_reversal/manual_adjust_*/freeze, unfreeze等"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
           <el-form-item label="业务单号：例如订单号/提现单号" prop="bizId"><el-input
             v-model="queryParams.bizId"
             placeholder="请输入业务单号：例如订单号/提现单号"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="用于幂等控制：如 ORDER_SETTLED:{order_no}" prop="idempotencyKey"><el-input
+            v-model="queryParams.idempotencyKey"
+            placeholder="请输入用于幂等控制：如 ORDER_SETTLED:{order_no}"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="可选：引用表名" prop="refTable"><el-input
+            v-model="queryParams.refTable"
+            placeholder="请输入可选：引用表名"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="可选：引用ID" prop="refId"><el-input
+            v-model="queryParams.refId"
+            placeholder="请输入可选：引用ID"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="" prop="remark"><el-input
+            v-model="queryParams.remark"
+            placeholder="请输入"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="1=已入账，0=待入账，-1=冲正" prop="status"><el-input
+            v-model="queryParams.status"
+            placeholder="请输入1=已入账，0=待入账，-1=冲正"
             clearable
             size="small"
             @keyup.enter.native="handleQuery"
@@ -71,7 +159,7 @@
           /><el-table-column
             label="ISO 4217，例如 USD/CNY"
             align="center"
-            prop="currency"
+            prop="currencyCode"
             :show-overflow-tooltip="true"
           /><el-table-column
             label="1=入账(credit), -1=出账(debit)"
@@ -94,7 +182,7 @@
             prop="balanceAfter"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="业务类型：order_settlement/withdraw/withdraw_fee/withdraw_reversal/manual_adjust_* 等"
+            label="业务类型：order_settlement/withdraw/withdraw_fee/withdraw_reversal/manual_adjust_*/freeze, unfreeze等"
             align="center"
             prop="bizType"
             :show-overflow-tooltip="true"
@@ -215,7 +303,18 @@ export default {
         pageIndex: 1,
         pageSize: 10,
         userId: undefined,
-        bizId: undefined
+        currencyCode: undefined,
+        direction: undefined,
+        amount: undefined,
+        balanceBefore: undefined,
+        balanceAfter: undefined,
+        bizType: undefined,
+        bizId: undefined,
+        idempotencyKey: undefined,
+        refTable: undefined,
+        refId: undefined,
+        remark: undefined,
+        status: undefined
 
       },
       // 表单参数
@@ -223,7 +322,18 @@ export default {
       },
       // 表单校验
       rules: { userId: [{ required: true, message: '不能为空', trigger: 'blur' }],
-        bizId: [{ required: true, message: '业务单号：例如订单号/提现单号不能为空', trigger: 'blur' }]
+        currencyCode: [{ required: true, message: 'ISO 4217，例如 USD/CNY不能为空', trigger: 'blur' }],
+        direction: [{ required: true, message: '1=入账(credit), -1=出账(debit)不能为空', trigger: 'blur' }],
+        amount: [{ required: true, message: '本次发生额，>0不能为空', trigger: 'blur' }],
+        balanceBefore: [{ required: true, message: '记账前余额不能为空', trigger: 'blur' }],
+        balanceAfter: [{ required: true, message: '记账后余额不能为空', trigger: 'blur' }],
+        bizType: [{ required: true, message: '业务类型：order_settlement/withdraw/withdraw_fee/withdraw_reversal/manual_adjust_*/freeze, unfreeze等不能为空', trigger: 'blur' }],
+        bizId: [{ required: true, message: '业务单号：例如订单号/提现单号不能为空', trigger: 'blur' }],
+        idempotencyKey: [{ required: true, message: '用于幂等控制：如 ORDER_SETTLED:{order_no}不能为空', trigger: 'blur' }],
+        refTable: [{ required: true, message: '可选：引用表名不能为空', trigger: 'blur' }],
+        refId: [{ required: true, message: '可选：引用ID不能为空', trigger: 'blur' }],
+        remark: [{ required: true, message: '不能为空', trigger: 'blur' }],
+        status: [{ required: true, message: '1=已入账，0=待入账，-1=冲正不能为空', trigger: 'blur' }]
       }
     }
   },

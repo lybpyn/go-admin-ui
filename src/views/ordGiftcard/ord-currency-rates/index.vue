@@ -4,9 +4,73 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-          <el-form-item label="计价货币 ISO4217，例如 CNY" prop="quoteCurrency"><el-input
-            v-model="queryParams.quoteCurrency"
-            placeholder="请输入计价货币 ISO4217，例如 CNY"
+          <el-form-item label="基准货币代码 (ISO 4217)" prop="baseCurrencyCode"><el-input
+            v-model="queryParams.baseCurrencyCode"
+            placeholder="请输入基准货币代码 (ISO 4217)"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="报价货币代码 (ISO 4217)" prop="quoteCurrencyCode"><el-input
+            v-model="queryParams.quoteCurrencyCode"
+            placeholder="请输入报价货币代码 (ISO 4217)"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="汇率: 1 base_currency = rate quote_currency" prop="rate"><el-input
+            v-model="queryParams.rate"
+            placeholder="请输入汇率: 1 base_currency = rate quote_currency"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="地区代码,为空表示全局汇率" prop="regionCode"><el-input
+            v-model="queryParams.regionCode"
+            placeholder="请输入地区代码,为空表示全局汇率"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="汇率类型: standard=标准, buying=买入, selling=卖出" prop="rateType"><el-input
+            v-model="queryParams.rateType"
+            placeholder="请输入汇率类型: standard=标准, buying=买入, selling=卖出"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="汇率来源,如 manual, api, coingecko" prop="source"><el-input
+            v-model="queryParams.source"
+            placeholder="请输入汇率来源,如 manual, api, coingecko"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="状态: 1=启用, 0=禁用" prop="status"><el-input
+            v-model="queryParams.status"
+            placeholder="请输入状态: 1=启用, 0=禁用"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="生效开始时间" prop="validFrom"><el-input
+            v-model="queryParams.validFrom"
+            placeholder="请输入生效开始时间"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="生效结束时间" prop="validTo"><el-input
+            v-model="queryParams.validTo"
+            placeholder="请输入生效结束时间"
             clearable
             size="small"
             @keyup.enter.native="handleQuery"
@@ -22,7 +86,7 @@
         <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:ordCurrencyRates:add']"
+              v-permisaction="['admin:ordConfigCurrencyRates:add']"
               type="primary"
               icon="el-icon-plus"
               size="mini"
@@ -32,7 +96,7 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:ordCurrencyRates:edit']"
+              v-permisaction="['admin:ordConfigCurrencyRates:edit']"
               type="success"
               icon="el-icon-edit"
               size="mini"
@@ -43,7 +107,7 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:ordCurrencyRates:remove']"
+              v-permisaction="['admin:ordConfigCurrencyRates:remove']"
               type="danger"
               icon="el-icon-delete"
               size="mini"
@@ -54,28 +118,66 @@
           </el-col>
         </el-row>
 
-        <el-table v-loading="loading" :data="ordCurrencyRatesList" @selection-change="handleSelectionChange">
+        <el-table v-loading="loading" :data="ordConfigCurrencyRatesList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" /><el-table-column
-            label="计价货币 ISO4217，例如 CNY"
+            label="基准货币代码 (ISO 4217)"
             align="center"
-            prop="quoteCurrency"
+            prop="baseCurrencyCode"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="汇率，表示 1 base_currency = rate quote_currency"
+            label="报价货币代码 (ISO 4217)"
+            align="center"
+            prop="quoteCurrencyCode"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="汇率: 1 base_currency = rate quote_currency"
             align="center"
             prop="rate"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="状态: 1=启用,0=禁用"
+            label="地区代码,为空表示全局汇率"
+            align="center"
+            prop="regionCode"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="汇率类型: standard=标准, buying=买入, selling=卖出"
+            align="center"
+            prop="rateType"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="汇率来源,如 manual, api, coingecko"
+            align="center"
+            prop="source"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="状态: 1=启用, 0=禁用"
             align="center"
             prop="status"
             :show-overflow-tooltip="true"
-          />
+          /><el-table-column
+            label="生效开始时间"
+            align="center"
+            prop="validFrom"
+            :show-overflow-tooltip="true"
+          >
+            <template slot-scope="scope">
+              <span>{{ parseTime(scope.row.validFrom) }}</span>
+            </template>
+          </el-table-column><el-table-column
+            label="生效结束时间"
+            align="center"
+            prop="validTo"
+            :show-overflow-tooltip="true"
+          >
+            <template slot-scope="scope">
+              <span>{{ parseTime(scope.row.validTo) }}</span>
+            </template>
+          </el-table-column>
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
                 slot="reference"
-                v-permisaction="['admin:ordCurrencyRates:edit']"
+                v-permisaction="['admin:ordConfigCurrencyRates:edit']"
                 size="mini"
                 type="text"
                 icon="el-icon-edit"
@@ -90,7 +192,7 @@
               >
                 <el-button
                   slot="reference"
-                  v-permisaction="['admin:ordCurrencyRates:remove']"
+                  v-permisaction="['admin:ordConfigCurrencyRates:remove']"
                   size="mini"
                   type="text"
                   icon="el-icon-delete"
@@ -113,22 +215,60 @@
         <el-dialog :title="title" :visible.sync="open" width="500px">
           <el-form ref="form" :model="form" :rules="rules" label-width="80px">
 
-            <el-form-item label="计价货币 ISO4217，例如 CNY" prop="quoteCurrency">
+            <el-form-item label="基准货币代码 (ISO 4217)" prop="baseCurrencyCode">
               <el-input
-                v-model="form.quoteCurrency"
-                placeholder="计价货币 ISO4217，例如 CNY"
+                v-model="form.baseCurrencyCode"
+                placeholder="基准货币代码 (ISO 4217)"
               />
             </el-form-item>
-            <el-form-item label="汇率，表示 1 base_currency = rate quote_currency" prop="rate">
+            <el-form-item label="报价货币代码 (ISO 4217)" prop="quoteCurrencyCode">
+              <el-input
+                v-model="form.quoteCurrencyCode"
+                placeholder="报价货币代码 (ISO 4217)"
+              />
+            </el-form-item>
+            <el-form-item label="汇率: 1 base_currency = rate quote_currency" prop="rate">
               <el-input
                 v-model="form.rate"
-                placeholder="汇率，表示 1 base_currency = rate quote_currency"
+                placeholder="汇率: 1 base_currency = rate quote_currency"
               />
             </el-form-item>
-            <el-form-item label="状态: 1=启用,0=禁用" prop="status">
+            <el-form-item label="地区代码,为空表示全局汇率" prop="regionCode">
+              <el-input
+                v-model="form.regionCode"
+                placeholder="地区代码,为空表示全局汇率"
+              />
+            </el-form-item>
+            <el-form-item label="汇率类型: standard=标准, buying=买入, selling=卖出" prop="rateType">
+              <el-input
+                v-model="form.rateType"
+                placeholder="汇率类型: standard=标准, buying=买入, selling=卖出"
+              />
+            </el-form-item>
+            <el-form-item label="汇率来源,如 manual, api, coingecko" prop="source">
+              <el-input
+                v-model="form.source"
+                placeholder="汇率来源,如 manual, api, coingecko"
+              />
+            </el-form-item>
+            <el-form-item label="状态: 1=启用, 0=禁用" prop="status">
               <el-input
                 v-model="form.status"
-                placeholder="状态: 1=启用,0=禁用"
+                placeholder="状态: 1=启用, 0=禁用"
+              />
+            </el-form-item>
+            <el-form-item label="生效开始时间" prop="validFrom">
+              <el-date-picker
+                v-model="form.validFrom"
+                type="datetime"
+                placeholder="选择日期"
+              />
+            </el-form-item>
+            <el-form-item label="生效结束时间" prop="validTo">
+              <el-date-picker
+                v-model="form.validTo"
+                type="datetime"
+                placeholder="选择日期"
               />
             </el-form-item>
           </el-form>
@@ -143,10 +283,10 @@
 </template>
 
 <script>
-import { addOrdCurrencyRates, delOrdCurrencyRates, getOrdCurrencyRates, listOrdCurrencyRates, updateOrdCurrencyRates } from '@/api/admin/ord-currency-rates'
+import { addOrdConfigCurrencyRates, delOrdConfigCurrencyRates, getOrdConfigCurrencyRates, listOrdConfigCurrencyRates, updateOrdConfigCurrencyRates } from '@/api/admin/ord-config-currency-rates'
 
 export default {
-  name: 'OrdCurrencyRates',
+  name: 'OrdConfigCurrencyRates',
   components: {
   },
   data() {
@@ -168,7 +308,7 @@ export default {
       isEdit: false,
       // 类型数据字典
       typeOptions: [],
-      ordCurrencyRatesList: [],
+      ordConfigCurrencyRatesList: [],
 
       // 关系表类型
 
@@ -176,14 +316,30 @@ export default {
       queryParams: {
         pageIndex: 1,
         pageSize: 10,
-        quoteCurrency: undefined
+        baseCurrencyCode: undefined,
+        quoteCurrencyCode: undefined,
+        rate: undefined,
+        regionCode: undefined,
+        rateType: undefined,
+        source: undefined,
+        status: undefined,
+        validFrom: undefined,
+        validTo: undefined
 
       },
       // 表单参数
       form: {
       },
       // 表单校验
-      rules: { quoteCurrency: [{ required: true, message: '计价货币 ISO4217，例如 CNY不能为空', trigger: 'blur' }]
+      rules: { baseCurrencyCode: [{ required: true, message: '基准货币代码 (ISO 4217)不能为空', trigger: 'blur' }],
+        quoteCurrencyCode: [{ required: true, message: '报价货币代码 (ISO 4217)不能为空', trigger: 'blur' }],
+        rate: [{ required: true, message: '汇率: 1 base_currency = rate quote_currency不能为空', trigger: 'blur' }],
+        regionCode: [{ required: true, message: '地区代码,为空表示全局汇率不能为空', trigger: 'blur' }],
+        rateType: [{ required: true, message: '汇率类型: standard=标准, buying=买入, selling=卖出不能为空', trigger: 'blur' }],
+        source: [{ required: true, message: '汇率来源,如 manual, api, coingecko不能为空', trigger: 'blur' }],
+        status: [{ required: true, message: '状态: 1=启用, 0=禁用不能为空', trigger: 'blur' }],
+        validFrom: [{ required: true, message: '生效开始时间不能为空', trigger: 'blur' }],
+        validTo: [{ required: true, message: '生效结束时间不能为空', trigger: 'blur' }]
       }
     }
   },
@@ -194,8 +350,8 @@ export default {
     /** 查询参数列表 */
     getList() {
       this.loading = true
-      listOrdCurrencyRates(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-        this.ordCurrencyRatesList = response.data.list
+      listOrdConfigCurrencyRates(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+        this.ordConfigCurrencyRatesList = response.data.list
         this.total = response.data.count
         this.loading = false
       }
@@ -211,9 +367,15 @@ export default {
       this.form = {
 
         id: undefined,
-        quoteCurrency: undefined,
+        baseCurrencyCode: undefined,
+        quoteCurrencyCode: undefined,
         rate: undefined,
-        status: undefined
+        regionCode: undefined,
+        rateType: undefined,
+        source: undefined,
+        status: undefined,
+        validFrom: undefined,
+        validTo: undefined
       }
       this.resetForm('form')
     },
@@ -240,7 +402,7 @@ export default {
     handleAdd() {
       this.reset()
       this.open = true
-      this.title = '添加货币对汇率表'
+      this.title = '添加货币汇率表-支持多币种对和地区化配置'
       this.isEdit = false
     },
     // 多选框选中数据
@@ -254,10 +416,10 @@ export default {
       this.reset()
       const id =
                 row.id || this.ids
-      getOrdCurrencyRates(id).then(response => {
+      getOrdConfigCurrencyRates(id).then(response => {
         this.form = response.data
         this.open = true
-        this.title = '修改货币对汇率表'
+        this.title = '修改货币汇率表-支持多币种对和地区化配置'
         this.isEdit = true
       })
     },
@@ -266,7 +428,7 @@ export default {
       this.$refs['form'].validate(valid => {
         if (valid) {
           if (this.form.id !== undefined) {
-            updateOrdCurrencyRates(this.form).then(response => {
+            updateOrdConfigCurrencyRates(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess(response.msg)
                 this.open = false
@@ -276,7 +438,7 @@ export default {
               }
             })
           } else {
-            addOrdCurrencyRates(this.form).then(response => {
+            addOrdConfigCurrencyRates(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess(response.msg)
                 this.open = false
@@ -298,7 +460,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        return delOrdCurrencyRates({ 'ids': Ids })
+        return delOrdConfigCurrencyRates({ 'ids': Ids })
       }).then((response) => {
         if (response.code === 200) {
           this.msgSuccess(response.msg)

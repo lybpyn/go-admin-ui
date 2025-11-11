@@ -20,6 +20,102 @@
             @keyup.enter.native="handleQuery"
           />
           </el-form-item>
+          <el-form-item label="ISO 4217币种代码，如 USD/CNY" prop="currencyCode"><el-input
+            v-model="queryParams.currencyCode"
+            placeholder="请输入ISO 4217币种代码，如 USD/CNY"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="提现金额" prop="amount"><el-input
+            v-model="queryParams.amount"
+            placeholder="请输入提现金额"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="提现手续费" prop="fee"><el-input
+            v-model="queryParams.fee"
+            placeholder="请输入提现手续费"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="实际出账金额（amount - fee）" prop="netAmount"><el-input
+            v-model="queryParams.netAmount"
+            placeholder="请输入实际出账金额（amount - fee）"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="提现方式：bank/crypto" prop="method"><el-input
+            v-model="queryParams.method"
+            placeholder="请输入提现方式：bank/crypto"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="提现账户信息（脱敏）" prop="accountInfo"><el-input
+            v-model="queryParams.accountInfo"
+            placeholder="请输入提现账户信息（脱敏）"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="状态：pending/review/processing/success/failed/canceled" prop="status"><el-input
+            v-model="queryParams.status"
+            placeholder="请输入状态：pending/review/processing/success/failed/canceled"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="接单管理员ID（关联sys_user.user_id）" prop="handlerId"><el-input
+            v-model="queryParams.handlerId"
+            placeholder="请输入接单管理员ID（关联sys_user.user_id）"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="接单管理员名称（冗余字段）" prop="handlerName"><el-input
+            v-model="queryParams.handlerName"
+            placeholder="请输入接单管理员名称（冗余字段）"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="接单时间" prop="claimedAt"><el-input
+            v-model="queryParams.claimedAt"
+            placeholder="请输入接单时间"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="是否已接单：0=未接单(可接单), 1=已接单(已锁定)" prop="isClaimed"><el-input
+            v-model="queryParams.isClaimed"
+            placeholder="请输入是否已接单：0=未接单(可接单), 1=已接单(已锁定)"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
+          <el-form-item label="失败/取消原因" prop="reason"><el-input
+            v-model="queryParams.reason"
+            placeholder="请输入失败/取消原因"
+            clearable
+            size="small"
+            @keyup.enter.native="handleQuery"
+          />
+          </el-form-item>
           <el-form-item label="通道回执流水号" prop="channelTxnId"><el-input
             v-model="queryParams.channelTxnId"
             placeholder="请输入通道回执流水号"
@@ -88,7 +184,7 @@
 
         <el-table v-loading="loading" :data="hsUserWithdrawalList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" /><el-table-column
-            label="提现单号"
+            label="提现单号，唯一"
             align="center"
             prop="withdrawNo"
             :show-overflow-tooltip="true"
@@ -98,9 +194,9 @@
             prop="userId"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="币种代码"
+            label="ISO 4217币种代码，如 USD/CNY"
             align="center"
-            prop="currency"
+            prop="currencyCode"
             :show-overflow-tooltip="true"
           /><el-table-column
             label="提现金额"
@@ -113,24 +209,48 @@
             prop="fee"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="实际出账金额"
+            label="实际出账金额（amount - fee）"
             align="center"
             prop="netAmount"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="提现方式"
+            label="提现方式：bank/crypto"
             align="center"
             prop="method"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="提现账户信息"
+            label="提现账户信息（脱敏）"
             align="center"
             prop="accountInfo"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="状态"
+            label="状态：pending/review/processing/success/failed/canceled"
             align="center"
             prop="status"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="接单管理员ID（关联sys_user.user_id）"
+            align="center"
+            prop="handlerId"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="接单管理员名称（冗余字段）"
+            align="center"
+            prop="handlerName"
+            :show-overflow-tooltip="true"
+          /><el-table-column
+            label="接单时间"
+            align="center"
+            prop="claimedAt"
+            :show-overflow-tooltip="true"
+          >
+            <template slot-scope="scope">
+              <span>{{ parseTime(scope.row.claimedAt) }}</span>
+            </template>
+          </el-table-column><el-table-column
+            label="是否已接单：0=未接单(可接单), 1=已接单(已锁定)"
+            align="center"
+            prop="isClaimed"
             :show-overflow-tooltip="true"
           /><el-table-column
             label="失败/取消原因"
@@ -151,7 +271,8 @@
             <template slot-scope="scope">
               <span>{{ parseTime(scope.row.requestedAt) }}</span>
             </template>
-          </el-table-column><el-table-column
+          </el-table-column>
+          <el-table-column
             label="处理完成时间"
             align="center"
             prop="processedAt"
@@ -200,32 +321,64 @@
         />
 
         <!-- 添加或修改对话框 -->
-        <el-dialog :title="title" :visible.sync="open" width="700px">
-          <el-form ref="form" :model="form" :rules="rules" label-width="120px">
+        <el-dialog :title="title" :visible.sync="open" width="500px">
+          <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+
+            <el-form-item label="状态：pending/review/processing/success/failed/canceled" prop="status">
+              <el-input
+                v-model="form.status"
+                placeholder="状态：pending/review/processing/success/failed/canceled"
+              />
+            </el-form-item>
+            <el-form-item label="接单管理员ID（关联sys_user.user_id）" prop="handlerId">
+              <el-input
+                v-model="form.handlerId"
+                placeholder="接单管理员ID（关联sys_user.user_id）"
+              />
+            </el-form-item>
+            <el-form-item label="接单管理员名称（冗余字段）" prop="handlerName">
+              <el-input
+                v-model="form.handlerName"
+                placeholder="接单管理员名称（冗余字段）"
+              />
+            </el-form-item>
+            <el-form-item label="接单时间" prop="claimedAt">
+              <el-date-picker
+                v-model="form.claimedAt"
+                type="datetime"
+                placeholder="选择日期"
+              />
+            </el-form-item>
+            <el-form-item label="是否已接单：0=未接单(可接单), 1=已接单(已锁定)" prop="isClaimed">
+              <el-input
+                v-model="form.isClaimed"
+                placeholder="是否已接单：0=未接单(可接单), 1=已接单(已锁定)"
+              />
+            </el-form-item>
+            <el-form-item label="失败/取消原因" prop="reason">
+              <el-input
+                v-model="form.reason"
+                placeholder="失败/取消原因"
+              />
+            </el-form-item>
             <el-form-item label="通道回执流水号" prop="channelTxnId">
-              <el-input v-model="form.channelTxnId" placeholder="请输入通道回执流水号" />
+              <el-input
+                v-model="form.channelTxnId"
+                placeholder="通道回执流水号"
+              />
             </el-form-item>
-            <el-form-item label="状态" prop="status">
-              <el-select v-model="form.status" placeholder="是否前台显示" clearable size="small">
-                <el-option label="pending" value="pending" />
-                <el-option label="review" value="review" />
-                <el-option label="processing" value="processing" />
-                <el-option label="success" value="success" />
-                <el-option label="failed" value="failed" />
-                <el-option label="canceled" value="canceled" />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="备注" prop="reason">
-              <el-input v-model="form.reason" type="textarea" placeholder="失败/取消原因" />
+            <el-form-item label="发起时间" prop="requestedAt">
+              <el-date-picker
+                v-model="form.requestedAt"
+                type="datetime"
+                placeholder="选择日期"
+              />
             </el-form-item>
             <el-form-item label="处理完成时间" prop="processedAt">
               <el-date-picker
                 v-model="form.processedAt"
                 type="datetime"
-                value-format="yyyy-MM-dd HH:mm:ss"
-                placeholder="选择处理完成时间"
-                clearable
-                size="small"
+                placeholder="选择日期"
               />
             </el-form-item>
           </el-form>
@@ -275,6 +428,18 @@ export default {
         pageSize: 10,
         withdrawNo: undefined,
         userId: undefined,
+        currencyCode: undefined,
+        amount: undefined,
+        fee: undefined,
+        netAmount: undefined,
+        method: undefined,
+        accountInfo: undefined,
+        status: undefined,
+        handlerId: undefined,
+        handlerName: undefined,
+        claimedAt: undefined,
+        isClaimed: undefined,
+        reason: undefined,
         channelTxnId: undefined,
         requestedAt: undefined,
         processedAt: undefined
@@ -286,6 +451,18 @@ export default {
       // 表单校验
       rules: { withdrawNo: [{ required: true, message: '提现单号，唯一不能为空', trigger: 'blur' }],
         userId: [{ required: true, message: '用户ID不能为空', trigger: 'blur' }],
+        currencyCode: [{ required: true, message: 'ISO 4217币种代码，如 USD/CNY不能为空', trigger: 'blur' }],
+        amount: [{ required: true, message: '提现金额不能为空', trigger: 'blur' }],
+        fee: [{ required: true, message: '提现手续费不能为空', trigger: 'blur' }],
+        netAmount: [{ required: true, message: '实际出账金额（amount - fee）不能为空', trigger: 'blur' }],
+        method: [{ required: true, message: '提现方式：bank/crypto不能为空', trigger: 'blur' }],
+        accountInfo: [{ required: true, message: '提现账户信息（脱敏）不能为空', trigger: 'blur' }],
+        status: [{ required: true, message: '状态：pending/review/processing/success/failed/canceled不能为空', trigger: 'blur' }],
+        handlerId: [{ required: true, message: '接单管理员ID（关联sys_user.user_id）不能为空', trigger: 'blur' }],
+        handlerName: [{ required: true, message: '接单管理员名称（冗余字段）不能为空', trigger: 'blur' }],
+        claimedAt: [{ required: true, message: '接单时间不能为空', trigger: 'blur' }],
+        isClaimed: [{ required: true, message: '是否已接单：0=未接单(可接单), 1=已接单(已锁定)不能为空', trigger: 'blur' }],
+        reason: [{ required: true, message: '失败/取消原因不能为空', trigger: 'blur' }],
         channelTxnId: [{ required: true, message: '通道回执流水号不能为空', trigger: 'blur' }],
         requestedAt: [{ required: true, message: '发起时间不能为空', trigger: 'blur' }],
         processedAt: [{ required: true, message: '处理完成时间不能为空', trigger: 'blur' }]
@@ -315,7 +492,16 @@ export default {
     reset() {
       this.form = {
 
-        id: undefined
+        id: undefined,
+        status: undefined,
+        handlerId: undefined,
+        handlerName: undefined,
+        claimedAt: undefined,
+        isClaimed: undefined,
+        reason: undefined,
+        channelTxnId: undefined,
+        requestedAt: undefined,
+        processedAt: undefined
       }
       this.resetForm('form')
     },
@@ -355,7 +541,7 @@ export default {
     handleUpdate(row) {
       this.reset()
       const id =
-                  row.id || this.ids
+                row.id || this.ids
       getHsUserWithdrawal(id).then(response => {
         this.form = response.data
         this.open = true
