@@ -86,3 +86,22 @@ export function getOrdOrderGiftcardImages(query) {
     params: query
   })
 }
+
+// 获取供应商列表
+export function listOrdGiftCardSuppliers(query) {
+  return request({
+    url: '/api/v1/ord-gift-card-suppliers',
+    method: 'get',
+    params: query
+  })
+}
+
+// 取消接单
+// 取消接单
+export function cancelAcceptOrdUserOrders(data) {
+  return request({
+    url: '/api/v1/ord-user-orders/' + data.id + '/cancel-accept',
+    method: 'post',
+    data: data
+  })
+}

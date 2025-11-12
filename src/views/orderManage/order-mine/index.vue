@@ -150,35 +150,23 @@
                 v-permisaction="['admin:ordUserOrders:edit']"
                 size="mini"
                 type="text"
-                icon="el-icon-edit"
                 @click="handleProcess(scope.row)"
               >
                 处理
               </el-button>
-              <!-- <el-button
-                slot="reference"
-                v-permisaction="['admin:ordUserOrders:edit']"
-                size="mini"
-                type="text"
-                icon="el-icon-edit"
-                @click="handleUpdate(scope.row)"
-              >修改
-              </el-button>
               <el-popconfirm
                 class="delete-popconfirm"
-                title="确认要删除吗?"
-                confirm-button-text="删除"
-                @confirm="handleDelete(scope.row)"
+                title="取消订单，订单会回到待处理界面，确认要取消吗?"
+                confirm-button-text="确定"
+                @confirm="openCancel(scope.row.id)"
               >
                 <el-button
                   slot="reference"
-                  v-permisaction="['admin:ordUserOrders:remove']"
                   size="mini"
                   type="text"
-                  icon="el-icon-delete"
-                >删除
+                >取消
                 </el-button>
-              </el-popconfirm> -->
+              </el-popconfirm>
             </template>
           </el-table-column>
         </el-table>
@@ -296,13 +284,29 @@
             <el-button @click="cancel">取 消</el-button>
           </div>
         </el-dialog>
+        <el-dialog title="取消" :visible.sync="reamrkOpen" width="300px">
+          <el-form ref="remarkForm" :model="remarkForm" label-width="80px">
+            <el-form-item label="取消原因" prop="adminRemark" :rules="[{ required: true, message: '请输入取消原因', trigger: 'blur' }]">
+              <el-input
+                v-model="remarkForm.adminRemark"
+                type="textarea"
+                rows="4"
+                placeholder="请输入取消原因"
+              />
+            </el-form-item>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button type="primary" @click="submitCancelForm">确 定</el-button>
+            <el-button @click="reamrkOpen = false">取 消</el-button>
+          </div>
+        </el-dialog>
       </el-card>
     </template>
   </BasicLayout>
 </template>
 
 <script>
-import { addOrdUserOrders, delOrdUserOrders, getOrdUserOrders, updateOrdUserOrders, listMyAssignedOrdUserOrders } from '@/api/admin/ord-user-orders'
+import { addOrdUserOrders, delOrdUserOrders, getOrdUserOrders, updateOrdUserOrders, listMyAssignedOrdUserOrders, cancelAcceptOrdUserOrders } from '@/api/admin/ord-user-orders'
 
 export default {
   name: 'OrdUserOrders',
@@ -340,7 +344,11 @@ export default {
       form: {
       },
       // 表单校验
-      rules: {}
+      rules: {},
+      reamrkOpen: false,
+      remarkForm: {
+        adminRemark: ''
+      }
     }
   },
   created() {
@@ -365,7 +373,6 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-
         id: undefined,
         userId: undefined,
         regionId: undefined,
@@ -420,8 +427,7 @@ export default {
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset()
-      const id =
-                row.id || this.ids
+      const id = row.id || this.ids
       getOrdUserOrders(id).then(response => {
         this.form = response.data
         this.open = true
@@ -483,7 +489,31 @@ export default {
       this.$router.push({
         path: '/orderManage/order-process',
         query: {
-          id: row.id
+          id: row.id,
+          giftCardCode: row.giftCardCode,
+          OrderNo: row.OrderNo
+        }
+      })
+    },
+    /** 打开取消弹框 */
+    openCancel(id) {
+      this.reamrkOpen = true
+      this.remarkForm.id = id
+      this.remarkForm.adminRemark = ''
+    },
+    /** 订单处理完成按钮操作 */
+    submitCancelForm: function() {
+      this.$refs['remarkForm'].validate(valid => {
+        if (valid) {
+          cancelAcceptOrdUserOrders(this.remarkForm).then(response => {
+            if (response.code === 200) {
+              this.msgSuccess(response.msg)
+              this.reamrkOpen = false
+              this.getList()
+            } else {
+              this.msgError(response.msg)
+            }
+          })
         }
       })
     }

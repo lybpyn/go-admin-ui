@@ -89,15 +89,6 @@
                 @click="handleUpdate(scope.row)"
               >修改
               </el-button>
-              <el-button
-                slot="reference"
-                v-permisaction="['admin:ordGiftcardWriteoffs:edit']"
-                size="mini"
-                type="text"
-                icon="el-icon-edit"
-                @click="handleWriteoff(scope.row)"
-              >核销
-              </el-button>
               <el-popconfirm
                 class="delete-popconfirm"
                 title="确认要删除吗?"
@@ -171,27 +162,13 @@
             <el-button @click="cancel">取 消</el-button>
           </div>
         </el-dialog>
-        <el-dialog title="核销" :visible.sync="open1" width="500px">
-          <el-form ref="form1" :model="form1" :rules="rules" label-width="80px">
-            <el-form-item label="备注信息" prop="remark">
-              <el-input
-                v-model="form1.remark"
-                placeholder="备注信息，例如失败原因、核销说明"
-              />
-            </el-form-item>
-          </el-form>
-          <div slot="footer" class="dialog-footer">
-            <el-button type="primary" @click="submitForm1">确 定</el-button>
-            <el-button @click="cancel1">取 消</el-button>
-          </div>
-        </el-dialog>
       </el-card>
     </template>
   </BasicLayout>
 </template>
 
 <script>
-import { addOrdGiftcardWriteoffs, delOrdGiftcardWriteoffs, getOrdGiftcardWriteoffs, listOrdGiftcardWriteoffs, updateOrdGiftcardWriteoffs, processOrdGiftcardWriteoffs } from '@/api/admin/ord-giftcard-writeoffs'
+import { addOrdGiftcardWriteoffs, delOrdGiftcardWriteoffs, getOrdGiftcardWriteoffs, listOrdGiftcardWriteoffs, updateOrdGiftcardWriteoffs } from '@/api/admin/ord-giftcard-writeoffs'
 
 export default {
   name: 'OrdGiftcardWriteoffs',
@@ -229,9 +206,6 @@ export default {
       // 表单参数
       form: {
       },
-      form1: {
-      },
-      open1: false,
       // 表单校验
       rules: {}
     }
@@ -313,12 +287,6 @@ export default {
         this.isEdit = true
       })
     },
-    /** 核销 */
-    handleWriteoff(row) {
-      this.form1 = row
-      this.open1 = true
-      this.title = '核销礼品卡'
-    },
     /** 提交按钮 */
     submitForm: function() {
       this.$refs['form'].validate(valid => {
@@ -346,39 +314,6 @@ export default {
           }
         }
       })
-    },
-    submitForm1: function() {
-      this.$refs['form1'].validate(valid => {
-        if (valid) {
-          processOrdGiftcardWriteoffs(this.form1).then(response => {
-            if (response.code === 200) {
-              this.msgSuccess(response.msg)
-              this.open1 = false
-              this.getList()
-            } else {
-              this.msgError(response.msg)
-            }
-          })
-        }
-      })
-    },
-    // 取消按钮
-    cancel1() {
-      this.open1 = false
-      this.reset1()
-    },
-    // 表单重置
-    reset1() {
-      this.form1 = {
-        id: undefined,
-        userId: undefined,
-        orderId: undefined,
-        giftCardId: undefined,
-        giftCardCode: undefined,
-        status: undefined,
-        remark: undefined
-      }
-      this.resetForm('form1')
     },
     /** 删除按钮操作 */
     handleDelete(row) {

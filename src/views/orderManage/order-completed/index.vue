@@ -328,14 +328,11 @@ export default {
       // 类型数据字典
       typeOptions: [],
       ordUserOrdersList: [],
-
-      // 关系表类型
-
       // 查询参数
       queryParams: {
         pageIndex: 1,
         pageSize: 10,
-        status: 3
+        processingStatus: 3
       },
       // 表单参数
       form: {
@@ -382,7 +379,8 @@ export default {
         status: undefined,
         cardExtra: undefined,
         completedAt: undefined,
-        canceledAt: undefined
+        canceledAt: undefined,
+        processingStatus: 3
       }
       this.resetForm('form')
     },

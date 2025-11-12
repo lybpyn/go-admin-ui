@@ -132,6 +132,11 @@
             align="center"
             prop="settlementRate"
             :show-overflow-tooltip="true"
+          />/><el-table-column
+            label="结算货币代码"
+            align="center"
+            prop="settlementCurrencyCode"
+            :show-overflow-tooltip="true"
           /><el-table-column
             label="状态：0=禁用，1=启用"
             align="center"
@@ -232,6 +237,12 @@
               <el-input
                 v-model="form.settlementRate"
                 placeholder="结算费率"
+              />
+            </el-form-item>
+            <el-form-item label="结算货币代码" prop="settlementCurrencyCode">
+              <el-input
+                v-model="form.settlementCurrencyCode"
+                placeholder="结算货币代码"
               />
             </el-form-item>
             <el-form-item label="状态：0=禁用，1=启用" prop="status">

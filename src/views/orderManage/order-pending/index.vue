@@ -301,7 +301,7 @@
 </template>
 
 <script>
-import { addOrdUserOrders, delOrdUserOrders, getOrdUserOrders, listOrdUserOrders, updateOrdUserOrders, acceptOrdUserOrders } from '@/api/admin/ord-user-orders'
+import { addOrdUserOrders, delOrdUserOrders, getOrdUserOrders, listOrdUserOrders, updateOrdUserOrders, acceptOrdUserOrders, listMyAssignedOrdUserOrders } from '@/api/admin/ord-user-orders'
 
 export default {
   name: 'OrdUserOrders',
@@ -334,7 +334,7 @@ export default {
       queryParams: {
         pageIndex: 1,
         pageSize: 10,
-        status: 1
+        processingStatus: 0
       },
       // 表单参数
       form: {
@@ -381,7 +381,8 @@ export default {
         status: undefined,
         cardExtra: undefined,
         completedAt: undefined,
-        canceledAt: undefined
+        canceledAt: undefined,
+        processingStatus: 0
       }
       this.resetForm('form')
     },
@@ -479,19 +480,29 @@ export default {
       })
     },
     /** 处理订单处理按钮操作 */
-    handleProcess(row) {
-      acceptOrdUserOrders(row.id).then(response => {
-        if (response.code === 200) {
-          this.$router.push({
-            path: '/orderManage/order-process',
-            query: {
-              id: row.id
-            }
-          })
-        } else {
-          this.msgError(response.msg)
+    async handleProcess(row) {
+      const res = await acceptOrdUserOrders(row.id)
+      const result = await listMyAssignedOrdUserOrders({ pageIndex: 1, pageSize: 1000 })
+      let giftCardCode = ''
+      let OrderNo = ''
+      result.data.list.forEach(item => {
+        if (item.id === row.id) {
+          giftCardCode = item.giftCardCode
+          OrderNo = item.OrderNo
         }
       })
+      if (res.code === 200) {
+        this.$router.push({
+          path: '/orderManage/order-process',
+          query: {
+            id: row.id,
+            giftCardCode: giftCardCode,
+            OrderNo: OrderNo
+          }
+        })
+      } else {
+        this.msgError(res.msg)
+      }
     }
   }
 }
