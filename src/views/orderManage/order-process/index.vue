@@ -43,11 +43,11 @@
             </el-col>
             <el-col :span="6">
               <el-form-item label="订单状态">
-                <el-tag v-if="form.status == 0" type="info">待支付</el-tag>
-                <el-tag v-if="form.status == 1" type="success">已支付</el-tag>
-                <el-tag v-if="form.status == 2" type="success">已发卡</el-tag>
-                <el-tag v-if="form.status == 3" type="success">已完成</el-tag>
-                <el-tag v-if="form.status == 4" type="danger">已取消</el-tag>
+                <el-tag v-if="form.status == 0">待处理</el-tag>
+                <el-tag v-if="form.status == 1">已经接单</el-tag>
+                <el-tag v-if="form.status == 2">已完成</el-tag>
+                <el-tag v-if="form.status == 3">已取消</el-tag>
+                <el-tag v-if="form.status == 4">已经驳回</el-tag>
               </el-form-item>
             </el-col>
             <el-col :span="7">
@@ -223,6 +223,8 @@
               <el-input
                 v-model="scope.row.recognizedCardValue"
                 placeholder="卡面值"
+                type="number"
+                @input="(event)=>handleValueInput(event, scope.row)"
               />
             </template>
           </el-table-column>
@@ -443,16 +445,21 @@ export default {
     submit(list) {
       const params = {
         giftCardId: this.form.giftcardId,
-        orderId: this.orderId,
+        orderId: Number(this.orderId),
         userId: this.form.userId,
         writeoffList: list
       }
       batchWriteOffOrdUserOrders(params).then(response => {
         this.$message.success('核销成功')
         this.getDetail()
+        this.$router.back()
       })
     },
     handleProcess(row, type) {
+      if (!row.recognizedCardValue) {
+        this.$message.error('请输入卡面值')
+        return
+      }
       if (type === 1) {
         row.status = 1
         this.submit([row])
@@ -462,6 +469,14 @@ export default {
       }
     },
     handleComplete() {
+      if (!this.ordUserOrdersList.length) {
+        this.$message.error('请添加核销信息')
+        return
+      }
+      if (this.ordUserOrdersList.some(item => !item.recognizedCardValue)) {
+        this.$message.error('请填写完整信息')
+        return
+      }
       this.submit(this.ordUserOrdersList)
     },
     handleAdd(row) {
@@ -479,6 +494,13 @@ export default {
     },
     handleSupplierChange(item, row) {
       row.platformSettlementCurrency = item.settlementCurrencyCode || ''
+    },
+    handleValueInput(event, row) {
+      if (event) {
+        row.platformSettlementAmount = (parseFloat(event) * parseFloat(row.platformSaleRate)).toFixed(2)
+      } else {
+        row.platformSettlementAmount = ''
+      }
     }
   }
 }

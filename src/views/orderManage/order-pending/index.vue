@@ -112,11 +112,11 @@
             :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
-              <el-tag v-if="scope.row.status == 0" type="info">待支付</el-tag>
-              <el-tag v-if="scope.row.status == 1" type="success">已支付</el-tag>
-              <el-tag v-if="scope.row.status == 2" type="success">已发卡</el-tag>
-              <el-tag v-if="scope.row.status == 3" type="success">已完成</el-tag>
-              <el-tag v-if="scope.row.status == 4" type="danger">已取消</el-tag>
+              <el-tag v-if="scope.row.status == 0">待处理</el-tag>
+              <el-tag v-if="scope.row.status == 1">已经接单</el-tag>
+              <el-tag v-if="scope.row.status == 2">已完成</el-tag>
+              <el-tag v-if="scope.row.status == 3">已取消</el-tag>
+              <el-tag v-if="scope.row.status == 4">已经驳回</el-tag>
             </template>
           </el-table-column>
           <el-table-column
@@ -146,6 +146,7 @@
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="200">
             <template slot-scope="scope">
               <el-button
+                v-if="scope.row.status == 0"
                 slot="reference"
                 size="mini"
                 type="text"
@@ -262,11 +263,11 @@
             </el-form-item>
             <el-form-item label="订单状态" prop="status">
               <el-select v-model="form.status" placeholder="请选择订单状态">
-                <el-option value="0">待支付</el-option>
-                <el-option value="1">已支付</el-option>
-                <el-option value="2">已发卡</el-option>
-                <el-option value="3">已完成</el-option>
-                <el-option value="4">已取消</el-option>
+                <el-option value="0">待处理</el-option>
+                <el-option value="1">已经接单</el-option>
+                <el-option value="2">已完成</el-option>
+                <el-option value="3">已取消</el-option>
+                <el-option value="4">已经驳回</el-option>
               </el-select>
             </el-form-item>
             <el-form-item label="" prop="cardExtra">
@@ -334,7 +335,7 @@ export default {
       queryParams: {
         pageIndex: 1,
         pageSize: 10,
-        processingStatus: 0
+        status: 5
       },
       // 表单参数
       form: {
@@ -378,11 +379,10 @@ export default {
         currency: undefined,
         discountRate: undefined,
         rate: undefined,
-        status: undefined,
+        status: 5,
         cardExtra: undefined,
         completedAt: undefined,
-        canceledAt: undefined,
-        processingStatus: 0
+        canceledAt: undefined
       }
       this.resetForm('form')
     },
