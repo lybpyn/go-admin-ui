@@ -3,7 +3,7 @@
   <BasicLayout>
     <template #wrapper>
       <el-card class="box-card">
-        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
+        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="120px">
           <el-form-item label="所属用户ID" prop="userId"><el-input
             v-model="queryParams.userId"
             placeholder="请输入所属用户ID"
@@ -79,7 +79,7 @@
             prop="address"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="用户自定义备注标签，例如“我的TRC钱包”"
+            label="用户自定义备注标签"
             align="center"
             prop="label"
             :show-overflow-tooltip="true"
@@ -90,11 +90,18 @@
             :show-overflow-tooltip="true"
           />
           <el-table-column
-            label="状态：1=启用，0=禁用，2=待审核，-1=拒绝"
+            label="状态"
             align="center"
             prop="status"
             :show-overflow-tooltip="true"
-          />
+          >
+            <template slot-scope="scope">
+              <el-tag v-if="scope.row.status == 1">启用</el-tag>
+              <el-tag v-else-if="scope.row.status == 0">禁用</el-tag>
+              <el-tag v-else-if="scope.row.status == 2">待审核</el-tag>
+              <el-tag v-else-if="scope.row.status == -1">拒绝</el-tag>
+            </template>
+          </el-table-column>
 
           <el-table-column
             label="添加时的IP地址"

@@ -4,15 +4,15 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-          <el-form-item label="" prop="userId"><el-input
+          <el-form-item label="用户ID" prop="userId"><el-input
             v-model="queryParams.userId"
-            placeholder="请输入"
+            placeholder="请输入用户ID"
             clearable
             size="small"
             @keyup.enter.native="handleQuery"
           />
           </el-form-item>
-          <el-form-item label="凭证值: 邮箱, 手机号, 第三方平台的唯一ID" prop="identifier"><el-input
+          <el-form-item label="凭证" prop="identifier"><el-input
             v-model="queryParams.identifier"
             placeholder="请输入凭证值: 邮箱, 手机号, 第三方平台的唯一ID"
             clearable
@@ -68,27 +68,44 @@
             align="center"
             prop="userId"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="凭证类型: email, phone, google, apple, twitter, tiktok"
+          />
+          <el-table-column
+            label="凭证类型"
             align="center"
             prop="identityType"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="凭证值: 邮箱, 手机号, 第三方平台的唯一ID"
+          >
+            <template slot-scope="scope">
+              <el-tag v-if="scope.row.identityType == 'email'" size="small">邮箱</el-tag>
+              <el-tag v-else-if="scope.row.identityType == 'phone'" size="small">手机号</el-tag>
+              <el-tag v-else-if="scope.row.identityType == 'google'" size="small">google</el-tag>
+              <el-tag v-else-if="scope.row.identityType == 'apple'" size="small">apple</el-tag>
+              <el-tag v-else-if="scope.row.identityType == 'twitter'" size="small">twitter</el-tag>
+              <el-tag v-else-if="scope.row.identityType == 'tiktok'" size="small">tiktok</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="凭证值"
             align="center"
             prop="identifier"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="存储密码哈希(email/phone)或refresh_token(social)"
+            label="存储密码哈希"
             align="center"
             prop="credential"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="是否已验证（0:未验证, 1:已验证）"
+          />
+          <el-table-column
+            label="是否已验证"
             align="center"
             prop="verified"
             :show-overflow-tooltip="true"
-          />
+          >
+            <template slot-scope="scope">
+              <el-tag v-if="scope.row.verified == 0" size="small">未验证</el-tag>
+              <el-tag v-else size="small">已验证</el-tag>
+            </template>
+          </el-table-column>
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button

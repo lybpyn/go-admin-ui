@@ -12,13 +12,13 @@
             @keyup.enter.native="handleQuery"
           />
           </el-form-item>
-          <el-form-item label="经验来源类型(checkin,gift_card_exchange,order_complete等)" prop="sourceType"><el-input
-            v-model="queryParams.sourceType"
-            placeholder="请输入经验来源类型(checkin,gift_card_exchange,order_complete等)"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
+          <el-form-item label="经验来源类型" prop="sourceType">
+            <el-select v-model="queryParams.rateType">
+              <el-option label="全部" value="" />
+              <el-option label="签到" value="checkin" />
+              <el-option label="礼品卡交易" value="gift_card_exchange" />
+              <el-option label="完成订单" value="order_complete" />
+            </el-select>
           </el-form-item>
 
           <el-form-item>
@@ -69,7 +69,7 @@
             prop="userId"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="经验值变化(正数为增加，负数为减少)"
+            label="经验值变化"
             align="center"
             prop="experienceChange"
             :show-overflow-tooltip="true"
@@ -83,12 +83,20 @@
             align="center"
             prop="experienceAfter"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="经验来源类型(checkin,gift_card_exchange,order_complete等)"
+          />
+          <el-table-column
+            label="经验来源类型"
             align="center"
             prop="sourceType"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          >
+            <template slot-scope="scope">
+              <el-tag v-if="scope.row.sourceType === 'checkin'">签到</el-tag>
+              <el-tag v-if="scope.row.sourceType === 'gift_card_exchange'">礼品卡交易</el-tag>
+              <el-tag v-if="scope.row.sourceType === 'order_complete'">完成订单</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column
             label="来源记录ID"
             align="center"
             prop="sourceId"

@@ -4,109 +4,26 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-          <el-form-item label="" prop="userId"><el-input
+          <el-form-item label="用户ID" prop="userId"><el-input
             v-model="queryParams.userId"
-            placeholder="请输入"
+            placeholder="请输入用户ID"
             clearable
             size="small"
             @keyup.enter.native="handleQuery"
           />
           </el-form-item>
-          <el-form-item label="ISO 4217，例如 USD/CNY" prop="currencyCode"><el-input
-            v-model="queryParams.currencyCode"
-            placeholder="请输入ISO 4217，例如 USD/CNY"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
+          <el-form-item label="方向" prop="direction">
+            <el-select v-model="queryParams.direction" placeholder="请选择" clearable>
+              <el-option label="入账(credit)" value="1" />
+              <el-option label="出账(debit)" value="-1" />
+            </el-select>
           </el-form-item>
-          <el-form-item label="1=入账(credit), -1=出账(debit)" prop="direction"><el-input
-            v-model="queryParams.direction"
-            placeholder="请输入1=入账(credit), -1=出账(debit)"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="本次发生额，>0" prop="amount"><el-input
-            v-model="queryParams.amount"
-            placeholder="请输入本次发生额，>0"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="记账前余额" prop="balanceBefore"><el-input
-            v-model="queryParams.balanceBefore"
-            placeholder="请输入记账前余额"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="记账后余额" prop="balanceAfter"><el-input
-            v-model="queryParams.balanceAfter"
-            placeholder="请输入记账后余额"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="业务类型：order_settlement/withdraw/withdraw_fee/withdraw_reversal/manual_adjust_*/freeze, unfreeze等" prop="bizType"><el-input
-            v-model="queryParams.bizType"
-            placeholder="请输入业务类型：order_settlement/withdraw/withdraw_fee/withdraw_reversal/manual_adjust_*/freeze, unfreeze等"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="业务单号：例如订单号/提现单号" prop="bizId"><el-input
-            v-model="queryParams.bizId"
-            placeholder="请输入业务单号：例如订单号/提现单号"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="用于幂等控制：如 ORDER_SETTLED:{order_no}" prop="idempotencyKey"><el-input
-            v-model="queryParams.idempotencyKey"
-            placeholder="请输入用于幂等控制：如 ORDER_SETTLED:{order_no}"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="可选：引用表名" prop="refTable"><el-input
-            v-model="queryParams.refTable"
-            placeholder="请输入可选：引用表名"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="可选：引用ID" prop="refId"><el-input
-            v-model="queryParams.refId"
-            placeholder="请输入可选：引用ID"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="" prop="remark"><el-input
-            v-model="queryParams.remark"
-            placeholder="请输入"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="1=已入账，0=待入账，-1=冲正" prop="status"><el-input
-            v-model="queryParams.status"
-            placeholder="请输入1=已入账，0=待入账，-1=冲正"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
+          <el-form-item label="状态" prop="status">
+            <el-select v-model="queryParams.status" placeholder="请选择" clearable>
+              <el-option label="已入账" value="1" />
+              <el-option label="待入账" value="0" />
+              <el-option label="冲正" value="-1" />
+            </el-select>
           </el-form-item>
 
           <el-form-item>
@@ -152,21 +69,28 @@
 
         <el-table v-loading="loading" :data="hsUserLedgerList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" /><el-table-column
-            label=""
+            label="用户ID"
             align="center"
             prop="userId"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="ISO 4217，例如 USD/CNY"
+            label="币种"
             align="center"
             prop="currencyCode"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="1=入账(credit), -1=出账(debit)"
+          />
+          <el-table-column
+            label="方向"
             align="center"
             prop="direction"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          >
+            <template slot-scope="scope">
+              <el-tag v-if="scope.row.direction === 1">入账(credit)</el-tag>
+              <el-tag v-else>出账(debit)</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column
             label="本次发生额，>0"
             align="center"
             prop="amount"
@@ -181,42 +105,55 @@
             align="center"
             prop="balanceAfter"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="业务类型：order_settlement/withdraw/withdraw_fee/withdraw_reversal/manual_adjust_*/freeze, unfreeze等"
+          />
+          <!-- ：order_settlement/withdraw/withdraw_fee/withdraw_reversal/manual_adjust_*/freeze, unfreeze等 -->
+          <el-table-column
+            label="业务类型"
             align="center"
             prop="bizType"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="业务单号：例如订单号/提现单号"
+            label="业务单号"
             align="center"
             prop="bizId"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="用于幂等控制：如 ORDER_SETTLED:{order_no}"
+          />
+          <!-- <el-table-column
+            label="用于幂等控制"
             align="center"
             prop="idempotencyKey"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          />
+          <el-table-column
             label="可选：引用表名"
             align="center"
             prop="refTable"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          />
+          <el-table-column
             label="可选：引用ID"
             align="center"
             prop="refId"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label=""
+          /> -->
+          <el-table-column
+            label="备注"
             align="center"
             prop="remark"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="1=已入账，0=待入账，-1=冲正"
+          />
+          <el-table-column
+            label="状态"
             align="center"
             prop="status"
             :show-overflow-tooltip="true"
-          />
+          >
+            <template slot-scope="scope">
+              <el-tag v-if="scope.row.status == 1">已入账</el-tag>
+              <el-tag v-else-if="scope.row.status == 0">待入账</el-tag>
+              <el-tag v-else>冲正</el-tag>
+            </template>
+          </el-table-column>
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button

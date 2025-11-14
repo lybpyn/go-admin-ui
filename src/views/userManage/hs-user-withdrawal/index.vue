@@ -3,8 +3,8 @@
   <BasicLayout>
     <template #wrapper>
       <el-card class="box-card">
-        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-          <el-form-item label="提现单号，唯一" prop="withdrawNo"><el-input
+        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="110px">
+          <el-form-item label="提现单号" prop="withdrawNo"><el-input
             v-model="queryParams.withdrawNo"
             placeholder="请输入提现单号，唯一"
             clearable
@@ -20,7 +20,7 @@
             @keyup.enter.native="handleQuery"
           />
           </el-form-item>
-          <el-form-item label="ISO 4217币种代码，如 USD/CNY" prop="currencyCode"><el-input
+          <el-form-item label="币种代码" prop="currencyCode"><el-input
             v-model="queryParams.currencyCode"
             placeholder="请输入ISO 4217币种代码，如 USD/CNY"
             clearable
@@ -28,93 +28,27 @@
             @keyup.enter.native="handleQuery"
           />
           </el-form-item>
-          <el-form-item label="提现金额" prop="amount"><el-input
-            v-model="queryParams.amount"
-            placeholder="请输入提现金额"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
+          <el-form-item label="提现方式" prop="method">
+            <el-select
+              v-model="queryParams.method"
+              placeholder="请选择提现方式"
+              clearable
+              size="small"
+              @change="handleQuery"
+            >
+              <el-option label="crypto" value="crypto" />
+              <el-option label="bank" value="bank" />
+            </el-select>
           </el-form-item>
-          <el-form-item label="提现手续费" prop="fee"><el-input
-            v-model="queryParams.fee"
-            placeholder="请输入提现手续费"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="实际出账金额（amount - fee）" prop="netAmount"><el-input
-            v-model="queryParams.netAmount"
-            placeholder="请输入实际出账金额（amount - fee）"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="提现方式：bank/crypto" prop="method"><el-input
-            v-model="queryParams.method"
-            placeholder="请输入提现方式：bank/crypto"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="提现账户信息（脱敏）" prop="accountInfo"><el-input
-            v-model="queryParams.accountInfo"
-            placeholder="请输入提现账户信息（脱敏）"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="状态：pending/review/processing/success/failed/canceled" prop="status"><el-input
-            v-model="queryParams.status"
-            placeholder="请输入状态：pending/review/processing/success/failed/canceled"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="接单管理员ID（关联sys_user.user_id）" prop="handlerId"><el-input
-            v-model="queryParams.handlerId"
-            placeholder="请输入接单管理员ID（关联sys_user.user_id）"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="接单管理员名称（冗余字段）" prop="handlerName"><el-input
-            v-model="queryParams.handlerName"
-            placeholder="请输入接单管理员名称（冗余字段）"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="接单时间" prop="claimedAt"><el-input
-            v-model="queryParams.claimedAt"
-            placeholder="请输入接单时间"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="是否已接单：0=未接单(可接单), 1=已接单(已锁定)" prop="isClaimed"><el-input
-            v-model="queryParams.isClaimed"
-            placeholder="请输入是否已接单：0=未接单(可接单), 1=已接单(已锁定)"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="失败/取消原因" prop="reason"><el-input
-            v-model="queryParams.reason"
-            placeholder="请输入失败/取消原因"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
+          <el-form-item label="状态" prop="status">
+            <el-select v-model="queryParams.status" placeholder="请选择状态" clearable size="small" @change="handleQuery">
+              <el-option label="pending" value="pending" />
+              <el-option label="review" value="review" />
+              <el-option label="processing" value="processing" />
+              <el-option label="success" value="success" />
+              <el-option label="failed" value="failed" />
+              <el-option label="canceled" value="canceled" />
+            </el-select>
           </el-form-item>
           <el-form-item label="通道回执流水号" prop="channelTxnId"><el-input
             v-model="queryParams.channelTxnId"
@@ -124,21 +58,21 @@
             @keyup.enter.native="handleQuery"
           />
           </el-form-item>
-          <el-form-item label="发起时间" prop="requestedAt"><el-input
-            v-model="queryParams.requestedAt"
-            placeholder="请输入发起时间"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
+          <el-form-item label="发起时间" prop="requestedAt">
+            <el-date-picker
+              v-model="queryParams.requestedAt"
+              type="datetime"
+              placeholder="选择日期时间"
+              value-format="yyyy-MM-dd HH:mm:ss"
+            />
           </el-form-item>
-          <el-form-item label="处理完成时间" prop="processedAt"><el-input
-            v-model="queryParams.processedAt"
-            placeholder="请输入处理完成时间"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
+          <el-form-item label="处理完成时间" prop="processedAt">
+            <el-date-picker
+              v-model="queryParams.processedAt"
+              type="datetime"
+              placeholder="选择日期时间"
+              value-format="yyyy-MM-dd HH:mm:ss"
+            />
           </el-form-item>
 
           <el-form-item>
@@ -147,7 +81,7 @@
           </el-form-item>
         </el-form>
 
-        <el-row :gutter="10" class="mb8">
+        <!-- <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
             <el-button
               v-permisaction="['admin:hsUserWithdrawal:add']"
@@ -180,93 +114,115 @@
             >删除
             </el-button>
           </el-col>
-        </el-row>
+        </el-row> -->
 
         <el-table v-loading="loading" :data="hsUserWithdrawalList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" /><el-table-column
-            label="提现单号，唯一"
+            label="提现单号"
             align="center"
             prop="withdrawNo"
             :show-overflow-tooltip="true"
+            width="150px"
           /><el-table-column
             label="用户ID"
             align="center"
             prop="userId"
             :show-overflow-tooltip="true"
+            width="150px"
           /><el-table-column
-            label="ISO 4217币种代码，如 USD/CNY"
+            label="币种代码"
             align="center"
             prop="currencyCode"
             :show-overflow-tooltip="true"
+            width="80px"
           /><el-table-column
             label="提现金额"
             align="center"
             prop="amount"
             :show-overflow-tooltip="true"
+            width="120px"
           /><el-table-column
             label="提现手续费"
             align="center"
             prop="fee"
             :show-overflow-tooltip="true"
+            width="120px"
           /><el-table-column
-            label="实际出账金额（amount - fee）"
+            label="实际出账金额"
             align="center"
             prop="netAmount"
             :show-overflow-tooltip="true"
+            width="120px"
           /><el-table-column
-            label="提现方式：bank/crypto"
+            label="提现方式"
             align="center"
             prop="method"
             :show-overflow-tooltip="true"
+            width="120px"
           /><el-table-column
-            label="提现账户信息（脱敏）"
+            label="提现账户信息"
             align="center"
             prop="accountInfo"
             :show-overflow-tooltip="true"
+            width="200px"
           /><el-table-column
-            label="状态：pending/review/processing/success/failed/canceled"
+            label="状态"
             align="center"
             prop="status"
             :show-overflow-tooltip="true"
+            width="120px"
           /><el-table-column
-            label="接单管理员ID（关联sys_user.user_id）"
+            label="接单管理员ID"
             align="center"
             prop="handlerId"
             :show-overflow-tooltip="true"
+            width="150px"
           /><el-table-column
-            label="接单管理员名称（冗余字段）"
+            label="接单管理员名称"
             align="center"
             prop="handlerName"
             :show-overflow-tooltip="true"
+            width="150px"
           /><el-table-column
             label="接单时间"
             align="center"
             prop="claimedAt"
             :show-overflow-tooltip="true"
+            width="150px"
           >
             <template slot-scope="scope">
               <span>{{ parseTime(scope.row.claimedAt) }}</span>
             </template>
-          </el-table-column><el-table-column
-            label="是否已接单：0=未接单(可接单), 1=已接单(已锁定)"
+          </el-table-column>
+          <el-table-column
+            label="是否已接单"
             align="center"
             prop="isClaimed"
             :show-overflow-tooltip="true"
-          /><el-table-column
+            width="120px"
+          >
+            <template slot-scope="scope">
+              <span>{{ scope.row.isClaimed == 0 ? '未接单(可接单)' : '已接单(已锁定)' }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
             label="失败/取消原因"
             align="center"
             prop="reason"
             :show-overflow-tooltip="true"
+            width="200px"
           /><el-table-column
             label="通道回执流水号"
             align="center"
             prop="channelTxnId"
             :show-overflow-tooltip="true"
+            width="200px"
           /><el-table-column
             label="发起时间"
             align="center"
             prop="requestedAt"
             :show-overflow-tooltip="true"
+            width="150px"
           >
             <template slot-scope="scope">
               <span>{{ parseTime(scope.row.requestedAt) }}</span>
@@ -277,6 +233,7 @@
             align="center"
             prop="processedAt"
             :show-overflow-tooltip="true"
+            width="150px"
           >
             <template slot-scope="scope">
               <span>{{ parseTime(scope.row.processedAt) }}</span>

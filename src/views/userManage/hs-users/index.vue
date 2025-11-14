@@ -4,117 +4,19 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-          <el-form-item label="用户名（可选展示用）" prop="username"><el-input
+          <el-form-item label="用户名" prop="username"><el-input
             v-model="queryParams.username"
-            placeholder="请输入用户名（可选展示用）"
+            placeholder="请输入用户名"
             clearable
             size="small"
             @keyup.enter.native="handleQuery"
           />
           </el-form-item>
-          <el-form-item label="姓" prop="firstname"><el-input
-            v-model="queryParams.firstname"
-            placeholder="请输入姓"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="名" prop="lastname"><el-input
-            v-model="queryParams.lastname"
-            placeholder="请输入名"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="头像URL" prop="avatar"><el-input
-            v-model="queryParams.avatar"
-            placeholder="请输入头像URL"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="法币可用余额" prop="balance"><el-input
-            v-model="queryParams.balance"
-            placeholder="请输入法币可用余额"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="虚拟币可用余额" prop="cryptoBalance"><el-input
-            v-model="queryParams.cryptoBalance"
-            placeholder="请输入虚拟币可用余额"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="法币冻结余额" prop="frozenBalance"><el-input
-            v-model="queryParams.frozenBalance"
-            placeholder="请输入法币冻结余额"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="冻结虚拟币余额(USDT计价)" prop="cryptoFrozenBalance"><el-input
-            v-model="queryParams.cryptoFrozenBalance"
-            placeholder="请输入冻结虚拟币余额(USDT计价)"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="用户等级ID" prop="levelId"><el-input
-            v-model="queryParams.levelId"
-            placeholder="请输入用户等级ID"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="当前经验" prop="experience"><el-input
-            v-model="queryParams.experience"
-            placeholder="请输入当前经验"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="区域id" prop="regionId"><el-input
-            v-model="queryParams.regionId"
-            placeholder="请输入区域id"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="累计经验" prop="totalExperience"><el-input
-            v-model="queryParams.totalExperience"
-            placeholder="请输入累计经验"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="邀请码" prop="inviteCode"><el-input
-            v-model="queryParams.inviteCode"
-            placeholder="请输入邀请码"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="状态：1正常，0封禁" prop="status"><el-input
-            v-model="queryParams.status"
-            placeholder="请输入状态：1正常，0封禁"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
+          <el-form-item label="状态" prop="status">
+            <el-select v-model="queryParams.status" placeholder="请选择状态" clearable @change="handleQuery">
+              <el-option label="正常" value="1" />
+              <el-option label="封禁" value="0" />
+            </el-select>
           </el-form-item>
 
           <el-form-item>
@@ -159,12 +61,14 @@
         </el-row>
 
         <el-table v-loading="loading" :data="hsUsersList" @selection-change="handleSelectionChange">
-          <el-table-column type="selection" width="55" align="center" /><el-table-column
-            label="用户名（可选展示用）"
+          <el-table-column type="selection" width="55" align="center" />
+          <!-- <el-table-column
+            label="用户名"
             align="center"
             prop="username"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          /> -->
+          <el-table-column
             label="密码"
             align="center"
             prop="passwordHash"
@@ -179,12 +83,18 @@
             align="center"
             prop="lastname"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          />
+          <el-table-column
             label="头像URL"
             align="center"
             prop="avatar"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          >
+            <template slot-scope="scope">
+              <el-image :src="scope.row.avatar" fit="fill" :preview-src-list="[scope.row.avatar]" />
+            </template>
+          </el-table-column>
+          <el-table-column
             label="法币可用余额"
             align="center"
             prop="balance"
@@ -229,12 +139,19 @@
             align="center"
             prop="inviteCode"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="状态：1正常，0封禁"
+          />
+          <el-table-column
+            label="状态"
             align="center"
             prop="status"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          >
+            <template slot-scope="scope">
+              <el-tag v-if="scope.row.status == 1" size="small" type="success">正常</el-tag>
+              <el-tag v-else size="small" type="danger">封禁</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column
             label=""
             align="center"
             prop="version"
@@ -282,11 +199,11 @@
         <el-dialog :title="title" :visible.sync="open" width="500px">
           <el-form ref="form" :model="form" :rules="rules" label-width="80px">
 
-            <el-form-item label="状态：1正常，0封禁" prop="status">
-              <el-input
-                v-model="form.status"
-                placeholder="状态：1正常，0封禁"
-              />
+            <el-form-item label="状态" prop="status">
+              <el-radio-group v-model="form.status" @change="handleStatusChange">
+                <el-radio label="1">正常</el-radio>
+                <el-radio label="0">封禁</el-radio>
+              </el-radio-group>
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
