@@ -20,21 +20,19 @@
             @keyup.enter.native="handleQuery"
           />
           </el-form-item>
-          <el-form-item label="地区代码，如 CN、US、JP 等" prop="code"><el-input
+          <el-form-item label="地区代码" prop="code"><el-input
             v-model="queryParams.code"
-            placeholder="请输入地区代码，如 CN、US、JP 等"
+            placeholder="请输入地区代码"
             clearable
             size="small"
             @keyup.enter.native="handleQuery"
           />
           </el-form-item>
-          <el-form-item label="是否启用：1=启用，0=禁用" prop="isActive"><el-input
-            v-model="queryParams.isActive"
-            placeholder="请输入是否启用：1=启用，0=禁用"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
+          <el-form-item label="是否启用" prop="isActive">
+            <el-select v-model="queryParams.isActive" clearable size="small" @change="handleQuery">
+              <el-option label="启用" value="1" />
+              <el-option label="禁用" value="0" />
+            </el-select>
           </el-form-item>
 
           <el-form-item>
@@ -90,16 +88,22 @@
             prop="currencyCode"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="地区代码，如 CN、US、JP 等"
+            label="地区代码"
             align="center"
             prop="code"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="是否启用：1=启用，0=禁用"
+          />
+          <el-table-column
+            label="是否启用"
             align="center"
             prop="isActive"
             :show-overflow-tooltip="true"
-          />
+          >
+            <template slot-scope="scope">
+              <el-tag v-if="scope.row.isActive == 1">启用</el-tag>
+              <el-tag v-else>禁用</el-tag>
+            </template>
+          </el-table-column>
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
@@ -154,17 +158,17 @@
                 placeholder="地区货币"
               />
             </el-form-item>
-            <el-form-item label="地区代码，如 CN、US、JP 等" prop="code">
+            <el-form-item label="地区代码" prop="code">
               <el-input
                 v-model="form.code"
                 placeholder="地区代码，如 CN、US、JP 等"
               />
             </el-form-item>
-            <el-form-item label="是否启用：1=启用，0=禁用" prop="isActive">
-              <el-input
-                v-model="form.isActive"
-                placeholder="是否启用：1=启用，0=禁用"
-              />
+            <el-form-item label="是否启用" prop="isActive">
+              <el-select v-model="form.isActive" clearable size="small">
+                <el-option label="启用" value="1" />
+                <el-option label="禁用" value="0" />
+              </el-select>
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">

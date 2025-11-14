@@ -12,13 +12,11 @@
             @keyup.enter.native="handleQuery"
           />
           </el-form-item>
-          <el-form-item label="状态：1=启用，0=禁用" prop="status"><el-input
-            v-model="queryParams.status"
-            placeholder="请输入状态：1=启用，0=禁用"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
+          <el-form-item label="状态" prop="status">
+            <el-radio-group v-model="queryParams.status" @change="handleQuery">
+              <el-radio label="1">启用</el-radio>
+              <el-radio label="0">禁用</el-radio>
+            </el-radio-group>
           </el-form-item>
 
           <el-form-item>
@@ -69,21 +67,29 @@
             prop="configName"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="一级邀请分成比例（百分比，如5.0000表示5%）"
+            label="一级邀请分成比例%"
             align="center"
             prop="firstLevelRate"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="二级邀请分成比例（百分比，如3.0000表示3%）"
+          />
+          <el-table-column
+            label="二级邀请分成比例%"
             align="center"
             prop="secondLevelRate"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="状态：1=启用，0=禁用"
+          />
+          <el-table-column
+            label="状态"
             align="center"
             prop="status"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          >
+            <template slot-scope="scope">
+              <el-tag v-if="scope.row.status == 1" size="small">启用</el-tag>
+              <el-tag v-else size="small" type="danger">禁用</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column
             label="备注说明"
             align="center"
             prop="remark"
@@ -128,8 +134,8 @@
         />
 
         <!-- 添加或修改对话框 -->
-        <el-dialog :title="title" :visible.sync="open" width="500px">
-          <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <el-dialog :title="title" :visible.sync="open" width="600px">
+          <el-form ref="form" :model="form" :rules="rules" label-width="150px">
 
             <el-form-item label="配置名称" prop="configName">
               <el-input
@@ -137,23 +143,23 @@
                 placeholder="配置名称"
               />
             </el-form-item>
-            <el-form-item label="一级邀请分成比例（百分比，如5.0000表示5%）" prop="firstLevelRate">
+            <el-form-item label="一级邀请分成比例" prop="firstLevelRate">
               <el-input
                 v-model="form.firstLevelRate"
                 placeholder="一级邀请分成比例（百分比，如5.0000表示5%）"
               />
             </el-form-item>
-            <el-form-item label="二级邀请分成比例（百分比，如3.0000表示3%）" prop="secondLevelRate">
+            <el-form-item label="二级邀请分成比例" prop="secondLevelRate">
               <el-input
                 v-model="form.secondLevelRate"
                 placeholder="二级邀请分成比例（百分比，如3.0000表示3%）"
               />
             </el-form-item>
-            <el-form-item label="状态：1=启用，0=禁用" prop="status">
-              <el-input
-                v-model="form.status"
-                placeholder="状态：1=启用，0=禁用"
-              />
+            <el-form-item label="状态" prop="status">
+              <el-radio-group v-model="form.status">
+                <el-radio label="1">启用</el-radio>
+                <el-radio label="0">禁用</el-radio>
+              </el-radio-group>
             </el-form-item>
             <el-form-item label="备注说明" prop="remark">
               <el-input

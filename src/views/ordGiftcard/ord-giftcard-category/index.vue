@@ -4,7 +4,9 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-
+          <el-form-item label="分类名称" prop="name">
+            <el-input v-model="queryParams.name" placeholder="请输入分类名称，如 Steam、eBay" clearable @change="handleQuery" />
+          </el-form-item>
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
             <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -52,12 +54,19 @@
             align="center"
             prop="name"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="状态: 1=启用, 0=禁用"
+          />
+          <el-table-column
+            label="状态"
             align="center"
             prop="status"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          >
+            <template slot-scope="scope">
+              <el-tag v-if="scope.row.status == 1">启用</el-tag>
+              <el-tag v-else>禁用</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column
             label="汇率折扣展示用"
             align="center"
             prop="discountRate"
@@ -107,20 +116,20 @@
         />
 
         <!-- 添加或修改对话框 -->
-        <el-dialog :title="title" :visible.sync="open" width="500px">
-          <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <el-dialog :title="title" :visible.sync="open" width="600px">
+          <el-form ref="form" :model="form" :rules="rules" label-width="120px">
 
-            <el-form-item label="分类名称，如 Steam、eBay" prop="name">
+            <el-form-item label="分类名称" prop="name">
               <el-input
                 v-model="form.name"
                 placeholder="分类名称，如 Steam、eBay"
               />
             </el-form-item>
-            <el-form-item label="状态: 1=启用, 0=禁用" prop="status">
-              <el-input
-                v-model="form.status"
-                placeholder="状态: 1=启用, 0=禁用"
-              />
+            <el-form-item label="状态" prop="status">
+              <el-radio-group v-model="form.status">
+                <el-radio label="1">启用</el-radio>
+                <el-radio label="0">禁用</el-radio>
+              </el-radio-group>
             </el-form-item>
             <el-form-item label="汇率折扣展示用" prop="discountRate">
               <el-input

@@ -4,7 +4,7 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-          <el-form-item label="币种代码，如 USD/CNY/USDT" prop="currencyCode"><el-input
+          <el-form-item label="币种代码" prop="currencyCode"><el-input
             v-model="queryParams.currencyCode"
             placeholder="请输入币种代码，如 USD/CNY/USDT"
             clearable
@@ -12,23 +12,6 @@
             @keyup.enter.native="handleQuery"
           />
           </el-form-item>
-          <el-form-item label="可冻结金额上限 / 提现限制金额" prop="frozenLimitAmount"><el-input
-            v-model="queryParams.frozenLimitAmount"
-            placeholder="请输入可冻结金额上限 / 提现限制金额"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="是否启用：1=启用，0=禁用" prop="isActive"><el-input
-            v-model="queryParams.isActive"
-            placeholder="请输入是否启用：1=启用，0=禁用"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
             <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -72,21 +55,31 @@
 
         <el-table v-loading="loading" :data="hsConfigFrozenLimitList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" /><el-table-column
-            label="币种代码，如 USD/CNY/USDT"
+            label="币种代码"
             align="center"
             prop="currencyCode"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="可冻结金额上限 / 提现限制金额"
+            label="可冻结金额上限"
             align="center"
             prop="frozenLimitAmount"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="是否启用：1=启用，0=禁用"
+          />
+          <el-table-column
+            label="是否启用"
             align="center"
             prop="isActive"
             :show-overflow-tooltip="true"
-          />
+          >
+            <template slot-scope="scope">
+              <el-tag
+                :type="scope.row.isActive == 1 ? 'success' : 'danger'"
+                size="mini"
+              >
+                {{ scope.row.isActive == 1 ? '启用' : '禁用' }}
+              </el-tag>
+            </template>
+          </el-table-column>
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
@@ -127,25 +120,29 @@
 
         <!-- 添加或修改对话框 -->
         <el-dialog :title="title" :visible.sync="open" width="500px">
-          <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+          <el-form ref="form" :model="form" :rules="rules" label-width="120px">
 
-            <el-form-item label="币种代码，如 USD/CNY/USDT" prop="currencyCode">
+            <el-form-item label="币种代码T" prop="currencyCode">
               <el-input
                 v-model="form.currencyCode"
                 placeholder="币种代码，如 USD/CNY/USDT"
               />
             </el-form-item>
-            <el-form-item label="可冻结金额上限 / 提现限制金额" prop="frozenLimitAmount">
+            <el-form-item label="可冻结金额上限" prop="frozenLimitAmount">
               <el-input
                 v-model="form.frozenLimitAmount"
                 placeholder="可冻结金额上限 / 提现限制金额"
               />
             </el-form-item>
-            <el-form-item label="是否启用：1=启用，0=禁用" prop="isActive">
+            <el-form-item label="是否启用" prop="isActive">
               <el-input
                 v-model="form.isActive"
-                placeholder="是否启用：1=启用，0=禁用"
+                placeholder="是否启用"
               />
+              <el-radio-group v-model="form.isActive">
+                <el-radio label="1">启用</el-radio>
+                <el-radio label="0">禁用</el-radio>
+              </el-radio-group>
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">

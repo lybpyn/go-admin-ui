@@ -3,8 +3,13 @@
   <BasicLayout>
     <template #wrapper>
       <el-card class="box-card">
-        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-
+        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="80px">
+          <el-form-item label="是否启用:" prop="isActive">
+            <el-select v-model="queryParams.isActive" clearable size="small" @change="handleQuery">
+              <el-option label="是" value="1" />
+              <el-option label="否" value="0" />
+            </el-select>
+          </el-form-item>
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
             <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -62,12 +67,18 @@
             align="center"
             prop="extraRewards"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          />
+          <el-table-column
             label="是否启用"
             align="center"
             prop="isActive"
             :show-overflow-tooltip="true"
-          />
+          >
+            <template slot-scope="scope">
+              <el-tag v-if="scope.row.isActive == 1" type="success">是</el-tag>
+              <el-tag v-else type="danger">否</el-tag>
+            </template>
+          </el-table-column>
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
@@ -107,8 +118,8 @@
         />
 
         <!-- 添加或修改对话框 -->
-        <el-dialog :title="title" :visible.sync="open" width="500px">
-          <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <el-dialog :title="title" :visible.sync="open" width="600px">
+          <el-form ref="form" :model="form" :rules="rules" label-width="120px">
 
             <el-form-item label="连续签到天数" prop="consecutiveDays">
               <el-input
@@ -129,10 +140,10 @@
               />
             </el-form-item>
             <el-form-item label="是否启用" prop="isActive">
-              <el-input
-                v-model="form.isActive"
-                placeholder="是否启用"
-              />
+              <el-select v-model="form.isActive" clearable size="small">
+                <el-option label="是" value="1" />
+                <el-option label="否" value="0" />
+              </el-select>
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">

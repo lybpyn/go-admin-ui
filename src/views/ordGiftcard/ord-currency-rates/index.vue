@@ -3,8 +3,8 @@
   <BasicLayout>
     <template #wrapper>
       <el-card class="box-card">
-        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-          <el-form-item label="基准货币代码 (ISO 4217)" prop="baseCurrencyCode"><el-input
+        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="100px">
+          <el-form-item label="基准货币代码" prop="baseCurrencyCode"><el-input
             v-model="queryParams.baseCurrencyCode"
             placeholder="请输入基准货币代码 (ISO 4217)"
             clearable
@@ -12,23 +12,15 @@
             @keyup.enter.native="handleQuery"
           />
           </el-form-item>
-          <el-form-item label="报价货币代码 (ISO 4217)" prop="quoteCurrencyCode"><el-input
+          <!-- <el-form-item label="报价货币代码" prop="quoteCurrencyCode"><el-input
             v-model="queryParams.quoteCurrencyCode"
             placeholder="请输入报价货币代码 (ISO 4217)"
             clearable
             size="small"
             @keyup.enter.native="handleQuery"
           />
-          </el-form-item>
-          <el-form-item label="汇率: 1 base_currency = rate quote_currency" prop="rate"><el-input
-            v-model="queryParams.rate"
-            placeholder="请输入汇率: 1 base_currency = rate quote_currency"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="地区代码,为空表示全局汇率" prop="regionCode"><el-input
+          </el-form-item> -->
+          <el-form-item label="地区代码" prop="regionCode"><el-input
             v-model="queryParams.regionCode"
             placeholder="请输入地区代码,为空表示全局汇率"
             clearable
@@ -36,47 +28,19 @@
             @keyup.enter.native="handleQuery"
           />
           </el-form-item>
-          <el-form-item label="汇率类型: standard=标准, buying=买入, selling=卖出" prop="rateType"><el-input
-            v-model="queryParams.rateType"
-            placeholder="请输入汇率类型: standard=标准, buying=买入, selling=卖出"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
+          <el-form-item label="汇率类型" prop="rateType">
+            <el-select v-model="queryParams.rateType" placeholder="请选择汇率类型" clearable size="small">
+              <el-option label="标准" value="standard" />
+              <el-option label="买入" value="buying" />
+              <el-option label="卖出" value="selling" />
+            </el-select>
           </el-form-item>
-          <el-form-item label="汇率来源,如 manual, api, coingecko" prop="source"><el-input
-            v-model="queryParams.source"
-            placeholder="请输入汇率来源,如 manual, api, coingecko"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
+          <el-form-item label="状态" prop="status">
+            <el-select v-model="queryParams.status" placeholder="请选择状态" clearable size="small">
+              <el-option label="启用" value="1" />
+              <el-option label="禁用" value="0" />
+            </el-select>
           </el-form-item>
-          <el-form-item label="状态: 1=启用, 0=禁用" prop="status"><el-input
-            v-model="queryParams.status"
-            placeholder="请输入状态: 1=启用, 0=禁用"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="生效开始时间" prop="validFrom"><el-input
-            v-model="queryParams.validFrom"
-            placeholder="请输入生效开始时间"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="生效结束时间" prop="validTo"><el-input
-            v-model="queryParams.validTo"
-            placeholder="请输入生效结束时间"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
             <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -120,41 +84,56 @@
 
         <el-table v-loading="loading" :data="ordConfigCurrencyRatesList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" /><el-table-column
-            label="基准货币代码 (ISO 4217)"
+            label="基准货币代码"
             align="center"
             prop="baseCurrencyCode"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="报价货币代码 (ISO 4217)"
+            label="报价货币代码"
             align="center"
             prop="quoteCurrencyCode"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="汇率: 1 base_currency = rate quote_currency"
+            label="汇率"
             align="center"
             prop="rate"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="地区代码,为空表示全局汇率"
+            label="地区代码"
             align="center"
             prop="regionCode"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="汇率类型: standard=标准, buying=买入, selling=卖出"
+          />
+          <el-table-column
+            label="汇率类型"
             align="center"
             prop="rateType"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="汇率来源,如 manual, api, coingecko"
+          >
+            <template slot-scope="scope">
+              <el-tag v-if="scope.row.rateType === 'standard'">标准</el-tag>
+              <el-tag v-if="scope.row.rateType === 'buying'">买入</el-tag>
+              <el-tag v-if="scope.row.rateType === 'selling'">卖出</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="汇率来源"
             align="center"
             prop="source"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          />
+          <el-table-column
             label="状态: 1=启用, 0=禁用"
             align="center"
             prop="status"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          >
+            <template slot-scope="scope">
+              <el-tag v-if="scope.row.status == 1" type="success">启用</el-tag>
+              <el-tag v-if="scope.row.status == 0" type="danger">禁用</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column
             label="生效开始时间"
             align="center"
             prop="validFrom"
@@ -212,50 +191,48 @@
         />
 
         <!-- 添加或修改对话框 -->
-        <el-dialog :title="title" :visible.sync="open" width="500px">
-          <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <el-dialog :title="title" :visible.sync="open" width="600px">
+          <el-form ref="form" :model="form" :rules="rules" label-width="120px">
 
-            <el-form-item label="基准货币代码 (ISO 4217)" prop="baseCurrencyCode">
+            <el-form-item label="基准货币代码" prop="baseCurrencyCode">
               <el-input
                 v-model="form.baseCurrencyCode"
                 placeholder="基准货币代码 (ISO 4217)"
               />
             </el-form-item>
-            <el-form-item label="报价货币代码 (ISO 4217)" prop="quoteCurrencyCode">
+            <el-form-item label="报价货币代码" prop="quoteCurrencyCode">
               <el-input
                 v-model="form.quoteCurrencyCode"
                 placeholder="报价货币代码 (ISO 4217)"
               />
             </el-form-item>
-            <el-form-item label="汇率: 1 base_currency = rate quote_currency" prop="rate">
+            <el-form-item label="汇率" prop="rate">
               <el-input
                 v-model="form.rate"
                 placeholder="汇率: 1 base_currency = rate quote_currency"
               />
             </el-form-item>
-            <el-form-item label="地区代码,为空表示全局汇率" prop="regionCode">
+            <el-form-item label="地区代码" prop="regionCode">
               <el-input
                 v-model="form.regionCode"
                 placeholder="地区代码,为空表示全局汇率"
               />
             </el-form-item>
-            <el-form-item label="汇率类型: standard=标准, buying=买入, selling=卖出" prop="rateType">
-              <el-input
-                v-model="form.rateType"
-                placeholder="汇率类型: standard=标准, buying=买入, selling=卖出"
-              />
+            <el-form-item label="汇率类型" prop="rateType">
+              <el-select v-model="form.rateType">
+                <el-option label="标准" value="standard" />
+                <el-option label="买入" value="buying" />
+                <el-option label="卖出" value="selling" />
+              </el-select>
             </el-form-item>
-            <el-form-item label="汇率来源,如 manual, api, coingecko" prop="source">
+            <el-form-item label="汇率来源" prop="source">
               <el-input
                 v-model="form.source"
                 placeholder="汇率来源,如 manual, api, coingecko"
               />
             </el-form-item>
-            <el-form-item label="状态: 1=启用, 0=禁用" prop="status">
-              <el-input
-                v-model="form.status"
-                placeholder="状态: 1=启用, 0=禁用"
-              />
+            <el-form-item label="状态" prop="status">
+              <el-switch v-model="form.status" active-value="1" inactive-value="0" />
             </el-form-item>
             <el-form-item label="生效开始时间" prop="validFrom">
               <el-date-picker

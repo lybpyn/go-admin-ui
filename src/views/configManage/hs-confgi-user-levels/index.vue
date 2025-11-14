@@ -12,13 +12,11 @@
             @keyup.enter.native="handleQuery"
           />
           </el-form-item>
-          <el-form-item label="是否启用" prop="isActive"><el-input
-            v-model="queryParams.isActive"
-            placeholder="请输入是否启用"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
+          <el-form-item label="是否启用" prop="isActive">
+            <el-select v-model="queryParams.isActive" placeholder="请选择是否启用" clearable size="small" @change="handleQuery">
+              <el-option label="是" value="1" />
+              <el-option label="否" value="0" />
+            </el-select>
           </el-form-item>
 
           <el-form-item>
@@ -88,12 +86,18 @@
             align="center"
             prop="sortOrder"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          />
+          <el-table-column
             label="是否启用"
             align="center"
             prop="isActive"
             :show-overflow-tooltip="true"
-          />
+          >
+            <template slot-scope="scope">
+              <el-tag v-if="scope.row.isActive == 1" type="success">是</el-tag>
+              <el-tag v-else type="danger">否</el-tag>
+            </template>
+          </el-table-column>
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
@@ -133,8 +137,8 @@
         />
 
         <!-- 添加或修改对话框 -->
-        <el-dialog :title="title" :visible.sync="open" width="500px">
-          <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <el-dialog :title="title" :visible.sync="open" width="600px">
+          <el-form ref="form" :model="form" :rules="rules" label-width="120px">
 
             <el-form-item label="等级名称" prop="levelName">
               <el-input
@@ -167,10 +171,10 @@
               />
             </el-form-item>
             <el-form-item label="是否启用" prop="isActive">
-              <el-input
-                v-model="form.isActive"
-                placeholder="是否启用"
-              />
+              <el-select v-model="form.isActive" clearable size="small">
+                <el-option label="是" value="1" />
+                <el-option label="否" value="0" />
+              </el-select>
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">

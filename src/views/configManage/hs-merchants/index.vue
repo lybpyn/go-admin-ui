@@ -3,8 +3,10 @@
   <BasicLayout>
     <template #wrapper>
       <el-card class="box-card">
-        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-
+        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="120px">
+          <el-form-item label="卡商名称/公司名">
+            <el-input v-model="queryParams.name" placeholder="请输入卡商名称/公司名" />
+          </el-form-item>
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
             <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -48,7 +50,7 @@
 
         <el-table v-loading="loading" :data="hsMerchantsList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" /><el-table-column
-            label="外部/内部唯一编码 (可用于对接第三方)"
+            label="外部/内部唯一编码"
             align="center"
             prop="merchantCode"
             :show-overflow-tooltip="true"
@@ -73,16 +75,24 @@
             prop="contactEmail"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="国家/地区 ISO2 (如 CN, US)"
+            label="国家/地区"
             align="center"
             prop="country"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="状态: 0=禁用,1=启用,2=冻结"
+          />
+          <el-table-column
+            label="状态"
             align="center"
             prop="status"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          >
+            <template slot-scope="scope">
+              <el-tag v-if="scope.row.status == 0" type="success">禁用</el-tag>
+              <el-tag v-else-if="scope.row.status == 1" type="info">启用</el-tag>
+              <el-tag v-else type="danger">冻结</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column
             label="日限额 (可选)"
             align="center"
             prop="dailyLimit"
@@ -93,7 +103,7 @@
             prop="note"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="扩展信息: 如资质文件url、合同信息等"
+            label="扩展信息"
             align="center"
             prop="extra"
             :show-overflow-tooltip="true"
@@ -137,10 +147,10 @@
         />
 
         <!-- 添加或修改对话框 -->
-        <el-dialog :title="title" :visible.sync="open" width="500px">
-          <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <el-dialog :title="title" :visible.sync="open" width="700px">
+          <el-form ref="form" :model="form" :rules="rules" label-width="120px">
 
-            <el-form-item label="外部/内部唯一编码 (可用于对接第三方)" prop="merchantCode">
+            <el-form-item label="外部/内部唯一编码" prop="merchantCode">
               <el-input
                 v-model="form.merchantCode"
                 placeholder="外部/内部唯一编码 (可用于对接第三方)"
@@ -170,17 +180,18 @@
                 placeholder="联系人邮箱"
               />
             </el-form-item>
-            <el-form-item label="国家/地区 ISO2 (如 CN, US)" prop="country">
+            <el-form-item label="国家/地区" prop="country">
               <el-input
                 v-model="form.country"
                 placeholder="国家/地区 ISO2 (如 CN, US)"
               />
             </el-form-item>
-            <el-form-item label="状态: 0=禁用,1=启用,2=冻结" prop="status">
-              <el-input
-                v-model="form.status"
-                placeholder="状态: 0=禁用,1=启用,2=冻结"
-              />
+            <el-form-item label="状态" prop="status">
+              <el-radio-group v-model="form.status">
+                <el-radio :label="0">禁用</el-radio>
+                <el-radio :label="1">启用</el-radio>
+                <el-radio :label="2">冻结</el-radio>
+              </el-radio-group>
             </el-form-item>
             <el-form-item label="日限额 (可选)" prop="dailyLimit">
               <el-input
@@ -194,7 +205,7 @@
                 placeholder="备注/其他说明"
               />
             </el-form-item>
-            <el-form-item label="扩展信息: 如资质文件url、合同信息等" prop="extra">
+            <el-form-item label="扩展信息" prop="extra">
               <el-input
                 v-model="form.extra"
                 placeholder="扩展信息: 如资质文件url、合同信息等"

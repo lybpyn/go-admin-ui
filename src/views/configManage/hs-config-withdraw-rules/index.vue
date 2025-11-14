@@ -4,23 +4,21 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-          <el-form-item label="币种代码，如 USD、CNY、USDT、BTC" prop="currencyCode"><el-input
+          <el-form-item label="币种代码" prop="currencyCode"><el-input
             v-model="queryParams.currencyCode"
-            placeholder="请输入币种代码，如 USD、CNY、USDT、BTC"
+            placeholder="请输入币种代码"
             clearable
             size="small"
             @keyup.enter.native="handleQuery"
           />
           </el-form-item>
-          <el-form-item label="币种类型：fiat=法币，crypto=虚拟币" prop="currencyType"><el-input
-            v-model="queryParams.currencyType"
-            placeholder="请输入币种类型：fiat=法币，crypto=虚拟币"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
+          <el-form-item label="币种类型" prop="currencyType">
+            <el-select v-model="queryParams.currencyType" placeholder="请选择币种类型" @change="handleQuery">
+              <el-option label="法币" value="fiat" />
+              <el-option label="虚拟币" value="crypto" />
+            </el-select>
           </el-form-item>
-          <el-form-item label="链类型（仅虚拟币适用），如 ERC20/TRC20/BEP20" prop="chainType"><el-input
+          <el-form-item label="链类型" prop="chainType"><el-input
             v-model="queryParams.chainType"
             placeholder="请输入链类型（仅虚拟币适用），如 ERC20/TRC20/BEP20"
             clearable
@@ -72,17 +70,24 @@
 
         <el-table v-loading="loading" :data="hsConfigWithdrawRulesList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" /><el-table-column
-            label="币种代码，如 USD、CNY、USDT、BTC"
+            label="币种代码"
             align="center"
             prop="currencyCode"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="币种类型：fiat=法币，crypto=虚拟币"
+          />
+          <el-table-column
+            label="币种类型"
             align="center"
             prop="currencyType"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="链类型（仅虚拟币适用），如 ERC20/TRC20/BEP20"
+          >
+            <template slot-scope="scope">
+              <span v-if="scope.row.currencyType=='fiat'">法币</span>
+              <span v-else>虚拟币</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="链类型"
             align="center"
             prop="chainType"
             :show-overflow-tooltip="true"
@@ -106,18 +111,26 @@
             align="center"
             prop="dailyLimitCount"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="手续费类型：fixed=固定，rate=按比例，mixed=固定+比例"
+          />
+          <el-table-column
+            label="手续费类型"
             align="center"
             prop="feeType"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          >
+            <template slot-scope="scope">
+              <span v-if="scope.row.feeType=='fixed'">固定</span>
+              <span v-else-if="scope.row.feeType=='rate'">按比例</span>
+              <span v-else>固定+比例</span>
+            </template>
+          </el-table-column>
+          <el-table-column
             label="固定手续费数量/金额"
             align="center"
             prop="feeFixed"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="手续费率（例如 0.015 表示 1.5%）"
+            label="手续费率 %"
             align="center"
             prop="feeRate"
             :show-overflow-tooltip="true"
@@ -131,12 +144,18 @@
             align="center"
             prop="maxFee"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="是否启用：1=启用，0=禁用"
+          />
+          <el-table-column
+            label="是否启用"
             align="center"
             prop="isActive"
             :show-overflow-tooltip="true"
-          />
+          >
+            <template slot-scope="scope">
+              <span v-if="scope.row.isActive==1">启用</span>
+              <span v-else>禁用</span>
+            </template>
+          </el-table-column>
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
@@ -176,22 +195,22 @@
         />
 
         <!-- 添加或修改对话框 -->
-        <el-dialog :title="title" :visible.sync="open" width="500px">
-          <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <el-dialog :title="title" :visible.sync="open" width="700px">
+          <el-form ref="form" :model="form" :rules="rules" label-width="180px">
 
-            <el-form-item label="币种代码，如 USD、CNY、USDT、BTC" prop="currencyCode">
+            <el-form-item label="币种代码" prop="currencyCode">
               <el-input
                 v-model="form.currencyCode"
                 placeholder="币种代码，如 USD、CNY、USDT、BTC"
               />
             </el-form-item>
-            <el-form-item label="币种类型：fiat=法币，crypto=虚拟币" prop="currencyType">
-              <el-input
-                v-model="form.currencyType"
-                placeholder="币种类型：fiat=法币，crypto=虚拟币"
-              />
+            <el-form-item label="币种类型" prop="currencyType">
+              <el-select v-model="form.currencyType" placeholder="请选择币种类型">
+                <el-option label="法币" value="fiat" />
+                <el-option label="虚拟币" value="crypto" />
+              </el-select>
             </el-form-item>
-            <el-form-item label="链类型（仅虚拟币适用），如 ERC20/TRC20/BEP20" prop="chainType">
+            <el-form-item label="链类型" prop="chainType">
               <el-input
                 v-model="form.chainType"
                 placeholder="链类型（仅虚拟币适用），如 ERC20/TRC20/BEP20"
@@ -221,11 +240,12 @@
                 placeholder="每日提现次数上限"
               />
             </el-form-item>
-            <el-form-item label="手续费类型：fixed=固定，rate=按比例，mixed=固定+比例" prop="feeType">
-              <el-input
-                v-model="form.feeType"
-                placeholder="手续费类型：fixed=固定，rate=按比例，mixed=固定+比例"
-              />
+            <el-form-item label="手续费类型" prop="feeType">
+              <el-select v-model="form.feeType" placeholder="请选择手续费类型">
+                <el-option label="固定" value="fixed" />
+                <el-option label="按比例" value="rate" />
+                <el-option label="固定+比例" value="mixed" />
+              </el-select>
             </el-form-item>
             <el-form-item label="固定手续费数量/金额" prop="feeFixed">
               <el-input
@@ -233,7 +253,7 @@
                 placeholder="固定手续费数量/金额"
               />
             </el-form-item>
-            <el-form-item label="手续费率（例如 0.015 表示 1.5%）" prop="feeRate">
+            <el-form-item label="手续费率%" prop="feeRate">
               <el-input
                 v-model="form.feeRate"
                 placeholder="手续费率（例如 0.015 表示 1.5%）"
@@ -251,11 +271,11 @@
                 placeholder="最高手续费"
               />
             </el-form-item>
-            <el-form-item label="是否启用：1=启用，0=禁用" prop="isActive">
-              <el-input
-                v-model="form.isActive"
-                placeholder="是否启用：1=启用，0=禁用"
-              />
+            <el-form-item label="是否启用" prop="isActive">
+              <el-radio-group v-model="form.isActive">
+                <el-radio label="1">启用</el-radio>
+                <el-radio label="0">禁用</el-radio>
+              </el-radio-group>
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">

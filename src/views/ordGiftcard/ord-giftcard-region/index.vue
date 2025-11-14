@@ -4,7 +4,9 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-
+          <el-form-item label="所属分类ID" prop="categoryId">
+            <el-input v-model="queryParams.categoryId" placeholder="请输入所属分类ID" clearable />
+          </el-form-item>
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
             <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -48,41 +50,61 @@
 
         <el-table v-loading="loading" :data="ordGiftcardRegionList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" /><el-table-column
-            label="所属分类ID，外键 -> hs_giftcard_category.id"
+            label="所属分类ID"
             align="center"
             prop="categoryId"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="地区代码，如 US、UK、CN"
+            label="地区代码"
             align="center"
             prop="regionCode"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="货币代码，如 USD, GBP, CNY"
+            label="货币代码"
             align="center"
             prop="quoteCurrency"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label=""
+            label="货币简称"
             align="center"
             prop="quoteCurrencySymbol"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label=""
+            label="汇率"
             align="center"
             prop="rate"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          />
+          <el-table-column
             label="是否默认区域"
             align="center"
             prop="isMain"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="状态: 1=启用, 0=禁用"
+          >
+            <template slot-scope="scope">
+              <el-tag
+                :type="scope.row.isMain == 1 ? 'success' : 'danger'"
+                size="mini"
+              >
+                {{ scope.row.isMain == 1 ? '是' : '否' }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="状态"
             align="center"
             prop="status"
             :show-overflow-tooltip="true"
-          />
+          >
+            <template slot-scope="scope">
+              <el-tag
+                :type="scope.row.status == 1 ? 'success' : 'danger'"
+                size="mini"
+              >
+                {{ scope.row.status == 1 ? '启用' : '禁用' }}
+              </el-tag>
+            </template>
+          </el-table-column>
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
@@ -122,50 +144,53 @@
         />
 
         <!-- 添加或修改对话框 -->
-        <el-dialog :title="title" :visible.sync="open" width="500px">
-          <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <el-dialog :title="title" :visible.sync="open" width="550px">
+          <el-form ref="form" :model="form" :rules="rules" label-width="120px">
 
-            <el-form-item label="所属分类ID，外键 -> hs_giftcard_category.id" prop="categoryId">
+            <el-form-item label="所属分类ID" prop="categoryId">
               <el-input
                 v-model="form.categoryId"
                 placeholder="所属分类ID，外键 -> hs_giftcard_category.id"
               />
             </el-form-item>
-            <el-form-item label="地区代码，如 US、UK、CN" prop="regionCode">
+            <el-form-item label="地区代码" prop="regionCode">
               <el-input
                 v-model="form.regionCode"
                 placeholder="地区代码，如 US、UK、CN"
               />
             </el-form-item>
-            <el-form-item label="货币代码，如 USD, GBP, CNY" prop="quoteCurrency">
+            <el-form-item label="货币代码" prop="quoteCurrency">
               <el-input
                 v-model="form.quoteCurrency"
                 placeholder="货币代码，如 USD, GBP, CNY"
               />
             </el-form-item>
-            <el-form-item label="" prop="quoteCurrencySymbol">
+            <el-form-item label="货币简称" prop="quoteCurrencySymbol">
               <el-input
                 v-model="form.quoteCurrencySymbol"
                 placeholder=""
               />
             </el-form-item>
-            <el-form-item label="" prop="rate">
+            <el-form-item label="汇率" prop="rate">
               <el-input
                 v-model="form.rate"
                 placeholder=""
               />
             </el-form-item>
             <el-form-item label="是否默认区域" prop="isMain">
-              <el-input
+              <el-switch
                 v-model="form.isMain"
-                placeholder="是否默认区域"
+                active-value="1"
+                inactive-value="0"
+                active-color="#13ce66"
+                inactive-color="#ff4949"
               />
             </el-form-item>
-            <el-form-item label="状态: 1=启用, 0=禁用" prop="status">
-              <el-input
-                v-model="form.status"
-                placeholder="状态: 1=启用, 0=禁用"
-              />
+            <el-form-item label="状态" prop="status">
+              <el-radio-group v-model="form.status">
+                <el-radio label="1">启用</el-radio>
+                <el-radio label="0">禁用</el-radio>
+              </el-radio-group>
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">

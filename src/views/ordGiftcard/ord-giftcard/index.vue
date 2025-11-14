@@ -3,8 +3,16 @@
   <BasicLayout>
     <template #wrapper>
       <el-card class="box-card">
-        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-
+        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="80px">
+          <el-form-item label="地区ID" prop="regionId">
+            <el-input
+              v-model="queryParams.regionId"
+              placeholder="请输入地区ID"
+              clearable
+              size="small"
+              @keyup.enter.native="handleQuery"
+            />
+          </el-form-item>
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
             <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -53,7 +61,7 @@
             prop="regionId"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="卡名称，例如 Steam 50 USD"
+            label="卡名称"
             align="center"
             prop="name"
             :show-overflow-tooltip="true"
@@ -63,17 +71,24 @@
             prop="valuesConfig"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="折扣汇率，例如0.95 表示95折"
+            label="折扣汇率"
             align="center"
             prop="discountRate"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="状态: 1=启用, 0=禁用"
+          />
+          <el-table-column
+            label="状态"
             align="center"
             prop="status"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="扩展信息，如购买说明、限制条件"
+          >
+            <template slot-scope="scope">
+              <el-tag v-if="scope.row.status == 1" size="small">启用</el-tag>
+              <el-tag v-else size="small">禁用</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="扩展信息"
             align="center"
             prop="extra"
             :show-overflow-tooltip="true"
@@ -126,33 +141,34 @@
                 placeholder="地区ID"
               />
             </el-form-item>
-            <el-form-item label="卡名称，例如 Steam 50 USD" prop="name">
+            <el-form-item label="卡名称" prop="name">
               <el-input
                 v-model="form.name"
                 placeholder="卡名称，例如 Steam 50 USD"
               />
             </el-form-item>
-            <el-form-item label="面额配置，支持区间和固定值" prop="valuesConfig">
+            <el-form-item label="面额配置" prop="valuesConfig">
               <el-input
                 v-model="form.valuesConfig"
                 placeholder="面额配置，支持区间和固定值"
               />
             </el-form-item>
-            <el-form-item label="折扣汇率，例如0.95 表示95折" prop="discountRate">
+            <el-form-item label="折扣汇率" prop="discountRate">
               <el-input
                 v-model="form.discountRate"
                 placeholder="折扣汇率，例如0.95 表示95折"
               />
             </el-form-item>
-            <el-form-item label="状态: 1=启用, 0=禁用" prop="status">
-              <el-input
-                v-model="form.status"
-                placeholder="状态: 1=启用, 0=禁用"
-              />
+            <el-form-item label="状态" prop="status">
+              <el-radio-group v-model="form.status">
+                <el-radio label="1">启用</el-radio>
+                <el-radio label="0">禁用</el-radio>
+              </el-radio-group>
             </el-form-item>
-            <el-form-item label="扩展信息，如购买说明、限制条件" prop="extra">
+            <el-form-item label="扩展信息" prop="extra">
               <el-input
                 v-model="form.extra"
+                type="textarea"
                 placeholder="扩展信息，如购买说明、限制条件"
               />
             </el-form-item>

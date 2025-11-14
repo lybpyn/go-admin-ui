@@ -137,12 +137,18 @@
             align="center"
             prop="settlementCurrencyCode"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          />
+          <el-table-column
             label="状态：0=禁用，1=启用"
             align="center"
             prop="status"
             :show-overflow-tooltip="true"
-          />
+          >
+            <template slot-scope="scope">
+              <el-tag v-if="scope.row.status == 1" type="success" size="small">启用</el-tag>
+              <el-tag v-else size="small" type="danger">禁用</el-tag>
+            </template>
+          </el-table-column>
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
@@ -182,8 +188,8 @@
         />
 
         <!-- 添加或修改对话框 -->
-        <el-dialog :title="title" :visible.sync="open" width="500px">
-          <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <el-dialog :title="title" :visible.sync="open" width="540px">
+          <el-form ref="form" :model="form" :rules="rules" label-width="120px">
 
             <el-form-item label="供应商名称" prop="name">
               <el-input
@@ -245,10 +251,13 @@
                 placeholder="结算货币代码"
               />
             </el-form-item>
-            <el-form-item label="状态：0=禁用，1=启用" prop="status">
-              <el-input
+            <el-form-item label="状态" prop="status">
+              <el-switch
                 v-model="form.status"
-                placeholder="状态：0=禁用，1=启用"
+                active-value="1"
+                inactive-value="0"
+                active-color="#13ce66"
+                inactive-color="#ff4949"
               />
             </el-form-item>
           </el-form>

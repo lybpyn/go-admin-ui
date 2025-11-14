@@ -4,7 +4,9 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-
+          <el-form-item label="用户ID" prop="userId">
+            <el-input v-model="queryParams.userId" placeholder="请输入用户ID，表示提交/使用礼品卡的用户" clearable />
+          </el-form-item>
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
             <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -48,17 +50,17 @@
 
         <el-table v-loading="loading" :data="ordGiftcardWriteoffsList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" /><el-table-column
-            label="用户ID，表示提交/使用礼品卡的用户"
+            label="用户ID"
             align="center"
             prop="userId"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="订单ID，关联 ord_user_orders.id，用于核销对应的订单"
+            label="订单ID"
             align="center"
             prop="orderId"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="礼品卡ID，关联礼品卡主表（若有）"
+            label="礼品卡ID"
             align="center"
             prop="giftCardId"
             :show-overflow-tooltip="true"
@@ -67,13 +69,21 @@
             align="center"
             prop="giftCardCode"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="核销状态：0=待核销，1=已核销，2=失败"
+          />
+          <el-table-column
+            label="核销状态"
             align="center"
             prop="status"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="备注信息，例如失败原因、核销说明"
+          >
+            <template slot-scope="scope">
+              <el-tag v-if="scope.row.status == 0" type="info">待核销</el-tag>
+              <el-tag v-if="scope.row.status == 1" type="success">已核销</el-tag>
+              <el-tag v-if="scope.row.status == 2" type="danger">失败</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="备注信息"
             align="center"
             prop="remark"
             :show-overflow-tooltip="true"
@@ -120,39 +130,41 @@
         <el-dialog :title="title" :visible.sync="open" width="500px">
           <el-form ref="form" :model="form" :rules="rules" label-width="80px">
 
-            <el-form-item label="用户ID，表示提交/使用礼品卡的用户" prop="userId">
+            <el-form-item label="用户ID" prop="userId">
               <el-input
                 v-model="form.userId"
                 placeholder="用户ID，表示提交/使用礼品卡的用户"
               />
             </el-form-item>
-            <el-form-item label="订单ID，关联 ord_user_orders.id，用于核销对应的订单" prop="orderId">
+            <el-form-item label="订单ID" prop="orderId">
               <el-input
                 v-model="form.orderId"
                 placeholder="订单ID，关联 ord_user_orders.id，用于核销对应的订单"
               />
             </el-form-item>
-            <el-form-item label="礼品卡ID，关联礼品卡主表（若有）" prop="giftCardId">
+            <el-form-item label="礼品卡ID" prop="giftCardId">
               <el-input
                 v-model="form.giftCardId"
                 placeholder="礼品卡ID，关联礼品卡主表（若有）"
               />
             </el-form-item>
-            <el-form-item label="礼品卡卡号/兑换码，保证唯一性" prop="giftCardCode">
+            <el-form-item label="礼品卡卡号" prop="giftCardCode">
               <el-input
                 v-model="form.giftCardCode"
                 placeholder="礼品卡卡号/兑换码，保证唯一性"
               />
             </el-form-item>
-            <el-form-item label="核销状态：0=待核销，1=已核销，2=失败" prop="status">
-              <el-input
-                v-model="form.status"
-                placeholder="核销状态：0=待核销，1=已核销，2=失败"
-              />
+            <el-form-item label="核销状态" prop="status">
+              <el-radio-group v-model="form.status">
+                <el-radio label="0">待核销</el-radio>
+                <el-radio label="1">已核销</el-radio>
+                <el-radio label="2">失败</el-radio>
+              </el-radio-group>
             </el-form-item>
-            <el-form-item label="备注信息，例如失败原因、核销说明" prop="remark">
+            <el-form-item label="备注信息" prop="remark">
               <el-input
                 v-model="form.remark"
+                type="textarea"
                 placeholder="备注信息，例如失败原因、核销说明"
               />
             </el-form-item>

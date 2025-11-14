@@ -4,7 +4,9 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-
+          <el-form-item label="链代码:">
+            <el-input v-model="queryParams.chainCode" placeholder="请输入链代码" clearable size="small" @keyup.enter.native="handleQuery" />
+          </el-form-item>
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
             <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -48,17 +50,17 @@
 
         <el-table v-loading="loading" :data="hsConfigSupportedChainsCoinList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" /><el-table-column
-            label="链代码，如 TRC20 / ERC20 / BEP20"
+            label="链代码"
             align="center"
             prop="chainCode"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="链名称，如 Tron / Ethereum / BSC"
+            label="链名称"
             align="center"
             prop="chainName"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="主币，如 TRX / ETH / BNB"
+            label="主币"
             align="center"
             prop="nativeSymbol"
             :show-overflow-tooltip="true"
@@ -68,7 +70,7 @@
             prop="withdrawCoin"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="网络类型：mainnet/testnet"
+            label="网络类型"
             align="center"
             prop="network"
             :show-overflow-tooltip="true"
@@ -87,17 +89,28 @@
             align="center"
             prop="chainId"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="提现是否启用：1=启用，0=关闭"
+          />
+          <el-table-column
+            label="提现是否启用"
             align="center"
             prop="withdrawEnabled"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="充值是否启用：1=启用，0=关闭"
+          >
+            <template slot-scope="scope">
+              <el-tag :type="scope.row.withdrawEnabled == 1 ? 'success' : 'danger'" size="mini">{{ scope.row.withdrawEnabled == 1 ? '启用' : '关闭' }}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="充值是否启用"
             align="center"
             prop="depositEnabled"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          >
+            <template slot-scope="scope">
+              <el-tag :type="scope.row.depositEnabled == 1 ? 'success' : 'danger'" size="mini">{{ scope.row.depositEnabled == 1 ? '启用' : '关闭' }}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column
             label="最小提现金额"
             align="center"
             prop="minWithdrawAmount"
@@ -107,12 +120,18 @@
             align="center"
             prop="withdrawFee"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="状态：1=启用，0=停用"
+          />
+          <el-table-column
+            label="状态"
             align="center"
             prop="status"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          >
+            <template slot-scope="scope">
+              <el-tag :type="scope.row.status == 1 ? 'success' : 'danger'" size="mini">{{ scope.row.status == 1 ? '启用' : '停用' }}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column
             label="排序权重"
             align="center"
             prop="sortOrder"
@@ -162,22 +181,22 @@
         />
 
         <!-- 添加或修改对话框 -->
-        <el-dialog :title="title" :visible.sync="open" width="500px">
-          <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <el-dialog :title="title" :visible.sync="open" width="800px">
+          <el-form ref="form" :model="form" :rules="rules" label-width="120px">
 
-            <el-form-item label="链代码，如 TRC20 / ERC20 / BEP20" prop="chainCode">
+            <el-form-item label="链代码" prop="chainCode">
               <el-input
                 v-model="form.chainCode"
                 placeholder="链代码，如 TRC20 / ERC20 / BEP20"
               />
             </el-form-item>
-            <el-form-item label="链名称，如 Tron / Ethereum / BSC" prop="chainName">
+            <el-form-item label="链名称" prop="chainName">
               <el-input
                 v-model="form.chainName"
                 placeholder="链名称，如 Tron / Ethereum / BSC"
               />
             </el-form-item>
-            <el-form-item label="主币，如 TRX / ETH / BNB" prop="nativeSymbol">
+            <el-form-item label="主币" prop="nativeSymbol">
               <el-input
                 v-model="form.nativeSymbol"
                 placeholder="主币，如 TRX / ETH / BNB"
@@ -189,7 +208,7 @@
                 placeholder="当前链支持提现的币种"
               />
             </el-form-item>
-            <el-form-item label="网络类型：mainnet/testnet" prop="network">
+            <el-form-item label="网络类型" prop="network">
               <el-input
                 v-model="form.network"
                 placeholder="网络类型：mainnet/testnet"
@@ -201,7 +220,7 @@
                 placeholder="区块浏览器URL前缀"
               />
             </el-form-item>
-            <el-form-item label="RPC节点或API Endpoint" prop="rpcEndpoint">
+            <el-form-item label="RPC节点" prop="rpcEndpoint">
               <el-input
                 v-model="form.rpcEndpoint"
                 placeholder="RPC节点或API Endpoint"
@@ -213,17 +232,18 @@
                 placeholder="链ID（EVM链使用）"
               />
             </el-form-item>
-            <el-form-item label="提现是否启用：1=启用，0=关闭" prop="withdrawEnabled">
-              <el-input
-                v-model="form.withdrawEnabled"
-                placeholder="提现是否启用：1=启用，0=关闭"
-              />
+            <el-form-item label="提现是否启用" prop="withdrawEnabled">
+              <el-radio-group v-model="form.withdrawEnabled">
+                <el-radio label="1">启用</el-radio>
+                <el-radio label="0">关闭</el-radio>
+              </el-radio-group>
             </el-form-item>
-            <el-form-item label="充值是否启用：1=启用，0=关闭" prop="depositEnabled">
-              <el-input
-                v-model="form.depositEnabled"
-                placeholder="充值是否启用：1=启用，0=关闭"
-              />
+            <el-form-item label="充值是否启用" prop="depositEnabled">
+
+              <el-radio-group v-model="form.depositEnabled">
+                <el-radio label="1">启用</el-radio>
+                <el-radio label="0">关闭</el-radio>
+              </el-radio-group>
             </el-form-item>
             <el-form-item label="最小提现金额" prop="minWithdrawAmount">
               <el-input
@@ -237,11 +257,11 @@
                 placeholder="固定提现手续费（USDT）"
               />
             </el-form-item>
-            <el-form-item label="状态：1=启用，0=停用" prop="status">
-              <el-input
-                v-model="form.status"
-                placeholder="状态：1=启用，0=停用"
-              />
+            <el-form-item label="状态" prop="status">
+              <el-radio-group v-model="form.status">
+                <el-radio label="1">启用</el-radio>
+                <el-radio label="0">停用</el-radio>
+              </el-radio-group>
             </el-form-item>
             <el-form-item label="排序权重" prop="sortOrder">
               <el-input
@@ -252,6 +272,7 @@
             <el-form-item label="备注说明" prop="remark">
               <el-input
                 v-model="form.remark"
+                type="textarea"
                 placeholder="备注说明"
               />
             </el-form-item>
@@ -341,11 +362,11 @@ export default {
         explorerUrl: undefined,
         rpcEndpoint: undefined,
         chainId: undefined,
-        withdrawEnabled: undefined,
+        withdrawEnabled: '1',
         depositEnabled: undefined,
         minWithdrawAmount: undefined,
         withdrawFee: undefined,
-        status: undefined,
+        status: '1',
         sortOrder: undefined,
         remark: undefined
       }
