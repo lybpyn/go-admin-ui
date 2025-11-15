@@ -112,7 +112,7 @@
             :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
-              <el-tag v-if="scope.row.status == 0">待处理</el-tag>
+              <el-tag v-if="scope.row.status == 5">待处理</el-tag>
               <el-tag v-if="scope.row.status == 1">已经接单</el-tag>
               <el-tag v-if="scope.row.sttusa == 2">已完成</el-tag>
               <el-tag v-if="scope.row.status == 3">已取消</el-tag>
