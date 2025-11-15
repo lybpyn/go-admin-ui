@@ -43,7 +43,7 @@
             </el-col>
             <el-col :span="6">
               <el-form-item label="订单状态">
-                <el-tag v-if="form.status == 0">待处理</el-tag>
+                <el-tag v-if="form.status == 5">待处理</el-tag>
                 <el-tag v-if="form.status == 1">已经接单</el-tag>
                 <el-tag v-if="form.status == 2">已完成</el-tag>
                 <el-tag v-if="form.status == 3">已取消</el-tag>
