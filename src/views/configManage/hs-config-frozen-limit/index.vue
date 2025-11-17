@@ -54,12 +54,26 @@
         </el-row>
 
         <el-table v-loading="loading" :data="hsConfigFrozenLimitList" @selection-change="handleSelectionChange">
-          <el-table-column type="selection" width="55" align="center" /><el-table-column
+          <el-table-column type="selection" width="55" align="center" />
+          <el-table-column
             label="币种代码"
             align="center"
             prop="currencyCode"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          />
+          <el-table-column
+            label="币种类型"
+            align="center"
+            prop="currencyType"
+            :show-overflow-tooltip="true"
+          >
+            <template slot-scope="scope">
+              <span>
+                {{ scope.row.currencyType == 'fiat' ? '法币' : '虚拟币' }}
+              </span>
+            </template>
+          </el-table-column>
+          <el-table-column
             label="可冻结金额上限"
             align="center"
             prop="frozenLimitAmount"
@@ -121,8 +135,13 @@
         <!-- 添加或修改对话框 -->
         <el-dialog :title="title" :visible.sync="open" width="500px">
           <el-form ref="form" :model="form" :rules="rules" label-width="120px">
-
-            <el-form-item label="币种代码T" prop="currencyCode">
+            <el-form-item label="币种类型" prop="currencyType">
+              <el-select v-model="form.currencyType" placeholder="请选择币种类型">
+                <el-option label="法币" value="fiat" />
+                <el-option label="虚拟币" value="crypto" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="币种代码" prop="currencyCode">
               <el-input
                 v-model="form.currencyCode"
                 placeholder="币种代码，如 USD/CNY/USDT"
@@ -135,10 +154,6 @@
               />
             </el-form-item>
             <el-form-item label="是否启用" prop="isActive">
-              <el-input
-                v-model="form.isActive"
-                placeholder="是否启用"
-              />
               <el-radio-group v-model="form.isActive">
                 <el-radio label="1">启用</el-radio>
                 <el-radio label="0">禁用</el-radio>

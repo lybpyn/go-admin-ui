@@ -99,7 +99,7 @@
           </el-form-item>
         </el-form>
 
-        <el-row :gutter="10" class="mb8">
+        <!-- <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
             <el-button
               v-permisaction="['admin:hsUserFrozenLedger:add']"
@@ -132,7 +132,7 @@
             >删除
             </el-button>
           </el-col>
-        </el-row>
+        </el-row> -->
 
         <el-table v-loading="loading" :data="hsUserFrozenLedgerList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" /><el-table-column
@@ -191,7 +191,7 @@
             prop="status"
             :show-overflow-tooltip="true"
           />
-          <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+          <!-- <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
                 slot="reference"
@@ -218,7 +218,7 @@
                 </el-button>
               </el-popconfirm>
             </template>
-          </el-table-column>
+          </el-table-column> -->
         </el-table>
 
         <pagination

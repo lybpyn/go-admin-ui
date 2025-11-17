@@ -480,7 +480,7 @@ export default {
       this.submit(this.ordUserOrdersList)
     },
     handleAdd(row) {
-      this.ordUserOrdersList.push(this.ordUserOrdersList[0])
+      this.ordUserOrdersList.push(row)
     },
     handleDel(row, index) {
       this.ordUserOrdersList.splice(index, 1)

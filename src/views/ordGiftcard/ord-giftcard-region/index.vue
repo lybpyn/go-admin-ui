@@ -49,7 +49,14 @@
         </el-row>
 
         <el-table v-loading="loading" :data="ordGiftcardRegionList" @selection-change="handleSelectionChange">
-          <el-table-column type="selection" width="55" align="center" /><el-table-column
+          <el-table-column type="selection" width="55" align="center" />
+          <el-table-column
+            label="排序"
+            align="center"
+            prop="sort"
+            :show-overflow-tooltip="true"
+          />
+          <el-table-column
             label="所属分类ID"
             align="center"
             prop="categoryId"
@@ -146,7 +153,13 @@
         <!-- 添加或修改对话框 -->
         <el-dialog :title="title" :visible.sync="open" width="550px">
           <el-form ref="form" :model="form" :rules="rules" label-width="120px">
-
+            <el-form-item label="排序" prop="sort">
+              <el-input-number
+                v-model="form.sort"
+                placeholder="排序"
+                type="number"
+              />
+            </el-form-item>
             <el-form-item label="所属分类ID" prop="categoryId">
               <el-input
                 v-model="form.categoryId"
@@ -268,7 +281,6 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-
         id: undefined,
         categoryId: undefined,
         regionCode: undefined,
