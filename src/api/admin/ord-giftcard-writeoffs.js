@@ -43,4 +43,11 @@ export function delOrdGiftcardWriteoffs(data) {
     data: data
   })
 }
-
+// 计算入账金额
+export function calculateOrdGiftcardWriteoffs(data) {
+  return request({
+    url: '/api/v1/ord-giftcard-writeoffs/calculate',
+    method: 'post',
+    data: data
+  })
+}

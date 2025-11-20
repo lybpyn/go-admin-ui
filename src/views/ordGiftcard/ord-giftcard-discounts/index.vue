@@ -4,7 +4,16 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-
+          <el-form-item label="礼品卡ID" prop="giftcardId">
+            <el-select v-model="queryParams.giftcardId" placeholder="请选择礼品卡" style="width: 100%">
+              <el-option
+                v-for="item in ordGiftcardList"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+              />
+            </el-select>
+          </el-form-item>
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
             <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -48,21 +57,31 @@
 
         <el-table v-loading="loading" :data="ordGiftcardDiscountsList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" /><el-table-column
-            label="礼品卡ID -> ord_giftcard.id"
+            label="礼品卡ID"
             align="center"
             prop="giftcardId"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          >
+            <template slot-scope="scope">
+              {{ filterGiftcardName(scope.row) || '-' }}
+            </template>
+          </el-table-column>
+          <el-table-column
             label="卡类型"
             align="center"
             prop="cardType"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="折扣汇率，例如0.95 表示95折"
+          />
+          <el-table-column
+            label="折扣汇率"
             align="center"
             prop="discountRate"
             :show-overflow-tooltip="true"
-          />
+          >
+            <template slot-scope="scope">
+              <el-input v-model="scope.row.discountRate" placeholder="折扣汇率" @blur="updateRate(scope.row)" />
+            </template>
+          </el-table-column>
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
@@ -103,7 +122,24 @@
 
         <!-- 添加或修改对话框 -->
         <el-dialog :title="title" :visible.sync="open" width="500px">
-          <el-form ref="form" :model="form" :rules="rules" label-width="80px" />
+          <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+            <el-form-item label="礼品卡" prop="giftcardId">
+              <el-select v-model="form.giftcardId" placeholder="请选择礼品卡" style="width: 100%">
+                <el-option
+                  v-for="item in ordGiftcardList"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
+                />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="卡类型" prop="cardType">
+              <el-input v-model="form.cardType" placeholder="请输入卡类型" />
+            </el-form-item>
+            <el-form-item label="折扣汇率" prop="rate">
+              <el-input v-model="form.discountRate" placeholder="请输入折扣汇率，例如0.95 表示95折" />
+            </el-form-item>
+          </el-form>
           <div slot="footer" class="dialog-footer">
             <el-button type="primary" @click="submitForm">确 定</el-button>
             <el-button @click="cancel">取 消</el-button>
@@ -116,7 +152,7 @@
 
 <script>
 import { addOrdGiftcardDiscounts, delOrdGiftcardDiscounts, getOrdGiftcardDiscounts, listOrdGiftcardDiscounts, updateOrdGiftcardDiscounts } from '@/api/admin/ord-giftcard-discounts'
-
+import { listOrdGiftcard } from '@/api/admin/ord-giftcard'
 export default {
   name: 'OrdGiftcardDiscounts',
   components: {
@@ -154,11 +190,13 @@ export default {
       form: {
       },
       // 表单校验
-      rules: {}
+      rules: {},
+      ordGiftcardList: []
     }
   },
   created() {
     this.getList()
+    this.getSelectOptions()
   },
   methods: {
     /** 查询参数列表 */
@@ -168,8 +206,15 @@ export default {
         this.ordGiftcardDiscountsList = response.data.list
         this.total = response.data.count
         this.loading = false
-      }
-      )
+      })
+    },
+    getSelectOptions() {
+      listOrdGiftcard({ pageIndex: 1, pageSize: 1000 }).then(response => {
+        this.ordGiftcardList = response.data.list
+      })
+    },
+    filterGiftcardName(row) {
+      return this.ordGiftcardList.find(item => item.id === parseInt(row.giftcardId))?.name || '-'
     },
     // 取消按钮
     cancel() {
@@ -253,6 +298,16 @@ export default {
               }
             })
           }
+        }
+      })
+    },
+    updateRate(row) {
+      updateOrdGiftcardDiscounts(row).then(response => {
+        if (response.code === 200) {
+          this.msgSuccess(response.msg)
+          this.getList()
+        } else {
+          this.msgError(response.msg)
         }
       })
     },

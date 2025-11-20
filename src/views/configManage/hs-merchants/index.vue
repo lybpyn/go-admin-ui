@@ -87,9 +87,9 @@
             :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
-              <el-tag v-if="scope.row.status == 0" type="success">禁用</el-tag>
-              <el-tag v-else-if="scope.row.status == 1" type="info">启用</el-tag>
-              <el-tag v-else type="danger">冻结</el-tag>
+              <el-tag v-if="scope.row.status == 0" type="danger">禁用</el-tag>
+              <el-tag v-else-if="scope.row.status == 1" type="success">启用</el-tag>
+              <el-tag v-else type="info">冻结</el-tag>
             </template>
           </el-table-column>
           <el-table-column
@@ -102,12 +102,17 @@
             align="center"
             prop="note"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          />
+          <el-table-column
             label="扩展信息"
             align="center"
             prop="extra"
             :show-overflow-tooltip="true"
-          />
+          >
+            <template slot-scope="scope">
+              <el-link :href="scope.row.extra.path" target="_blank" type="primary">{{ scope.row.extra.name }}</el-link>
+            </template>
+          </el-table-column>
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
@@ -148,7 +153,7 @@
 
         <!-- 添加或修改对话框 -->
         <el-dialog :title="title" :visible.sync="open" width="700px">
-          <el-form ref="form" :model="form" :rules="rules" label-width="120px">
+          <el-form ref="form" :model="form" :rules="rules" label-width="130px">
 
             <el-form-item label="外部/内部唯一编码" prop="merchantCode">
               <el-input
@@ -188,9 +193,9 @@
             </el-form-item>
             <el-form-item label="状态" prop="status">
               <el-radio-group v-model="form.status">
-                <el-radio :label="0">禁用</el-radio>
-                <el-radio :label="1">启用</el-radio>
-                <el-radio :label="2">冻结</el-radio>
+                <el-radio label="0">禁用</el-radio>
+                <el-radio label="1">启用</el-radio>
+                <el-radio label="2">冻结</el-radio>
               </el-radio-group>
             </el-form-item>
             <el-form-item label="日限额 (可选)" prop="dailyLimit">
@@ -206,10 +211,21 @@
               />
             </el-form-item>
             <el-form-item label="扩展信息" prop="extra">
-              <el-input
+              <!-- <el-input
                 v-model="form.extra"
                 placeholder="扩展信息: 如资质文件url、合同信息等"
-              />
+              /> -->
+              <el-upload
+                class="upload-demo"
+                :headers="headers"
+                :limit="1"
+                action="https://adminapi.cardpartner.io/api/v1/public/uploadFile"
+                :on-success="handleUploadChange"
+                :file-list="fileList"
+                :on-remove="handleRemove"
+              >
+                <el-button size="small" type="primary">点击上传</el-button>
+              </el-upload>
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
@@ -224,7 +240,7 @@
 
 <script>
 import { addHsMerchants, delHsMerchants, getHsMerchants, listHsMerchants, updateHsMerchants } from '@/api/admin/hs-merchants'
-
+import { getToken } from '@/utils/auth'
 export default {
   name: 'HsMerchants',
   components: {
@@ -262,7 +278,11 @@ export default {
       form: {
       },
       // 表单校验
-      rules: {}
+      rules: {},
+      headers: {
+        Authorization: 'Bearer ' + getToken()
+      },
+      fileList: []
     }
   },
   created() {
@@ -273,6 +293,9 @@ export default {
     getList() {
       this.loading = true
       listHsMerchants(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+        response.data.list.forEach(item => {
+          item.extra = JSON.parse(item.extra)
+        })
         this.hsMerchantsList = response.data.list
         this.total = response.data.count
         this.loading = false
@@ -287,7 +310,6 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-
         id: undefined,
         merchantCode: undefined,
         name: undefined,
@@ -295,11 +317,12 @@ export default {
         contactPhone: undefined,
         contactEmail: undefined,
         country: undefined,
-        status: undefined,
+        status: '1',
         dailyLimit: undefined,
         note: undefined,
-        extra: undefined
+        extra: {}
       }
+      this.fileList = []
       this.resetForm('form')
     },
     getImgList: function() {
@@ -341,6 +364,7 @@ export default {
                 row.id || this.ids
       getHsMerchants(id).then(response => {
         this.form = response.data
+        this.fileList = []
         this.open = true
         this.title = '修改卡商管理表'
         this.isEdit = true
@@ -350,6 +374,7 @@ export default {
     submitForm: function() {
       this.$refs['form'].validate(valid => {
         if (valid) {
+          this.form.extra = JSON.stringify(this.form.extra)
           if (this.form.id !== undefined) {
             updateHsMerchants(this.form).then(response => {
               if (response.code === 200) {
@@ -394,6 +419,13 @@ export default {
         }
       }).catch(function() {
       })
+    },
+    handleUploadChange(res) {
+      this.form.extra = res
+    },
+    handleRemove() {
+      this.form.extra = ''
+      this.fileList = []
     }
   }
 }

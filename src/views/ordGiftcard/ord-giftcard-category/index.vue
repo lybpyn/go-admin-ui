@@ -49,8 +49,29 @@
         </el-row>
 
         <el-table v-loading="loading" :data="ordGiftcardCategoryList" @selection-change="handleSelectionChange">
-          <el-table-column type="selection" width="55" align="center" /><el-table-column
-            label="分类名称，如 Steam、eBay"
+          <el-table-column type="selection" width="55" align="center" />
+          <el-table-column
+            label="排序"
+            align="center"
+            prop="sortOrder"
+            :show-overflow-tooltip="true"
+          />
+          <el-table-column
+            label="logo"
+            align="center"
+            prop="logo"
+            :show-overflow-tooltip="true"
+          >
+            <template slot-scope="scope">
+              <el-image
+                style="width: 50px; height: 50px"
+                :src="scope.row.logo"
+                :preview-src-list="[scope.row.logo]"
+              />
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="分类名称"
             align="center"
             prop="name"
             :show-overflow-tooltip="true"
@@ -67,16 +88,15 @@
             </template>
           </el-table-column>
           <el-table-column
-            label="汇率折扣展示用"
+            label="汇率折扣"
             align="center"
             prop="discountRate"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label=""
-            align="center"
-            prop="sortOrder"
-            :show-overflow-tooltip="true"
-          />
+          >
+            <template slot-scope="scope">
+              <el-input v-model="scope.row.discountRate" placeholder="汇率折扣" @blur="updateRate(scope.row)" />
+            </template>
+          </el-table-column>
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
@@ -131,17 +151,34 @@
                 <el-radio label="0">禁用</el-radio>
               </el-radio-group>
             </el-form-item>
-            <el-form-item label="汇率折扣展示用" prop="discountRate">
+            <el-form-item label="汇率折扣" prop="discountRate">
               <el-input
                 v-model="form.discountRate"
-                placeholder="汇率折扣展示用"
+                placeholder="汇率折扣"
               />
             </el-form-item>
-            <el-form-item label="" prop="sortOrder">
+            <el-form-item label="排序" prop="sortOrder">
               <el-input
                 v-model="form.sortOrder"
                 placeholder=""
               />
+            </el-form-item>
+            <el-form-item label="logo" prop="logo">
+              <!-- <el-input
+                v-model="form.extra"
+                placeholder="扩展信息: 如资质文件url、合同信息等"
+              /> -->
+              <el-upload
+                class="upload-demo"
+                :headers="headers"
+                :limit="1"
+                action="https://adminapi.cardpartner.io/api/v1/public/uploadFile"
+                :on-success="handleUploadChange"
+                :file-list="fileList"
+                :on-remove="handleRemove"
+              >
+                <el-button size="small" type="primary">点击上传</el-button>
+              </el-upload>
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
@@ -156,7 +193,7 @@
 
 <script>
 import { addOrdGiftcardCategory, delOrdGiftcardCategory, getOrdGiftcardCategory, listOrdGiftcardCategory, updateOrdGiftcardCategory } from '@/api/admin/ord-giftcard-category'
-
+import { getToken } from '@/utils/auth'
 export default {
   name: 'OrdGiftcardCategory',
   components: {
@@ -187,14 +224,18 @@ export default {
       // 查询参数
       queryParams: {
         pageIndex: 1,
-        pageSize: 10
+        pageSize: 50
 
       },
       // 表单参数
       form: {
       },
       // 表单校验
-      rules: {}
+      rules: {},
+      headers: {
+        Authorization: 'Bearer ' + getToken()
+      },
+      fileList: []
     }
   },
   created() {
@@ -300,6 +341,16 @@ export default {
         }
       })
     },
+    updateRate(row) {
+      updateOrdGiftcardCategory(row).then(response => {
+        if (response.code === 200) {
+          this.msgSuccess(response.msg)
+          this.getList()
+        } else {
+          this.msgError(response.msg)
+        }
+      })
+    },
     /** 删除按钮操作 */
     handleDelete(row) {
       var Ids = (row.id && [row.id]) || this.ids
@@ -320,6 +371,13 @@ export default {
         }
       }).catch(function() {
       })
+    },
+    handleUploadChange(res) {
+      this.form.logo = res.data ? res.data.full_path : ''
+    },
+    handleRemove() {
+      this.form.logo = ''
+      this.fileList = []
     }
   }
 }

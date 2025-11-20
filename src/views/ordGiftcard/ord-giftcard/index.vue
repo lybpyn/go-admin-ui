@@ -60,7 +60,12 @@
             align="center"
             prop="regionId"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          >
+            <template slot-scope="scope">
+              {{ filterRegionName(scope.row.regionId) }}
+            </template>
+          </el-table-column>
+          <el-table-column
             label="卡名称"
             align="center"
             prop="name"
@@ -70,12 +75,17 @@
             align="center"
             prop="valuesConfig"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          />
+          <el-table-column
             label="折扣汇率"
             align="center"
             prop="discountRate"
             :show-overflow-tooltip="true"
-          />
+          >
+            <template slot-scope="scope">
+              <el-input v-model="scope.row.discountRate" placeholder="汇率折扣" @blur="updateRate(scope.row)" />
+            </template>
+          </el-table-column>
           <el-table-column
             label="状态"
             align="center"
@@ -134,12 +144,10 @@
         <!-- 添加或修改对话框 -->
         <el-dialog :title="title" :visible.sync="open" width="500px">
           <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-
             <el-form-item label="地区ID" prop="regionId">
-              <el-input
-                v-model="form.regionId"
-                placeholder="地区ID"
-              />
+              <el-select v-model="form.regionId" placeholder="请选择地区">
+                <el-option v-for="item in regionList" :key="item.id" :label="item.regionCode" :value="String(item.id)" />
+              </el-select>
             </el-form-item>
             <el-form-item label="卡名称" prop="name">
               <el-input
@@ -185,7 +193,7 @@
 
 <script>
 import { addOrdGiftcard, delOrdGiftcard, getOrdGiftcard, listOrdGiftcard, updateOrdGiftcard } from '@/api/admin/ord-giftcard'
-
+import { listOrdGiftcardRegion } from '@/api/admin/ord-giftcard-region'
 export default {
   name: 'OrdGiftcard',
   components: {
@@ -216,18 +224,20 @@ export default {
       // 查询参数
       queryParams: {
         pageIndex: 1,
-        pageSize: 10
+        pageSize: 50
 
       },
       // 表单参数
       form: {
       },
       // 表单校验
-      rules: {}
+      rules: {},
+      regionList: []
     }
   },
   created() {
     this.getList()
+    this.getRegionList()
   },
   methods: {
     /** 查询参数列表 */
@@ -239,6 +249,15 @@ export default {
         this.loading = false
       }
       )
+    },
+    getRegionList() {
+      listOrdGiftcardRegion({ pageIndex: 1, pageSize: 1000 }).then(response => {
+        this.regionList = response.data.list
+      })
+    },
+    filterRegionName(regionId) {
+      const region = this.regionList.find(item => item.id === Number(regionId))
+      return region ? region.regionCode : ''
     },
     // 取消按钮
     cancel() {
@@ -255,7 +274,7 @@ export default {
         valuesConfig: undefined,
         discountRate: undefined,
         status: undefined,
-        extra: undefined
+        extra: '备注信息'
       }
       this.resetForm('form')
     },
@@ -328,6 +347,16 @@ export default {
               }
             })
           }
+        }
+      })
+    },
+    updateRate(row) {
+      updateOrdGiftcard(row).then(response => {
+        if (response.code === 200) {
+          this.msgSuccess(response.msg)
+          this.getList()
+        } else {
+          this.msgError(response.msg)
         }
       })
     },

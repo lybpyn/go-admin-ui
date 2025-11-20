@@ -93,12 +93,18 @@
             align="center"
             prop="quoteCurrencyCode"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          />
+          <el-table-column
             label="汇率"
             align="center"
             prop="rate"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          >
+            <template slot-scope="scope">
+              <el-input v-model="scope.row.rate" placeholder="请输入汇率" @blur="updateRate(scope.row)" />
+            </template>
+          </el-table-column>
+          <el-table-column
             label="地区代码"
             align="center"
             prop="regionCode"
@@ -123,7 +129,7 @@
             :show-overflow-tooltip="true"
           />
           <el-table-column
-            label="状态: 1=启用, 0=禁用"
+            label="状态"
             align="center"
             prop="status"
             :show-overflow-tooltip="true"
@@ -425,6 +431,16 @@ export default {
               }
             })
           }
+        }
+      })
+    },
+    updateRate(row) {
+      updateOrdConfigCurrencyRates(row).then(response => {
+        if (response.code === 200) {
+          this.msgSuccess(response.msg)
+          this.getList()
+        } else {
+          this.msgError(response.msg)
         }
       })
     },

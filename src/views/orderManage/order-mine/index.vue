@@ -49,32 +49,52 @@
         </el-row> -->
 
         <el-table v-loading="loading" :data="ordUserOrdersList" @selection-change="handleSelectionChange">
-          <el-table-column type="selection" width="55" align="center" /><el-table-column
+          <!-- <el-table-column type="selection" width="55" align="center" /> -->
+          <el-table-column
             label="用户ID"
             align="center"
             prop="userId"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="地区ID"
+          />
+          <el-table-column
+            label="地区"
             align="center"
             prop="regionId"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="分类ID"
+          >
+            <template slot-scope="scope">
+              {{ filterRegionName(scope.row.regionId) }}
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="分类"
             align="center"
             prop="categoryId"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          >
+            <template slot-scope="scope">
+              {{ filterGiftcardCategory(scope.row.categoryId) }}
+            </template>
+          </el-table-column>
+          <el-table-column
             label="订单号"
             align="center"
             prop="OrderNo"
             :show-overflow-tooltip="true"
-          /><el-table-column
+            width="150"
+          />
+          <el-table-column
             label="礼品卡"
             align="center"
             prop="giftcardId"
             :show-overflow-tooltip="true"
-          /><el-table-column
+            width="150"
+          >
+            <template slot-scope="scope">
+              {{ filterGiftcardId(scope.row.giftcardId) }}
+            </template>
+          </el-table-column>
+          <el-table-column
             label="卡片类型"
             align="center"
             prop="cardType"
@@ -83,6 +103,7 @@
             label="礼品卡卡号验证码"
             align="center"
             prop="giftCardCode"
+            width="200"
             :show-overflow-tooltip="true"
           /><el-table-column
             label="卡余额"
@@ -143,7 +164,7 @@
               <span>{{ parseTime(scope.row.canceledAt) }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="200">
+          <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="120" fixed="right">
             <template slot-scope="scope">
               <el-button
                 v-if="scope.row.status < 2"
@@ -309,7 +330,9 @@
 
 <script>
 import { addOrdUserOrders, delOrdUserOrders, getOrdUserOrders, updateOrdUserOrders, listMyAssignedOrdUserOrders, cancelAcceptOrdUserOrders } from '@/api/admin/ord-user-orders'
-
+import { listOrdGiftcardCategory } from '@/api/admin/ord-giftcard-category'
+import { listOrdGiftcard } from '@/api/admin/ord-giftcard'
+import { listOrdGiftcardRegion } from '@/api/admin/ord-giftcard-region'
 export default {
   name: 'OrdUserOrders',
   components: {
@@ -350,11 +373,17 @@ export default {
       reamrkOpen: false,
       remarkForm: {
         adminRemark: ''
-      }
+      },
+      cardCategory: [],
+      ordGiftcardList: [],
+      regionList: []
     }
   },
   created() {
     this.getList()
+    this.getOrdGiftcardCategoryList()
+    this.getGiftcardList()
+    this.getRegionList()
   },
   methods: {
     /** 查询参数列表 */
@@ -366,6 +395,33 @@ export default {
         this.loading = false
       }
       )
+    },
+    getOrdGiftcardCategoryList() {
+      listOrdGiftcardCategory({ pageIndex: 1, pageSize: 1000 }).then(response => {
+        this.cardCategory = response.data.list
+      })
+    },
+    filterGiftcardCategory(categoryId) {
+      const category = this.cardCategory.find(item => item.id === Number(categoryId))
+      return category ? category.name : ''
+    },
+    getGiftcardList() {
+      listOrdGiftcard({ pageIndex: 1, pageSize: 1000 }).then(response => {
+        this.ordGiftcardList = response.data.list
+      })
+    },
+    filterGiftcardId(giftCardId) {
+      const giftCard = this.ordGiftcardList.find(item => item.id === giftCardId)
+      return giftCard ? giftCard.name : giftCardId
+    },
+    getRegionList() {
+      listOrdGiftcardRegion({ pageIndex: 1, pageSize: 1000 }).then(response => {
+        this.regionList = response.data.list
+      })
+    },
+    filterRegionName(regionId) {
+      const region = this.regionList.find(item => item.id === Number(regionId))
+      return region ? region.regionCode : ''
     },
     // 取消按钮
     cancel() {

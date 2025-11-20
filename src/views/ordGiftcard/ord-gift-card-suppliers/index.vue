@@ -127,19 +127,25 @@
             align="center"
             prop="apiConfig"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          />
+          <el-table-column
             label="结算费率"
             align="center"
             prop="settlementRate"
             :show-overflow-tooltip="true"
-          />/><el-table-column
+          >
+            <template slot-scope="scope">
+              <el-input v-model="scope.row.settlementRate" placeholder="结算费率" @blur="updateRate(scope.row)" />
+            </template>
+          </el-table-column>
+          <el-table-column
             label="结算货币代码"
             align="center"
             prop="settlementCurrencyCode"
             :show-overflow-tooltip="true"
           />
           <el-table-column
-            label="状态：0=禁用，1=启用"
+            label="状态"
             align="center"
             prop="status"
             :show-overflow-tooltip="true"
@@ -430,6 +436,16 @@ export default {
               }
             })
           }
+        }
+      })
+    },
+    updateRate(row) {
+      updateOrdGiftCardSuppliers(row).then(response => {
+        if (response.code === 200) {
+          this.msgSuccess(response.msg)
+          this.getList()
+        } else {
+          this.msgError(response.msg)
         }
       })
     },

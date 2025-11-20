@@ -12,37 +12,37 @@
               <el-form-item label="品牌">{{ form.cardType }}</el-form-item>
             </el-col> -->
             <el-col :span="6">
-              <el-form-item label="订单号">{{ OrderNo }}</el-form-item>
+              <el-form-item label="订单号:">{{ OrderNo }}</el-form-item>
             </el-col>
             <el-col :span="6">
-              <el-form-item label="国家">{{ form.regionId }}</el-form-item>
+              <el-form-item label="地区:">{{ filterRegionName(form.regionId) }}</el-form-item>
             </el-col>
             <el-col :span="6">
-              <el-form-item label="余额类型">{{ form.balanceType == 1 ? '进入余额' : '虚拟币' }}</el-form-item>
+              <el-form-item label="余额类型:">{{ form.balanceType == 1 ? '进入余额' : '虚拟币' }}</el-form-item>
             </el-col>
             <el-col :span="6">
-              <el-form-item label="操作人">{{ form.assignName }}</el-form-item>
+              <el-form-item label="操作人:">{{ form.assignName }}</el-form-item>
             </el-col>
             <el-col :span="6">
-              <el-form-item label="收卡总金额">{{ form.balance }}</el-form-item>
+              <el-form-item label="收卡总金额:">{{ form.balance }}</el-form-item>
             </el-col>
             <el-col :span="6">
-              <el-form-item label="礼品卡额外信息">{{ form.cardExtra }}</el-form-item>
+              <el-form-item label="礼品卡额外信息:">{{ form.cardExtra }}</el-form-item>
             </el-col>
             <el-col :span="6">
-              <el-form-item label="礼品卡类型">{{ form.cardType }}</el-form-item>
+              <el-form-item label="礼品卡类型:">{{ form.cardType }}</el-form-item>
             </el-col>
             <el-col :span="6">
-              <el-form-item label="分类">{{ form.categoryId }}</el-form-item>
+              <el-form-item label="分类:">{{ filterGiftcardCategory(form.categoryId) }}</el-form-item>
             </el-col>
             <el-col :span="6">
-              <el-form-item label="货币代码">{{ form.currencyCode }}</el-form-item>
+              <el-form-item label="货币代码:">{{ form.currencyCode }}</el-form-item>
             </el-col>
             <el-col :span="6">
-              <el-form-item label="创建时间">{{ parseTime(form.createdAt) }}</el-form-item>
+              <el-form-item label="创建时间:">{{ parseTime(form.createdAt) }}</el-form-item>
             </el-col>
             <el-col :span="6">
-              <el-form-item label="订单状态">
+              <el-form-item label="订单状态:">
                 <el-tag v-if="form.status == 5">待处理</el-tag>
                 <el-tag v-if="form.status == 1">已经接单</el-tag>
                 <el-tag v-if="form.status == 2">已完成</el-tag>
@@ -51,7 +51,7 @@
               </el-form-item>
             </el-col>
             <el-col :span="7">
-              <el-form-item label="处理状态">
+              <el-form-item label="处理状态:">
                 <el-tag v-if="form.processingStatus == 0" type="info">待处理</el-tag>
                 <el-tag v-if="form.processingStatus == 1" type="success">正在处理</el-tag>
                 <el-tag v-if="form.processingStatus == 2" type="danger">已取消</el-tag>
@@ -62,7 +62,7 @@
               <el-form-item label="售卡金额（元）">{{ form.balance }}</el-form-item>
             </el-col> -->
             <el-col :span="24">
-              <el-form-item label="订单描述">
+              <el-form-item label="订单描述:">
                 <el-input
                   v-model="form.remark"
                   type="textarea"
@@ -72,7 +72,7 @@
                 />
               </el-form-item>
             </el-col>
-            <el-col :span="6">
+            <!-- <el-col :span="6">
               <el-form-item label="用户备注">{{ form.brand }}</el-form-item>
             </el-col>
             <el-col :span="6">
@@ -80,9 +80,9 @@
             </el-col>
             <el-col :span="6">
               <el-form-item label="平均金额">{{ form.brand }}</el-form-item>
-            </el-col>
+            </el-col> -->
             <el-col :span="24">
-              <el-form-item label="备注">
+              <el-form-item label="备注:">
                 <el-input
                   v-model="form.adminRemark"
                   type="textarea"
@@ -94,13 +94,15 @@
             </el-col>
           </el-row>
         </el-form>
-        <el-table v-loading="loading" :data="ordUserOrdersList">
+        <el-table v-loading="loading" :data="ordUserOrdersList" size="small">
           <el-table-column
+            v-if="form.cardType === 'physical'"
             label="图片"
             align="center"
             prop="userId"
             :show-overflow-tooltip="true"
             width="50"
+            fixed="left"
           >
             <template slot-scope="scope">
               <el-image
@@ -115,6 +117,7 @@
             label="操作"
             align="center"
             prop="regionId"
+            fixed="left"
             :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
@@ -141,7 +144,7 @@
             align="center"
             prop="adminRecognizedCode"
             :show-overflow-tooltip="true"
-            width="200"
+            width="150"
           >
             <template slot-scope="scope">
               <el-input
@@ -158,6 +161,7 @@
             align="center"
             prop="status"
             :show-overflow-tooltip="true"
+            width="150"
           >
             <template slot-scope="scope">
               <el-select v-model="scope.row.status" size="small">
@@ -168,9 +172,10 @@
             </template>
           </el-table-column>
           <el-table-column
-            label="收卡商/失败原因"
+            label="失败原因"
             align="center"
             prop="remark"
+            width="150"
             :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
@@ -184,25 +189,193 @@
             </template>
           </el-table-column>
           <el-table-column
-            label="售卡/失败图片"
+            label="失败图片"
             align="center"
-            prop="cardType"
+            prop="physicalImageUrl"
             :show-overflow-tooltip="true"
+            width="150"
           >
             <template slot-scope="scope">
-              <el-upload
-                class="upload-demo"
-                :headers="headers"
-                action="https://adminapi.cardpartner.io/api/v1/public/uploadFile"
-                :on-success="(response, file, fileList) => handleUploadChange(response, file, fileList,scope.row)"
-                :file-list="fileList"
-              >
-                <el-button size="small" type="primary">点击上传</el-button>
-              </el-upload>
+              <div style="display: flex;align-items: center;justify-content: center;">
+                <!-- <el-input v-model="scope.row.failureImageUrl" size="small" placeholder="粘贴复制图片" @click="setActiveRow(scope.row)" /> -->
+                <el-upload
+                  :ref="'uploader_' + scope.row.id"
+                  class="upload-demo"
+                  :headers="headers"
+                  action="https://adminapi.cardpartner.io/api/v1/public/uploadFile"
+                  :on-success="(response, file, fileList) => handleUploadChange(response, file, fileList, scope.row)"
+                  :file-list="scope.row.fileList"
+                  :limit="1"
+                  :on-remove="(file, fileList) => handleRemove(file, fileList, scope.row)"
+                  :show-file-list="true"
+                >
+                  <el-button size="small" type="primary" @click="setActiveRow(scope.row)">上传或复制</el-button>
+                </el-upload>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="用户提交面值"
+            align="center"
+            prop="balance"
+            :show-overflow-tooltip="true"
+            width="100"
+          >
+            <template slot-scope="scope">
+              <el-input
+                v-model="scope.row.balance"
+                type="text"
+                clearable
+                size="small"
+              />
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="卡片真实面值"
+            align="center"
+            prop="recognizedCardValue"
+            :show-overflow-tooltip="true"
+            width="120"
+          >
+            <template slot-scope="scope">
+              <el-input
+                v-model="scope.row.recognizedCardValue"
+                type="number"
+                clearable
+                size="small"
+                @input="(event)=>handleValueInput(event, scope.row)"
+              />
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="礼品卡"
+            align="center"
+            prop="giftCardId"
+            :show-overflow-tooltip="true"
+            width="150"
+          >
+            <template slot-scope="scope">
+              <el-select v-model="scope.row.giftCardId" filterable size="small" @change="handleGiftCardChange(scope.row)">
+                <el-option v-for="item in ordGiftcardList" :key="item.id" :label="item.name" :value="item.id" />
+              </el-select>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="折扣"
+            align="center"
+            prop="discountRate"
+            :show-overflow-tooltip="true"
+            width="100"
+          >
+            <template slot-scope="scope">
+              <el-input
+                v-model="scope.row.discountRate"
+                type="text"
+                clearable
+                size="small"
+                @input="(event)=>handleValueInput(event, scope.row)"
+              />
             </template>
           </el-table-column>
           <el-table-column
             label="品牌商"
+            align="center"
+            prop="status"
+            width="200"
+            :show-overflow-tooltip="true"
+          >
+            <template slot-scope="scope">
+              <el-select v-model="scope.row.supplierId" filterable size="small" @change="handleSupplierChange(scope.row)">
+                <el-option v-for="item in supplierOptions" :key="item.id" :label="item.name+'('+item.settlementCurrencyCode+')'" :value="item.id" filterable />
+              </el-select>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="结算率"
+            align="center"
+            prop="settlementRate"
+            :show-overflow-tooltip="true"
+            width="100"
+          >
+            <template slot-scope="scope">
+              <el-input
+                v-model="scope.row.settlementRate"
+                type="text"
+                clearable
+                size="small"
+                readonly
+              />
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="卡商成交金额"
+            align="center"
+            prop="platformSettlementAmount"
+            :show-overflow-tooltip="true"
+            width="120"
+          >
+            <template slot-scope="scope">
+              <el-input
+                v-model="scope.row.platformSettlementAmount"
+                type="text"
+                clearable
+                size="small"
+                @input="(event)=>handleValueInput(event, scope.row)"
+              />
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="用户付款金额"
+            align="center"
+            prop="userLocalCurrencyAmount"
+            width="150"
+            :show-overflow-tooltip="true"
+          >
+            <template slot-scope="scope">
+              <el-input
+                v-model="scope.row.userLocalCurrencyAmount"
+                type="text"
+                clearable
+                size="small"
+              />
+            </template>
+          </el-table-column>
+          <!-- <el-table-column
+            v-if="form.balanceType == 1"
+            label="回款金额(法币)"
+            align="center"
+            prop="balance"
+            :show-overflow-tooltip="true"
+            width="120"
+          >
+            <template slot-scope="scope">
+              <el-input
+                v-model="scope.row.userLocalCurrencyAmount"
+                type="text"
+                clearable
+                size="small"
+              />
+            </template>
+          </el-table-column>
+          <el-table-column
+            v-else
+            label="回款金额(U)"
+            align="center"
+            prop="balance"
+            :show-overflow-tooltip="true"
+            width="120"
+          >
+            <template slot-scope="scope">
+              <el-input
+                v-model="scope.row.userLocalCurrencyAmount"
+                type="text"
+                clearable
+                size="small"
+              />
+            </template>
+          </el-table-column> -->
+          <!-- <el-table-column
+            label="礼品卡类型"
             align="center"
             prop="status"
             :show-overflow-tooltip="true"
@@ -295,8 +468,8 @@
                 placeholder="请输入收卡货币"
               />
             </template>
-          </el-table-column>
-          <el-table-column label="添加|删除" align="center" width="200">
+          </el-table-column> -->
+          <el-table-column label="添加|删除" align="center" width="200" fixed="right">
             <template slot-scope="scope">
               <el-button
                 size="small"
@@ -306,6 +479,7 @@
                 添加
               </el-button>
               <el-button
+                v-if="scope.$index !== 0"
                 size="small"
                 type="danger"
                 @click="handleDel(scope.row,scope.$index)"
@@ -337,6 +511,12 @@
 <script>
 import { getOrdUserOrdersDetail, batchWriteOffOrdUserOrders, getOrdOrderGiftcardImages, listOrdGiftCardSuppliers } from '@/api/admin/ord-user-orders'
 import { getToken } from '@/utils/auth'
+import { listOrdGiftcardCategory } from '@/api/admin/ord-giftcard-category'
+import { listOrdGiftcard } from '@/api/admin/ord-giftcard'
+import { listOrdGiftcardRegion } from '@/api/admin/ord-giftcard-region'
+import { getOrdGiftcardDiscounts } from '@/api/admin/ord-giftcard-discounts'
+import { calculateOrdGiftcardWriteoffs } from '@/api/admin/ord-giftcard-writeoffs'
+// import { listOrdConfigCurrencyRates } from '@/api/admin/ord-config-currency-rates'
 export default {
   name: 'OrdUserOrdersProcess',
   components: {
@@ -383,7 +563,14 @@ export default {
       giftCardCode: '',
       fileList: [],
       supplierOptions: [],
-      OrderNo: ''
+      OrderNo: '',
+      cardCategory: [],
+      ordGiftcardList: [],
+      regionList: [],
+      discountList: [],
+      giftCardId: '',
+      activeRow: null,
+      currencyRatesList: []
     }
   },
   created() {
@@ -391,6 +578,16 @@ export default {
     this.giftCardCode = this.$route.query.giftCardCode
     this.OrderNo = this.$route.query.OrderNo
     this.getDetail()
+    this.getOrdGiftcardCategoryList()
+    this.getGiftcardList()
+    this.getRegionList()
+    // this.getListOrdGiftcardDiscounts()
+  },
+  mounted() {
+    window.addEventListener('paste', this.handlePaste)
+  },
+  beforeDestroy() {
+    window.removeEventListener('paste', this.handlePaste)
   },
   methods: {
     // 获取订单详情
@@ -411,38 +608,97 @@ export default {
           const list = response.data.list || []
           list.forEach(item => {
             this.ordUserOrdersList.push({
+              id: new Date().getTime(),
               physicalImageUrl: item.imageUrl,
               adminRecognizedCode: '',
               failureImageUrl: '',
-              platformSaleRate: this.form.discountRate,
-              platformSettlementAmount: this.form.platformSaleRate,
-              platformSettlementCurrency: this.supplierOptions[0].settlementCurrencyCode || '',
+              platformSettlementAmount: '',
               recognizedCardValue: '',
+              userLocalCurrencyAmount: '',
+              giftCardDiscountId: '',
+              settlementRate: '',
               status: 0,
-              supplierId: this.supplierOptions[0].id || '',
+              supplierId: '',
               balance: this.form.balance,
-              cardType: this.form.cardType
+              cardType: this.form.cardType,
+              giftCardId: '',
+              fileList: [],
+              discountRate: ''
             })
           })
         })
       } else {
         this.ordUserOrdersList = [{
+          id: new Date().getTime(),
           physicalImageUrl: '',
           adminRecognizedCode: this.giftCardCode || '',
           failureImageUrl: '',
-          platformSaleRate: this.form.discountRate,
           platformSettlementAmount: '',
-          platformSettlementCurrency: this.supplierOptions[0].settlementCurrencyCode || '',
           recognizedCardValue: '',
+          userLocalCurrencyAmount: '',
+          giftCardDiscountId: '',
+          settlementRate: '',
           status: 0,
-          supplierId: this.supplierOptions[0].id || '',
+          supplierId: '',
           balance: this.form.balance,
           cardType: this.form.cardType,
-          currencyCode: this.form.currencyCode
+          giftCardId: '',
+          fileList: [],
+          discountRate: '',
+          valueTimer: null
         }]
       }
     },
+
+    async getListOrdGiftcardDiscounts(id) {
+      const res = await getOrdGiftcardDiscounts(id)
+      if (res.data) {
+        return res.data
+      } else {
+        return {
+          discountRate: '',
+          id: '-1'
+        }
+      }
+    },
+    getOrdGiftcardCategoryList() {
+      listOrdGiftcardCategory({ pageIndex: 1, pageSize: 1000 }).then(response => {
+        this.cardCategory = response.data.list
+      })
+    },
+    filterGiftcardCategory(categoryId) {
+      const category = this.cardCategory.find(item => item.id === Number(categoryId))
+      return category ? category.name : ''
+    },
+    getGiftcardList() {
+      listOrdGiftcard({ pageIndex: 1, pageSize: 1000 }).then(response => {
+        this.ordGiftcardList = response.data.list
+      })
+    },
+    filterGiftcardId(giftCardId) {
+      const giftCard = this.ordGiftcardList.find(item => item.id === giftCardId)
+      return giftCard ? giftCard.name : giftCardId
+    },
+    getRegionList() {
+      listOrdGiftcardRegion({ pageIndex: 1, pageSize: 1000 }).then(response => {
+        this.regionList = response.data.list
+      })
+    },
+    filterRegionName(regionId) {
+      const region = this.regionList.find(item => item.id === Number(regionId))
+      return region ? region.regionCode : ''
+    },
+    // 根据分类筛选礼品卡
+    async handleGiftCardChange(row) {
+      const data = await this.getListOrdGiftcardDiscounts(row.giftCardId)
+      row.discountRate = data.discountRate || ''
+      row.giftCardDiscountId = data.id || '-1'
+      this.handleValueInput('', row)
+    },
     submit(list) {
+      list.forEach(item => {
+        item.supplierId = Number(item.supplierId) || ''
+      })
       const params = {
         giftCardId: this.form.giftcardId,
         orderId: Number(this.orderId),
@@ -480,27 +736,97 @@ export default {
       this.submit(this.ordUserOrdersList)
     },
     handleAdd(row) {
-      this.ordUserOrdersList.push(row)
+      this.ordUserOrdersList.push({
+        ...row,
+        id: new Date().getTime()
+      })
     },
     handleDel(row, index) {
       this.ordUserOrdersList.splice(index, 1)
     },
-    handleUploadChange(response, file, fileList, row) {
-      if (response.code === 200) {
-        row.failureImageUrl = response.data.full_path
-      } else {
-        this.msgError(response.msg)
-      }
-    },
-    handleSupplierChange(item, row) {
-      row.platformSettlementCurrency = item.settlementCurrencyCode || ''
+    handleSupplierChange(row) {
+      const item = this.supplierOptions.find(item => item.id === row.supplierId)
+      row.settlementRate = item.settlementRate || ''
+      this.handleValueInput('', row)
     },
     handleValueInput(event, row) {
-      if (event) {
-        row.platformSettlementAmount = (parseFloat(event) * parseFloat(row.platformSaleRate)).toFixed(2)
-      } else {
-        row.platformSettlementAmount = ''
+      clearTimeout(this.valueTimer)
+      console.log(1212)
+      this.valueTimer = setTimeout(async() => {
+        if (
+          row.recognizedCardValue &&
+          row.recognizedCardValue !== '0' &&
+          row.supplierId &&
+          row.discountRate &&
+          row.discountRate !== '0' &&
+          row.giftCardId &&
+          row.platformSettlementAmount &&
+          row.platformSettlementAmount !== '0'
+        ) {
+          const params = {
+            orderId: this.form.id,
+            recognizedCardValue: row.recognizedCardValue,
+            giftCardDiscountId: row.giftCardId
+          }
+          const res = await calculateOrdGiftcardWriteoffs(params)
+          if (res.data) {
+            row.userLocalCurrencyAmount = res.data.userLocalCurrencyAmount || ''
+          }
+        }
+      }, 300)
+    },
+    // handleRemove(file, fileList, row) {
+    //   row.physicalImageUrl = ''
+    //   row.fileList = []
+    // },
+    setActiveRow(row) {
+      this.activeRow = row
+    },
+    handleUploadChange(response, file, fileList, row) {
+      const newList = fileList.map(f => ({
+        name: f.name,
+        url: response.data ? response.data.full_path : f.url
+      }))
+
+      this.$set(row, 'fileList', newList)
+      this.activeRow.fileList = newList
+      // 保存图片地址
+      row.failureImageUrl = response.data?.full_path || ''
+    },
+
+    handleRemove(file, fileList, row) {
+      this.$set(row, 'fileList', [])
+      row.fileList = []
+      this.activeRow.fileList = []
+      console.log(row)
+      if (fileList.length === 0) {
+        row.failureImageUrl = ''
       }
+    },
+    handlePaste(e) {
+      if (this.activeRow.fileList.length > 0) {
+        this.$message.error('请先删除已上传的图片')
+        return
+      }
+      if (!this.activeRow) return // 必须先点按钮，才能知道是哪一行
+      const items = e.clipboardData?.items || []
+      for (const item of items) {
+        if (item.kind === 'file') {
+          const file = item.getAsFile()
+          if (file) {
+            this.uploadByPaste(file, this.activeRow)
+          }
+        }
+      }
+    },
+
+    uploadByPaste(file, row) {
+      const ref = 'uploader_' + row.id
+      const uploader = this.$refs[ref]
+      if (!uploader) return
+      // 手动上传
+      uploader.handleStart(file)
+      uploader.submit()
     }
   }
 }

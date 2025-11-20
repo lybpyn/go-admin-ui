@@ -13,7 +13,7 @@
           </el-form-item>
         </el-form>
 
-        <el-row :gutter="10" class="mb8">
+        <!-- <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
             <el-button
               v-permisaction="['admin:ordGiftcardWriteoffs:add']"
@@ -46,7 +46,7 @@
             >删除
             </el-button>
           </el-col>
-        </el-row>
+        </el-row> -->
 
         <el-table v-loading="loading" :data="ordGiftcardWriteoffsList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" /><el-table-column
@@ -59,13 +59,19 @@
             align="center"
             prop="orderId"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="礼品卡ID"
+          />
+          <el-table-column
+            label="礼品卡"
             align="center"
             prop="giftCardId"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="礼品卡卡号/兑换码，保证唯一性"
+          >
+            <template slot-scope="scope">
+              {{ filterGiftcardId(scope.row.giftCardId) }}
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="礼品卡卡号/兑换码"
             align="center"
             prop="giftCardCode"
             :show-overflow-tooltip="true"
@@ -88,7 +94,7 @@
             prop="remark"
             :show-overflow-tooltip="true"
           />
-          <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+          <!-- <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
                 slot="reference"
@@ -115,7 +121,7 @@
                 </el-button>
               </el-popconfirm>
             </template>
-          </el-table-column>
+          </el-table-column> -->
         </el-table>
 
         <pagination
@@ -181,7 +187,7 @@
 
 <script>
 import { addOrdGiftcardWriteoffs, delOrdGiftcardWriteoffs, getOrdGiftcardWriteoffs, listOrdGiftcardWriteoffs, updateOrdGiftcardWriteoffs } from '@/api/admin/ord-giftcard-writeoffs'
-
+import { listOrdGiftcard } from '@/api/admin/ord-giftcard'
 export default {
   name: 'OrdGiftcardWriteoffs',
   components: {
@@ -219,11 +225,13 @@ export default {
       form: {
       },
       // 表单校验
-      rules: {}
+      rules: {},
+      ordGiftcardList: []
     }
   },
   created() {
     this.getList()
+    this.getGiftcardList()
   },
   methods: {
     /** 查询参数列表 */
@@ -235,6 +243,15 @@ export default {
         this.loading = false
       }
       )
+    },
+    getGiftcardList() {
+      listOrdGiftcard({ pageIndex: 1, pageSize: 1000 }).then(response => {
+        this.ordGiftcardList = response.data.list
+      })
+    },
+    filterGiftcardId(giftCardId) {
+      const giftCard = this.ordGiftcardList.find(item => item.id === giftCardId)
+      return giftCard ? giftCard.name : giftCardId
     },
     // 取消按钮
     cancel() {

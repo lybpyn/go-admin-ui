@@ -4,8 +4,10 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-          <el-form-item label="所属分类ID" prop="categoryId">
-            <el-input v-model="queryParams.categoryId" placeholder="请输入所属分类ID" clearable />
+          <el-form-item label="所属分类" prop="categoryId">
+            <el-select v-model="queryParams.categoryId" placeholder="请选择所属分类ID" clearable size="small">
+              <el-option v-for="item in cardCategory" :key="item.id" :label="item.name" :value="String(item.id)" />
+            </el-select>
           </el-form-item>
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -61,7 +63,12 @@
             align="center"
             prop="categoryId"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          >
+            <template slot-scope="scope">
+              {{ filterGiftcardCategory(scope.row.categoryId) }}
+            </template>
+          </el-table-column>
+          <el-table-column
             label="地区代码"
             align="center"
             prop="regionCode"
@@ -160,11 +167,10 @@
                 type="number"
               />
             </el-form-item>
-            <el-form-item label="所属分类ID" prop="categoryId">
-              <el-input
-                v-model="form.categoryId"
-                placeholder="所属分类ID，外键 -> hs_giftcard_category.id"
-              />
+            <el-form-item label="所属分类" prop="categoryId">
+              <el-select v-model="form.categoryId" placeholder="请选择所属分类ID" clearable size="small">
+                <el-option v-for="item in cardCategory" :key="item.id" :label="item.name" :value="String(item.id)" />
+              </el-select>
             </el-form-item>
             <el-form-item label="地区代码" prop="regionCode">
               <el-input
@@ -218,7 +224,7 @@
 
 <script>
 import { addOrdGiftcardRegion, delOrdGiftcardRegion, getOrdGiftcardRegion, listOrdGiftcardRegion, updateOrdGiftcardRegion } from '@/api/admin/ord-giftcard-region'
-
+import { listOrdGiftcardCategory } from '@/api/admin/ord-giftcard-category'
 export default {
   name: 'OrdGiftcardRegion',
   components: {
@@ -256,11 +262,13 @@ export default {
       form: {
       },
       // 表单校验
-      rules: {}
+      rules: {},
+      cardCategory: []
     }
   },
   created() {
     this.getList()
+    this.getOrdGiftcardCategoryList()
   },
   methods: {
     /** 查询参数列表 */
@@ -272,6 +280,15 @@ export default {
         this.loading = false
       }
       )
+    },
+    getOrdGiftcardCategoryList() {
+      listOrdGiftcardCategory({ pageIndex: 1, pageSize: 1000 }).then(response => {
+        this.cardCategory = response.data.list
+      })
+    },
+    filterGiftcardCategory(categoryId) {
+      const category = this.cardCategory.find(item => item.id === Number(categoryId))
+      return category ? category.name : ''
     },
     // 取消按钮
     cancel() {
