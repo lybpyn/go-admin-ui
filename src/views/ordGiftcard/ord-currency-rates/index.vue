@@ -104,12 +104,12 @@
               <el-input v-model="scope.row.rate" placeholder="请输入汇率" @blur="updateRate(scope.row)" />
             </template>
           </el-table-column>
-          <el-table-column
+          <!-- <el-table-column
             label="地区代码"
             align="center"
             prop="regionCode"
             :show-overflow-tooltip="true"
-          />
+          /> -->
           <el-table-column
             label="汇率类型"
             align="center"
@@ -139,7 +139,7 @@
               <el-tag v-if="scope.row.status == 0" type="danger">禁用</el-tag>
             </template>
           </el-table-column>
-          <el-table-column
+          <!-- <el-table-column
             label="生效开始时间"
             align="center"
             prop="validFrom"
@@ -157,7 +157,7 @@
             <template slot-scope="scope">
               <span>{{ parseTime(scope.row.validTo) }}</span>
             </template>
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
@@ -218,12 +218,12 @@
                 placeholder="汇率: 1 base_currency = rate quote_currency"
               />
             </el-form-item>
-            <el-form-item label="地区代码" prop="regionCode">
+            <!-- <el-form-item label="地区代码" prop="regionCode">
               <el-input
                 v-model="form.regionCode"
                 placeholder="地区代码,为空表示全局汇率"
               />
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item label="汇率类型" prop="rateType">
               <el-select v-model="form.rateType">
                 <el-option label="标准" value="standard" />
@@ -240,7 +240,7 @@
             <el-form-item label="状态" prop="status">
               <el-switch v-model="form.status" active-value="1" inactive-value="0" />
             </el-form-item>
-            <el-form-item label="生效开始时间" prop="validFrom">
+            <!-- <el-form-item label="生效开始时间" prop="validFrom">
               <el-date-picker
                 v-model="form.validFrom"
                 type="datetime"
@@ -253,7 +253,7 @@
                 type="datetime"
                 placeholder="选择日期"
               />
-            </el-form-item>
+            </el-form-item> -->
           </el-form>
           <div slot="footer" class="dialog-footer">
             <el-button type="primary" @click="submitForm">确 定</el-button>

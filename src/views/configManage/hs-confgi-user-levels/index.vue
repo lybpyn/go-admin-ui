@@ -77,11 +77,18 @@
             prop="levelIcon"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="等级特权配置(JSON格式)"
+            label="回扣率"
             align="center"
-            prop="levelPrivileges"
+            prop="rebateRate"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          />
+          <el-table-column
+            label="经验值"
+            align="center"
+            prop="exp"
+            :show-overflow-tooltip="true"
+          />
+          <el-table-column
             label="排序顺序"
             align="center"
             prop="sortOrder"
@@ -158,10 +165,16 @@
                 placeholder="等级图标URL"
               />
             </el-form-item>
-            <el-form-item label="等级特权配置(JSON格式)" prop="levelPrivileges">
+            <el-form-item label="回扣率" prop="rebateRate">
               <el-input
-                v-model="form.levelPrivileges"
-                placeholder="等级特权配置(JSON格式)"
+                v-model="form.rebateRate"
+                placeholder="回扣率"
+              />
+            </el-form-item>
+            <el-form-item label="经验值" prop="exp">
+              <el-input
+                v-model="form.exp"
+                placeholder="经验值"
               />
             </el-form-item>
             <el-form-item label="排序顺序" prop="sortOrder">
