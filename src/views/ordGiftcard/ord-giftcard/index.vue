@@ -283,14 +283,14 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-
         id: undefined,
         regionId: undefined,
         name: undefined,
         valuesConfig: undefined,
         discountRate: undefined,
         status: undefined,
-        extra: '备注信息'
+        extra: '备注信息',
+        categoryId: ''
       }
       this.resetForm('form')
     },
@@ -342,6 +342,7 @@ export default {
     submitForm: function() {
       this.$refs['form'].validate(valid => {
         if (valid) {
+          delete this.form.categoryId
           if (this.form.id !== undefined) {
             updateOrdGiftcard(this.form).then(response => {
               if (response.code === 200) {
