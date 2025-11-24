@@ -143,8 +143,13 @@
 
         <!-- 添加或修改对话框 -->
         <el-dialog :title="title" :visible.sync="open" width="500px">
-          <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-            <el-form-item label="地区ID" prop="regionId">
+          <el-form ref="form" :model="form" :rules="rules" label-width="100px">
+            <el-form-item label="礼品卡分类" prop="categoryId">
+              <el-select v-model="form.categoryId" placeholder="请选择礼品卡分类" @change="filterGiftcardCategory(form.categoryId)">
+                <el-option v-for="item in cardCategory" :key="item.id" :label="item.name" :value="String(item.id)" />
+              </el-select>
+            </el-form-item>
+            <el-form-item v-if="form.categoryId" label="地区ID" prop="regionId">
               <el-select v-model="form.regionId" placeholder="请选择地区">
                 <el-option v-for="item in regionList" :key="item.id" :label="item.regionCode" :value="String(item.id)" />
               </el-select>
@@ -194,6 +199,7 @@
 <script>
 import { addOrdGiftcard, delOrdGiftcard, getOrdGiftcard, listOrdGiftcard, updateOrdGiftcard } from '@/api/admin/ord-giftcard'
 import { listOrdGiftcardRegion } from '@/api/admin/ord-giftcard-region'
+import { listOrdGiftcardCategory } from '@/api/admin/ord-giftcard-category'
 export default {
   name: 'OrdGiftcard',
   components: {
@@ -232,11 +238,13 @@ export default {
       },
       // 表单校验
       rules: {},
-      regionList: []
+      regionList: [],
+      cardCategory: []
     }
   },
   created() {
     this.getList()
+    this.getOrdGiftcardCategoryList()
     this.getRegionList()
   },
   methods: {
@@ -250,8 +258,16 @@ export default {
       }
       )
     },
-    getRegionList() {
-      listOrdGiftcardRegion({ pageIndex: 1, pageSize: 1000 }).then(response => {
+    getOrdGiftcardCategoryList() {
+      listOrdGiftcardCategory({ pageIndex: 1, pageSize: 1000 }).then(response => {
+        this.cardCategory = response.data.list
+      })
+    },
+    filterGiftcardCategory(categoryId) {
+      this.getRegionList(categoryId)
+    },
+    getRegionList(categoryId) {
+      listOrdGiftcardRegion({ pageIndex: 1, pageSize: 1000, categoryId: Number(categoryId) }).then(response => {
         this.regionList = response.data.list
       })
     },

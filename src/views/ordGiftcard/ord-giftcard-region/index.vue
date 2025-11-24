@@ -52,12 +52,12 @@
 
         <el-table v-loading="loading" :data="ordGiftcardRegionList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
-          <el-table-column
+          <!-- <el-table-column
             label="排序"
             align="center"
             prop="sort"
             :show-overflow-tooltip="true"
-          />
+          /> -->
           <el-table-column
             label="所属分类ID"
             align="center"
@@ -76,17 +76,19 @@
           /><el-table-column
             label="货币代码"
             align="center"
-            prop="quoteCurrency"
+            prop="currencyCode"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          />
+          <!-- <el-table-column
             label="货币简称"
             align="center"
             prop="quoteCurrencySymbol"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          /> -->
+          <el-table-column
             label="汇率"
             align="center"
-            prop="rate"
+            prop="discountRate"
             :show-overflow-tooltip="true"
           />
           <el-table-column
@@ -160,13 +162,13 @@
         <!-- 添加或修改对话框 -->
         <el-dialog :title="title" :visible.sync="open" width="550px">
           <el-form ref="form" :model="form" :rules="rules" label-width="120px">
-            <el-form-item label="排序" prop="sort">
+            <!-- <el-form-item label="排序" prop="sort">
               <el-input-number
                 v-model="form.sort"
                 placeholder="排序"
                 type="number"
               />
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item label="所属分类" prop="categoryId">
               <el-select v-model="form.categoryId" placeholder="请选择所属分类ID" clearable size="small">
                 <el-option v-for="item in cardCategory" :key="item.id" :label="item.name" :value="String(item.id)" />
@@ -178,21 +180,21 @@
                 placeholder="地区代码，如 US、UK、CN"
               />
             </el-form-item>
-            <el-form-item label="货币代码" prop="quoteCurrency">
+            <el-form-item label="货币代码" prop="currencyCode">
               <el-input
-                v-model="form.quoteCurrency"
+                v-model="form.currencyCode"
                 placeholder="货币代码，如 USD, GBP, CNY"
               />
             </el-form-item>
-            <el-form-item label="货币简称" prop="quoteCurrencySymbol">
+            <!-- <el-form-item label="货币简称" prop="quoteCurrencySymbol">
               <el-input
                 v-model="form.quoteCurrencySymbol"
                 placeholder=""
               />
-            </el-form-item>
-            <el-form-item label="汇率" prop="rate">
+            </el-form-item> -->
+            <el-form-item label="汇率" prop="discountRate">
               <el-input
-                v-model="form.rate"
+                v-model="form.discountRate"
                 placeholder=""
               />
             </el-form-item>

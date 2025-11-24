@@ -147,8 +147,8 @@
             </el-form-item>
             <el-form-item label="状态" prop="status">
               <el-radio-group v-model="form.status">
-                <el-radio label="1">启用</el-radio>
-                <el-radio label="0">禁用</el-radio>
+                <el-radio :label="1">启用</el-radio>
+                <el-radio :label="0">禁用</el-radio>
               </el-radio-group>
             </el-form-item>
             <el-form-item label="汇率折扣" prop="discountRate">
@@ -158,9 +158,10 @@
               />
             </el-form-item>
             <el-form-item label="排序" prop="sortOrder">
-              <el-input
+              <el-input-number
                 v-model="form.sortOrder"
-                placeholder=""
+                controls-position="right"
+                :min="0"
               />
             </el-form-item>
             <el-form-item label="logo" prop="logo">
