@@ -4,14 +4,15 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="80px">
-          <el-form-item label="地区ID" prop="regionId">
-            <el-input
-              v-model="queryParams.regionId"
-              placeholder="请输入地区ID"
-              clearable
-              size="small"
-              @keyup.enter.native="handleQuery"
-            />
+          <el-form-item label="地区" prop="regionId">
+            <el-select v-model="queryParams.regionId" placeholder="请选择地区" clearable size="small">
+              <el-option
+                v-for="item in regionList"
+                :key="item.id"
+                :label="item.regionCode"
+                :value="item.id"
+              />
+            </el-select>
           </el-form-item>
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -70,12 +71,46 @@
             align="center"
             prop="name"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          />
+          <!-- <el-table-column
             label="面额配置，支持区间和固定值"
             align="center"
             prop="valuesConfig"
             :show-overflow-tooltip="true"
-          />
+          /> -->
+          <el-table-column
+            label="卡类型"
+            align="center"
+            prop="type"
+            :show-overflow-tooltip="true"
+          >
+            <template slot-scope="scope">
+              {{ scope.row.valuesConfig1.type == 'range' ? '区间' : (scope.row.valuesConfig1.type == 'fixed' ? '固定值' : '固定+区间（多条）') }}
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="面额配置"
+            align="center"
+            prop="valuesConfig"
+            :show-overflow-tooltip="true"
+            width="200"
+          >
+            <template slot-scope="scope">
+              <div v-if="scope.row.valuesConfig1.type == 'range'">
+                面值：{{ scope.row.valuesConfig1.value.min + ' - ' + scope.row.valuesConfig1.value.max }}
+              </div>
+              <div v-else-if="scope.row.valuesConfig1.type == 'fixed'">
+                面值：{{ scope.row.valuesConfig1.value }}
+              </div>
+              <div v-else>
+                <div v-for="(item, index) in scope.row.valuesConfig1.value" :key="index" class="item" style="display: flex;;margin-bottom: 5px;">
+                  【类型：{{ item.mode == 'fixed' ? '固定值' : '区间' }},
+                  <div v-if="item.mode == 'fixed'">面值：{{ item.value }}】</div>
+                  <div v-else>面值：{{ item.min + '-' + item.max }}】</div>
+                </div>
+              </div>
+            </template>
+          </el-table-column>
           <el-table-column
             label="折扣汇率"
             align="center"
@@ -142,14 +177,14 @@
         />
 
         <!-- 添加或修改对话框 -->
-        <el-dialog :title="title" :visible.sync="open" width="500px">
-          <el-form ref="form" :model="form" :rules="rules" label-width="100px">
+        <el-dialog :title="title" :visible.sync="open" width="650px">
+          <el-form ref="form" :model="form" :rules="rules" label-width="120px">
             <el-form-item label="礼品卡分类" prop="categoryId">
               <el-select v-model="form.categoryId" placeholder="请选择礼品卡分类" @change="filterGiftcardCategory(form.categoryId)">
                 <el-option v-for="item in cardCategory" :key="item.id" :label="item.name" :value="String(item.id)" />
               </el-select>
             </el-form-item>
-            <el-form-item v-if="form.categoryId" label="地区ID" prop="regionId">
+            <el-form-item v-if="form.categoryId" label="地区" prop="regionId">
               <el-select v-model="form.regionId" placeholder="请选择地区">
                 <el-option v-for="item in regionList" :key="item.id" :label="item.regionCode" :value="String(item.id)" />
               </el-select>
@@ -160,12 +195,67 @@
                 placeholder="卡名称，例如 Steam 50 USD"
               />
             </el-form-item>
-            <el-form-item label="面额配置" prop="valuesConfig">
+            <el-form-item label="面额类型" prop="type">
+              <el-radio-group v-model="cardType">
+                <el-radio label="fixed">固定值</el-radio>
+                <el-radio label="range">区间</el-radio>
+                <el-radio label="multiple">固定+区间（多条）</el-radio>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item v-if="cardType == 'fixed'" label="固定面额" prop="value">
+              <div style="display: flex; align-items: center;">
+                <el-input
+                  v-model="fixedValue"
+                  placeholder="面额"
+                />
+              </div>
+            </el-form-item>
+            <el-form-item v-if="cardType == 'range'" label="区间面额" prop="value">
+              <div style="display: flex; align-items: center;">
+                <el-input
+                  v-model="rangeValue.min"
+                  placeholder="最小值"
+                />
+                <span style="margin: 0 10px;">至</span>
+                <el-input
+                  v-model="rangeValue.max"
+                  placeholder="最大值"
+                />
+              </div>
+            </el-form-item>
+            <el-form-item v-if="cardType == 'multiple'" label="固定+区间面额" prop="value">
+              <el-button-group>
+                <el-button type="primary" @click="handleTypeAdd('fixed')">+添加固定面额</el-button>
+                <el-button type="primary" @click="handleTypeAdd('range')">+添加区间面额</el-button>
+              </el-button-group>
+              <div v-for="(item,index) in multipleValue" :key="index" style="display: flex;align-items: center;padding: 10px 0;">
+                <template v-if="item.mode == 'fixed'">
+                  <el-input
+                    v-model="item.value"
+                    placeholder="面额"
+                  />
+                  <el-button type="danger" style="margin-left: 5px;" @click="handleDel(index)">删除</el-button>
+                </template>
+                <template v-if="item.mode == 'range'">
+                  <el-input
+                    v-model="item.min"
+                    placeholder="最小值"
+                  />
+                  <span style="margin: 0 10px;">至</span>
+                  <el-input
+                    v-model="item.max"
+                    placeholder="最大值"
+                  />
+                  <el-button type="danger" style="margin-left: 5px;" @click="handleDel(index)">删除</el-button>
+                </template>
+              </div>
+            </el-form-item>
+            <!-- <el-form-item label="面额配置" prop="valuesConfig">
               <el-input
                 v-model="form.valuesConfig"
                 placeholder="面额配置，支持区间和固定值"
               />
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item label="折扣汇率" prop="discountRate">
               <el-input
                 v-model="form.discountRate"
@@ -178,13 +268,13 @@
                 <el-radio label="0">禁用</el-radio>
               </el-radio-group>
             </el-form-item>
-            <el-form-item label="扩展信息" prop="extra">
+            <!-- <el-form-item label="扩展信息" prop="extra">
               <el-input
                 v-model="form.extra"
                 type="textarea"
                 placeholder="扩展信息，如购买说明、限制条件"
               />
-            </el-form-item>
+            </el-form-item> -->
           </el-form>
           <div slot="footer" class="dialog-footer">
             <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -239,24 +329,39 @@ export default {
       // 表单校验
       rules: {},
       regionList: [],
-      cardCategory: []
+      cardCategory: [],
+      cardType: 'fixed',
+      fixedValue: '',
+      rangeValue: {
+        min: '',
+        max: ''
+      },
+      multipleValue: []
     }
   },
   created() {
     this.getList()
     this.getOrdGiftcardCategoryList()
-    this.getRegionList()
+    this.getRegionList1()
   },
   methods: {
     /** 查询参数列表 */
     getList() {
       this.loading = true
       listOrdGiftcard(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+        response.data.list.forEach(item => {
+          item.valuesConfig1 = JSON.parse(item.valuesConfig)
+        })
         this.ordGiftcardList = response.data.list
         this.total = response.data.count
         this.loading = false
       }
       )
+    },
+    getRegionList1() {
+      listOrdGiftcardRegion({ pageIndex: 1, pageSize: 1000, categoryId: '' }).then(response => {
+        this.regionList = response.data.list
+      })
     },
     getOrdGiftcardCategoryList() {
       listOrdGiftcardCategory({ pageIndex: 1, pageSize: 1000 }).then(response => {
@@ -267,7 +372,7 @@ export default {
       this.getRegionList(categoryId)
     },
     getRegionList(categoryId) {
-      listOrdGiftcardRegion({ pageIndex: 1, pageSize: 1000, categoryId: Number(categoryId) }).then(response => {
+      listOrdGiftcardRegion({ pageIndex: 1, pageSize: 1000, categoryId: Number(categoryId) || '' }).then(response => {
         this.regionList = response.data.list
       })
     },
@@ -289,7 +394,7 @@ export default {
         valuesConfig: undefined,
         discountRate: undefined,
         status: undefined,
-        extra: '备注信息',
+        extra: '{}',
         categoryId: ''
       }
       this.resetForm('form')
@@ -332,6 +437,18 @@ export default {
       const id =
                 row.id || this.ids
       getOrdGiftcard(id).then(response => {
+        const valuesConfig = JSON.parse(response.data.valuesConfig)
+        if (valuesConfig.type === 'fixed') {
+          this.cardType = 'fixed'
+          this.fixedValue = valuesConfig.value
+        } else if (valuesConfig.type === 'range') {
+          this.cardType = 'range'
+          this.rangeValue.min = valuesConfig.value.min
+          this.rangeValue.max = valuesConfig.value.max
+        } else if (valuesConfig.type === 'multiple') {
+          this.cardType = 'multiple'
+          this.multipleValue = valuesConfig.value
+        }
         this.form = response.data
         this.open = true
         this.title = '修改礼品卡明细'
@@ -343,6 +460,28 @@ export default {
       this.$refs['form'].validate(valid => {
         if (valid) {
           delete this.form.categoryId
+          if (this.cardType === 'fixed') {
+            const obj = {
+              type: 'fixed',
+              value: this.fixedValue
+            }
+            this.form.valuesConfig = JSON.stringify(obj)
+          } else if (this.cardType === 'range') {
+            const obj = {
+              type: 'range',
+              value: {
+                min: this.rangeValue.min,
+                max: this.rangeValue.max
+              }
+            }
+            this.form.valuesConfig = JSON.stringify(obj)
+          } else if (this.cardType === 'multiple') {
+            const obj = {
+              type: 'multiple',
+              value: this.multipleValue
+            }
+            this.form.valuesConfig = JSON.stringify(obj)
+          }
           if (this.form.id !== undefined) {
             updateOrdGiftcard(this.form).then(response => {
               if (response.code === 200) {
@@ -397,6 +536,16 @@ export default {
         }
       }).catch(function() {
       })
+    },
+    handleTypeAdd(type) {
+      if (type === 'fixed') {
+        this.multipleValue.push({ mode: 'fixed', value: '' })
+      } else if (type === 'range') {
+        this.multipleValue.push({ mode: 'range', min: '', max: '' })
+      }
+    },
+    handleDel(index) {
+      this.multipleValue.splice(index, 1)
     }
   }
 }

@@ -3,7 +3,7 @@
   <BasicLayout>
     <template #wrapper>
       <el-card class="box-card">
-        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
+        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="120px">
           <el-form-item label="开始展示时间" prop="startTime"><el-input
             v-model="queryParams.startTime"
             placeholder="请输入开始展示时间"
@@ -68,18 +68,39 @@
             align="center"
             prop="title"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          />
+          <el-table-column
             label="图片地址"
             align="center"
             prop="imageUrl"
             :show-overflow-tooltip="true"
-          /><el-table-column
+            width="200"
+          >
+            <template slot-scope="scope">
+              <el-image
+                :src="scope.row.imageUrl"
+                alt="图片"
+                style="width: 150px; height: 50px;"
+                fit="contain"
+                :preview-src-list="[scope.row.imageUrl]"
+              />
+            </template>
+          </el-table-column>
+          <el-table-column
             label="跳转地址"
             align="center"
             prop="linkUrl"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="排序，小的优先"
+          >
+            <template slot-scope="scope">
+              <el-link
+                :href="scope.row.linkUrl"
+                target="_blank"
+              >{{ scope.row.linkUrl }}</el-link>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="排序"
             align="center"
             prop="sortOrder"
             :show-overflow-tooltip="true"
@@ -101,12 +122,17 @@
             <template slot-scope="scope">
               <span>{{ parseTime(scope.row.endTime) }}</span>
             </template>
-          </el-table-column><el-table-column
-            label="0=下线,1=上线"
+          </el-table-column>
+          <el-table-column
+            label="状态"
             align="center"
             prop="status"
             :show-overflow-tooltip="true"
-          />
+          >
+            <template slot-scope="scope">
+              <span>{{ scope.row.status == 0 ? '下线' : '上线' }}</span>
+            </template>
+          </el-table-column>
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
@@ -146,8 +172,8 @@
         />
 
         <!-- 添加或修改对话框 -->
-        <el-dialog :title="title" :visible.sync="open" width="500px">
-          <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <el-dialog :title="title" :visible.sync="open" width="600px">
+          <el-form ref="form" :model="form" :rules="rules" label-width="120px">
 
             <el-form-item label="标题" prop="title">
               <el-input
@@ -156,10 +182,21 @@
               />
             </el-form-item>
             <el-form-item label="图片地址" prop="imageUrl">
-              <el-input
+              <!-- <el-input
                 v-model="form.imageUrl"
                 placeholder="图片地址"
-              />
+              /> -->
+              <el-upload
+                class="upload-demo"
+                :headers="headers"
+                :limit="1"
+                action="https://adminapi.cardpartner.io/api/v1/public/uploadFile"
+                :on-success="handleUploadChange"
+                :file-list="fileList"
+                :on-remove="handleRemove"
+              >
+                <el-button size="small" type="primary">点击上传</el-button>
+              </el-upload>
             </el-form-item>
             <el-form-item label="跳转地址" prop="linkUrl">
               <el-input
@@ -167,7 +204,7 @@
                 placeholder="跳转地址"
               />
             </el-form-item>
-            <el-form-item label="排序，小的优先" prop="sortOrder">
+            <el-form-item label="排序" prop="sortOrder">
               <el-input
                 v-model="form.sortOrder"
                 placeholder="排序，小的优先"
@@ -187,11 +224,11 @@
                 placeholder="选择日期"
               />
             </el-form-item>
-            <el-form-item label="0=下线,1=上线" prop="status">
-              <el-input
-                v-model="form.status"
-                placeholder="0=下线,1=上线"
-              />
+            <el-form-item label="状态" prop="status">
+              <el-radio-group v-model="form.status">
+                <el-radio label="0">下线</el-radio>
+                <el-radio label="1">上线</el-radio>
+              </el-radio-group>
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
@@ -206,7 +243,7 @@
 
 <script>
 import { addHsCarouselBanner, delHsCarouselBanner, getHsCarouselBanner, listHsCarouselBanner, updateHsCarouselBanner } from '@/api/admin/hs-carousel-banner'
-
+import { getToken } from '@/utils/auth'
 export default {
   name: 'HsCarouselBanner',
   components: {
@@ -248,6 +285,9 @@ export default {
       // 表单校验
       rules: { startTime: [{ required: true, message: '开始展示时间不能为空', trigger: 'blur' }],
         endTime: [{ required: true, message: '结束展示时间不能为空', trigger: 'blur' }]
+      },
+      headers: {
+        Authorization: 'Bearer ' + getToken()
       }
     }
   },
@@ -281,7 +321,8 @@ export default {
         sortOrder: undefined,
         startTime: undefined,
         endTime: undefined,
-        status: undefined
+        status: undefined,
+        fileList: []
       }
       this.resetForm('form')
     },
@@ -377,6 +418,13 @@ export default {
         }
       }).catch(function() {
       })
+    },
+    handleUploadChange(res) {
+      this.form.imageUrl = res.data ? res.data.full_path : ''
+    },
+    handleRemove() {
+      this.form.imageUrl = ''
+      this.fileList = []
     }
   }
 }
