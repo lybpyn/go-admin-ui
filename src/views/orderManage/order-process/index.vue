@@ -767,7 +767,7 @@ export default {
           const params = {
             orderId: this.form.id,
             recognizedCardValue: row.recognizedCardValue,
-            giftCardDiscountId: row.giftCardId,
+            giftCardDiscountId: row.giftCardDiscountId,
             discountRate: row.discountRate
           }
           const res = await calculateOrdGiftcardWriteoffs(params)
