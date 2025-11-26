@@ -111,7 +111,7 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column
+          <!-- <el-table-column
             label="折扣汇率"
             align="center"
             prop="discountRate"
@@ -120,7 +120,7 @@
             <template slot-scope="scope">
               <el-input v-model="scope.row.discountRate" placeholder="汇率折扣" @blur="updateRate(scope.row)" />
             </template>
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column
             label="状态"
             align="center"
@@ -256,12 +256,12 @@
                 placeholder="面额配置，支持区间和固定值"
               />
             </el-form-item> -->
-            <el-form-item label="折扣汇率" prop="discountRate">
+            <!-- <el-form-item label="折扣汇率" prop="discountRate">
               <el-input
                 v-model="form.discountRate"
                 placeholder="折扣汇率，例如0.95 表示95折"
               />
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item label="状态" prop="status">
               <el-radio-group v-model="form.status">
                 <el-radio label="1">启用</el-radio>

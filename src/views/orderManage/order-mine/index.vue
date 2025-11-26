@@ -549,7 +549,8 @@ export default {
         query: {
           id: row.id,
           giftCardCode: row.giftCardCode,
-          OrderNo: row.OrderNo
+          OrderNo: row.OrderNo,
+          t: new Date().getTime()
         }
       })
     },

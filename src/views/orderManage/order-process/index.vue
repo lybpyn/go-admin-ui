@@ -143,7 +143,6 @@
             label="卡密"
             align="center"
             prop="adminRecognizedCode"
-            :show-overflow-tooltip="true"
             width="150"
           >
             <template slot-scope="scope">
@@ -156,7 +155,7 @@
               />
             </template>
           </el-table-column>
-          <el-table-column
+          <!-- <el-table-column
             label="售卡状态"
             align="center"
             prop="status"
@@ -170,13 +169,12 @@
                 <el-option label="售卡失败" :value="2" />
               </el-select>
             </template>
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column
+            v-if="processType == 2"
             label="失败原因"
             align="center"
             prop="remark"
-            width="150"
-            :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
               <el-input
@@ -189,11 +187,10 @@
             </template>
           </el-table-column>
           <el-table-column
+            v-if="processType == 2"
             label="失败图片"
             align="center"
             prop="physicalImageUrl"
-            :show-overflow-tooltip="true"
-            width="150"
           >
             <template slot-scope="scope">
               <div style="display: flex;align-items: center;justify-content: center;">
@@ -214,11 +211,10 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column
+          <!-- <el-table-column
             label="用户提交面值"
             align="center"
             prop="balance"
-            :show-overflow-tooltip="true"
             width="100"
           >
             <template slot-scope="scope">
@@ -229,13 +225,13 @@
                 size="small"
               />
             </template>
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column
+            v-if="processType == 1"
             label="卡片真实面值"
             align="center"
             prop="recognizedCardValue"
             :show-overflow-tooltip="true"
-            width="120"
           >
             <template slot-scope="scope">
               <el-input
@@ -248,11 +244,10 @@
             </template>
           </el-table-column>
           <el-table-column
+            v-if="processType == 1"
             label="礼品卡"
             align="center"
             prop="giftCardId"
-            :show-overflow-tooltip="true"
-            width="150"
           >
             <template slot-scope="scope">
               <el-select v-model="scope.row.giftCardId" filterable size="small" @change="handleGiftCardChange(scope.row)">
@@ -261,11 +256,10 @@
             </template>
           </el-table-column>
           <el-table-column
+            v-if="processType == 1"
             label="折扣"
             align="center"
             prop="discountRate"
-            :show-overflow-tooltip="true"
-            width="100"
           >
             <template slot-scope="scope">
               <el-input
@@ -278,11 +272,10 @@
             </template>
           </el-table-column>
           <el-table-column
+            v-if="processType == 1"
             label="品牌商"
             align="center"
             prop="status"
-            width="200"
-            :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
               <el-select v-model="scope.row.supplierId" filterable size="small" @change="handleSupplierChange(scope.row)">
@@ -291,11 +284,11 @@
             </template>
           </el-table-column>
           <el-table-column
+            v-if="processType == 1"
             label="结算率"
             align="center"
             prop="settlementRate"
             :show-overflow-tooltip="true"
-            width="100"
           >
             <template slot-scope="scope">
               <el-input
@@ -308,11 +301,11 @@
             </template>
           </el-table-column>
           <el-table-column
+            v-if="processType == 1"
             label="卡商成交金额"
             align="center"
             prop="platformSettlementAmount"
             :show-overflow-tooltip="true"
-            width="120"
           >
             <template slot-scope="scope">
               <el-input
@@ -325,11 +318,10 @@
             </template>
           </el-table-column>
           <el-table-column
+            v-if="processType == 1"
             label="用户付款金额"
             align="center"
             prop="userLocalCurrencyAmount"
-            width="150"
-            :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
               <el-input
@@ -570,7 +562,9 @@ export default {
       discountList: [],
       giftCardId: '',
       activeRow: null,
-      currencyRatesList: []
+      currencyRatesList: [],
+      processType: 1,
+      valueTimer: null
     }
   },
   created() {
@@ -617,13 +611,14 @@ export default {
               userLocalCurrencyAmount: '',
               giftCardDiscountId: '',
               settlementRate: '',
-              status: 0,
+              status: 1,
               supplierId: '',
               balance: this.form.balance,
               cardType: this.form.cardType,
               giftCardId: '',
               fileList: [],
-              discountRate: ''
+              discountRate: '',
+              remark: ''
             })
           })
         })
@@ -638,14 +633,14 @@ export default {
           userLocalCurrencyAmount: '',
           giftCardDiscountId: '',
           settlementRate: '',
-          status: 0,
+          status: 1,
           supplierId: '',
           balance: this.form.balance,
           cardType: this.form.cardType,
           giftCardId: '',
           fileList: [],
           discountRate: '',
-          valueTimer: null
+          remark: ''
         }]
       }
     },
@@ -712,16 +707,17 @@ export default {
       })
     },
     handleProcess(row, type) {
-      if (!row.recognizedCardValue) {
-        this.$message.error('请输入卡面值')
-        return
-      }
+      // if (!row.recognizedCardValue) {
+      //   this.$message.error('请输入卡面值')
+      //   return
+      // }
+      this.processType = type
       if (type === 1) {
         row.status = 1
-        this.submit([row])
+        // this.submit([row])
       } else if (type === 2) {
         row.status = 2
-        this.submit([row])
+        // this.submit([row])
       }
     },
     handleComplete() {
@@ -729,9 +725,18 @@ export default {
         this.$message.error('请添加核销信息')
         return
       }
-      if (this.ordUserOrdersList.some(item => !item.recognizedCardValue)) {
-        this.$message.error('请填写完整信息')
-        return
+      if (this.processType === 1) {
+        const hasEmpty = this.ordUserOrdersList.some(item => !item.userLocalCurrencyAmount)
+        if (hasEmpty) {
+          this.$message.error('必填项不能为空')
+          return
+        }
+      } else {
+        const hasEmpty = this.ordUserOrdersList.some(item => !item.remark)
+        if (hasEmpty) {
+          this.$message.error('失败原因不能为空')
+          return
+        }
       }
       this.submit(this.ordUserOrdersList)
     },
@@ -750,8 +755,6 @@ export default {
       this.handleValueInput('', row)
     },
     handleValueInput(event, row) {
-      clearTimeout(this.valueTimer)
-      console.log(1212)
       this.valueTimer = setTimeout(async() => {
         if (
           row.recognizedCardValue &&
@@ -766,7 +769,8 @@ export default {
           const params = {
             orderId: this.form.id,
             recognizedCardValue: row.recognizedCardValue,
-            giftCardDiscountId: row.giftCardId
+            giftCardDiscountId: row.giftCardId,
+            discountRate: row.discountRate
           }
           const res = await calculateOrdGiftcardWriteoffs(params)
           if (res.data) {

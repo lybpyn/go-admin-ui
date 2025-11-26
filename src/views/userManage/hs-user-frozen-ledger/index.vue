@@ -4,7 +4,7 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-          <el-form-item label="" prop="userId"><el-input
+          <el-form-item label="用户ID" prop="userId"><el-input
             v-model="queryParams.userId"
             placeholder="请输入"
             clearable
@@ -12,7 +12,7 @@
             @keyup.enter.native="handleQuery"
           />
           </el-form-item>
-          <el-form-item label="币种代码，如 USD/CNY/USDT" prop="currencyCode"><el-input
+          <el-form-item label="币种代码" prop="currencyCode"><el-input
             v-model="queryParams.currencyCode"
             placeholder="请输入币种代码，如 USD/CNY/USDT"
             clearable
@@ -20,15 +20,7 @@
             @keyup.enter.native="handleQuery"
           />
           </el-form-item>
-          <el-form-item label="1=冻结增加，-1=冻结减少(解冻)" prop="direction"><el-input
-            v-model="queryParams.direction"
-            placeholder="请输入1=冻结增加，-1=冻结减少(解冻)"
-            clearable
-            size="small"
-            @keyup.enter.native="handleQuery"
-          />
-          </el-form-item>
-          <el-form-item label="冻结或解冻金额" prop="amount"><el-input
+          <!-- <el-form-item label="冻结或解冻金额" prop="amount"><el-input
             v-model="queryParams.amount"
             placeholder="请输入冻结或解冻金额"
             clearable
@@ -91,7 +83,7 @@
             size="small"
             @keyup.enter.native="handleQuery"
           />
-          </el-form-item>
+          </el-form-item> -->
 
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -141,16 +133,22 @@
             prop="userId"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="币种代码，如 USD/CNY/USDT"
+            label="币种代码"
             align="center"
             prop="currencyCode"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="1=冻结增加，-1=冻结减少(解冻)"
+          />
+          <el-table-column
+            label="冻结方向"
             align="center"
             prop="direction"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          >
+            <template slot-scope="scope">
+              {{ scope.row.direction === 1 ? '冻结增加' : '冻结减少(解冻)' }}
+            </template>
+          </el-table-column>
+          <el-table-column
             label="冻结或解冻金额"
             align="center"
             prop="amount"
@@ -166,7 +164,7 @@
             prop="frozenAfter"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="业务类型：invite_commissions/order_rebate等"
+            label="业务类型"
             align="center"
             prop="bizType"
             :show-overflow-tooltip="true"
@@ -185,12 +183,17 @@
             align="center"
             prop="remark"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="1=已冻结或解冻，0=待处理，-1=冲正"
+          />
+          <el-table-column
+            label="状态"
             align="center"
             prop="status"
             :show-overflow-tooltip="true"
-          />
+          >
+            <template slot-scope="scope">
+              {{ scope.row.status === 1 ? '已冻结或解冻' : (scope.row.status === 0 ? '待处理' : '冲正') }}
+            </template>
+          </el-table-column>
           <!-- <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button

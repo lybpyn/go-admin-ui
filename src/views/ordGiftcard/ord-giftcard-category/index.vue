@@ -87,7 +87,7 @@
               <el-tag v-else>禁用</el-tag>
             </template>
           </el-table-column>
-          <el-table-column
+          <!-- <el-table-column
             label="汇率折扣"
             align="center"
             prop="discountRate"
@@ -96,7 +96,7 @@
             <template slot-scope="scope">
               <el-input v-model="scope.row.discountRate" placeholder="汇率折扣" @blur="updateRate(scope.row)" />
             </template>
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
@@ -151,12 +151,12 @@
                 <el-radio :label="0">禁用</el-radio>
               </el-radio-group>
             </el-form-item>
-            <el-form-item label="汇率折扣" prop="discountRate">
+            <!-- <el-form-item label="汇率折扣" prop="discountRate">
               <el-input
                 v-model="form.discountRate"
                 placeholder="汇率折扣"
               />
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item label="排序" prop="sortOrder">
               <el-input-number
                 v-model="form.sortOrder"
