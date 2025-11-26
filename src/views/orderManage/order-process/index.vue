@@ -257,6 +257,18 @@
           </el-table-column>
           <el-table-column
             v-if="processType == 1"
+            label="折扣类型"
+            align="center"
+            prop="giftCardDiscountId"
+          >
+            <template slot-scope="scope">
+              <el-select v-model="scope.row.giftCardDiscountId" size="small" @change="handleGiftCardDiscountChange(scope.row)">
+                <el-option v-for="item in scope.row.discounts" :key="item.id" :label="item.cardType" :value="item.id" />
+              </el-select>
+            </template>
+          </el-table-column>
+          <el-table-column
+            v-if="processType == 1"
             label="折扣"
             align="center"
             prop="discountRate"
@@ -281,23 +293,6 @@
               <el-select v-model="scope.row.supplierId" filterable size="small" @change="handleSupplierChange(scope.row)">
                 <el-option v-for="item in supplierOptions" :key="item.id" :label="item.name+'('+item.settlementCurrencyCode+')'" :value="item.id" filterable />
               </el-select>
-            </template>
-          </el-table-column>
-          <el-table-column
-            v-if="processType == 1"
-            label="结算率"
-            align="center"
-            prop="settlementRate"
-            :show-overflow-tooltip="true"
-          >
-            <template slot-scope="scope">
-              <el-input
-                v-model="scope.row.settlementRate"
-                type="text"
-                clearable
-                size="small"
-                readonly
-              />
             </template>
           </el-table-column>
           <el-table-column
@@ -506,7 +501,7 @@ import { getToken } from '@/utils/auth'
 import { listOrdGiftcardCategory } from '@/api/admin/ord-giftcard-category'
 import { listOrdGiftcard } from '@/api/admin/ord-giftcard'
 import { listOrdGiftcardRegion } from '@/api/admin/ord-giftcard-region'
-import { getOrdGiftcardDiscounts } from '@/api/admin/ord-giftcard-discounts'
+import { listOrdGiftcardDiscounts } from '@/api/admin/ord-giftcard-discounts'
 import { calculateOrdGiftcardWriteoffs } from '@/api/admin/ord-giftcard-writeoffs'
 // import { listOrdConfigCurrencyRates } from '@/api/admin/ord-config-currency-rates'
 export default {
@@ -618,7 +613,8 @@ export default {
               giftCardId: '',
               fileList: [],
               discountRate: '',
-              remark: ''
+              remark: '',
+              discounts: []
             })
           })
         })
@@ -640,20 +636,16 @@ export default {
           giftCardId: '',
           fileList: [],
           discountRate: '',
-          remark: ''
+          remark: '',
+          discounts: []
         }]
       }
     },
 
     async getListOrdGiftcardDiscounts(id) {
-      const res = await getOrdGiftcardDiscounts(id)
+      const res = await listOrdGiftcardDiscounts({ giftcard_id: id })
       if (res.data) {
-        return res.data
-      } else {
-        return {
-          discountRate: '',
-          id: '-1'
-        }
+        return res.data.list
       }
     },
     getOrdGiftcardCategoryList() {
@@ -686,8 +678,14 @@ export default {
     // 根据分类筛选礼品卡
     async handleGiftCardChange(row) {
       const data = await this.getListOrdGiftcardDiscounts(row.giftCardId)
-      row.discountRate = data.discountRate || ''
-      row.giftCardDiscountId = data.id || '-1'
+      row.discounts = data || []
+      row.discountRate = ''
+      row.giftCardDiscountId = ''
+      this.handleValueInput('', row)
+    },
+    handleGiftCardDiscountChange(row) {
+      const discount = row.discounts.find(item => item.id === row.giftCardDiscountId)
+      row.discountRate = discount.discountRate
       this.handleValueInput('', row)
     },
     submit(list) {
