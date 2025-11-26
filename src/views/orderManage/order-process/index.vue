@@ -757,12 +757,10 @@ export default {
         if (
           row.recognizedCardValue &&
           row.recognizedCardValue !== '0' &&
-          row.supplierId &&
           row.discountRate &&
           row.discountRate !== '0' &&
           row.giftCardId &&
-          row.platformSettlementAmount &&
-          row.platformSettlementAmount !== '0'
+          row.giftCardDiscountId
         ) {
           const params = {
             orderId: this.form.id,
