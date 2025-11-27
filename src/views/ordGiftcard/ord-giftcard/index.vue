@@ -154,7 +154,7 @@
             prop="extra"
             :show-overflow-tooltip="true"
           />
-          <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+          <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="300">
             <template slot-scope="scope">
               <el-button
                 slot="reference"
@@ -164,6 +164,24 @@
                 icon="el-icon-edit"
                 @click="handleUpdate(scope.row)"
               >修改
+              </el-button>
+              <el-button
+                slot="reference"
+                v-permisaction="['admin:ordGiftcard:edit']"
+                size="mini"
+                type="text"
+                icon="el-icon-plus"
+                @click="handleAddType(scope.row)"
+              >新增类型
+              </el-button>
+              <el-button
+                slot="reference"
+                v-permisaction="['admin:ordGiftcard:edit']"
+                size="mini"
+                type="text"
+                icon="el-icon-edit"
+                @click="openDetail(scope.row)"
+              >修改类型
               </el-button>
               <el-popconfirm
                 class="delete-popconfirm"
@@ -266,7 +284,7 @@
                 </template>
               </div>
             </el-form-item>
-            <el-form-item v-if="!form.id" label="折扣类型" prop="type">
+            <!-- <el-form-item v-if="!form.id" label="折扣类型" prop="type">
               <div class="type-btn"><el-button type="primary" @click="handleAddDiscount">+添加类型</el-button></div>
               <div v-for="(item,index) in typeList" :key="item.id" class="type-list" style="display: flex; align-items: center;margin: 5px 0;">
                 <el-select v-model="item.cardType" placeholder="请选择折扣类型">
@@ -278,7 +296,7 @@
                 <el-input v-model="item.discountRate" placeholder="折扣" style="margin: 0 10px;" type="number" />
                 <el-button type="danger" style="margin-left: 5px;" @click="handleDelDiscount(index)">删除</el-button>
               </div>
-            </el-form-item>
+            </el-form-item> -->
             <!-- <el-form-item label="折扣汇率" prop="discountRate">
               <el-input
                 v-model="form.discountRate"
@@ -305,7 +323,7 @@
           </div>
         </el-dialog>
         <el-dialog title="类型详情" :visible.sync="openVisiable" width="650px">
-          <el-table v-loading="loading" :data="ordGiftcardDiscountsList">
+          <el-table :data="ordGiftcardDiscountsList">
             <el-table-column
               label="卡类型"
               align="center"
@@ -325,6 +343,53 @@
           <div slot="footer" class="dialog-footer">
             <el-button type="primary" @click="updateDiscount">确 定</el-button>
             <el-button @click="openVisiable=false">取 消</el-button>
+          </div>
+        </el-dialog>
+        <el-dialog title="新增类型" :visible.sync="openAddVisiable" width="650px">
+          <div class="tip" style="margin-bottom: 10px;">已存在类型</div>
+          <el-table :data="ordGiftcardDiscountsList" border>
+            <el-table-column
+              label="卡类型"
+              align="center"
+              prop="cardType"
+              :show-overflow-tooltip="true"
+            />
+            <el-table-column
+              label="折扣汇率"
+              align="center"
+              prop="discountRate"
+            />
+          </el-table>
+          <div class="type-btn" style="margin-top: 10px;display: flex;justify-content: flex-end;margin-bottom: 10px;"><el-button type="primary" @click="handleAddDiscount">+添加类型</el-button></div>
+          <el-table v-loading="loading" :data="typeList" border>
+            <el-table-column
+              label="卡类型"
+              align="center"
+              prop="cardType"
+              :show-overflow-tooltip="true"
+            >
+              <template slot-scope="scope">
+                <el-select v-model="scope.row.cardType" placeholder="请选择折扣类型">
+                  <el-option label="code" value="code" />
+                  <el-option label="physical" value="physical" />
+                  <el-option label="horizontal" value="horizontal" />
+                  <el-option label="whiteboard" value="whiteboard" />
+                </el-select>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="折扣汇率"
+              align="center"
+              prop="discountRate"
+            >
+              <template slot-scope="scope">
+                <el-input v-model="scope.row.discountRate" placeholder="折扣" type="number" />
+              </template>
+            </el-table-column>
+          </el-table>
+          <div slot="footer" class="dialog-footer">
+            <el-button type="primary" @click="saveTypeList">确 定</el-button>
+            <el-button @click="openAddVisiable=false">取 消</el-button>
           </div>
         </el-dialog>
       </el-card>
@@ -387,7 +452,8 @@ export default {
       openVisiable: false,
       ordGiftcardDiscountsList: [],
       regionList1: [],
-      typeList: []
+      typeList: [],
+      openAddVisiable: false
     }
   },
   created() {
@@ -555,10 +621,6 @@ export default {
               if (response.code === 200) {
                 this.msgSuccess(response.msg)
                 this.open = false
-                this.typeList.forEach(element => {
-                  element.giftcardId = response.data.id
-                })
-                this.saveTypeList()
               } else {
                 this.msgError(response.msg)
               }
@@ -616,8 +678,20 @@ export default {
       })
     },
     saveTypeList() {
+      if (this.typeList.length === 0) {
+        this.msgError('请添加礼品卡')
+        return
+      }
+      for (let i = 0; i < this.typeList.length; i++) {
+        const item = this.typeList[i]
+        if (this.ordGiftcardDiscountsList.findIndex(x => x.cardType === item.cardType) !== -1) {
+          this.msgError('礼品卡类型已存在')
+          return
+        }
+      }
       batchInsertOrdGiftcardDiscounts({ items: this.typeList }).then(response => {
         if (response.code === 200) {
+          this.openAddVisiable = false
           this.getList()
         }
       })
@@ -630,11 +704,24 @@ export default {
     },
     updateDiscount() {
       batchUpdateOrdGiftcardDiscounts({ items: this.ordGiftcardDiscountsList }).then(response => {
+        this.openAddVisiable = false
         if (response.code === 200) {
+          this.openAddVisiable = false
           this.getList()
-          this.openVisiable = false
+          this.form.id = ''
         }
+      }).finally(() => {
+        this.form.id = ''
       })
+    },
+    handleAddType(row) {
+      this.ordGiftcardDiscountsList = []
+      listOrdGiftcardDiscounts({ pageIndex: 1, pageSize: 1000, giftcardId: row.id }).then(response => {
+        this.ordGiftcardDiscountsList = response.data.list
+      })
+      this.openAddVisiable = true
+      this.form.id = row.id
+      this.typeList = []
     }
   }
 }
