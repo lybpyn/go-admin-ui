@@ -54,9 +54,15 @@
             </el-button>
           </el-col>
         </el-row>
-
         <el-table v-loading="loading" :data="ordGiftcardList" @selection-change="handleSelectionChange">
-          <el-table-column type="selection" width="55" align="center" /><el-table-column
+          <el-table-column type="selection" width="55" align="center" />
+          <el-table-column
+            label="卡类别"
+            align="center"
+            prop="categoryName"
+            :show-overflow-tooltip="true"
+          />
+          <el-table-column
             label="地区ID"
             align="center"
             prop="regionId"
@@ -67,13 +73,22 @@
             </template>
           </el-table-column>
           <el-table-column
+            label="币种"
+            align="center"
+            prop="currencyCode"
+          >
+            <template slot-scope="scope">
+              {{ scope.row.currencyCode }}
+            </template>
+          </el-table-column>
+          <el-table-column
             label="卡名称"
             align="center"
             prop="name"
             :show-overflow-tooltip="true"
           />
           <el-table-column
-            label="卡类型"
+            label="折扣类型"
             align="center"
             prop="valuesConfig"
           >
@@ -251,12 +266,19 @@
                 </template>
               </div>
             </el-form-item>
-            <!-- <el-form-item label="面额配置" prop="valuesConfig">
-              <el-input
-                v-model="form.valuesConfig"
-                placeholder="面额配置，支持区间和固定值"
-              />
-            </el-form-item> -->
+            <el-form-item v-if="!form.id" label="折扣类型" prop="type">
+              <div class="type-btn"><el-button type="primary" @click="handleAddDiscount">+添加类型</el-button></div>
+              <div v-for="(item,index) in typeList" :key="item.id" class="type-list" style="display: flex; align-items: center;margin: 5px 0;">
+                <el-select v-model="item.cardType" placeholder="请选择折扣类型">
+                  <el-option label="code" value="code" />
+                  <el-option label="physical" value="physical" />
+                  <el-option label="horizontal" value="horizontal" />
+                  <el-option label="whiteboard" value="whiteboard" />
+                </el-select>
+                <el-input v-model="item.discountRate" placeholder="折扣" style="margin: 0 10px;" type="number" />
+                <el-button type="danger" style="margin-left: 5px;" @click="handleDelDiscount(index)">删除</el-button>
+              </div>
+            </el-form-item>
             <!-- <el-form-item label="折扣汇率" prop="discountRate">
               <el-input
                 v-model="form.discountRate"
@@ -282,7 +304,7 @@
             <el-button @click="cancel">取 消</el-button>
           </div>
         </el-dialog>
-        <el-dialog title="类型详情" :visible.sync="openVisiable" width="500px">
+        <el-dialog title="类型详情" :visible.sync="openVisiable" width="650px">
           <el-table v-loading="loading" :data="ordGiftcardDiscountsList">
             <el-table-column
               label="卡类型"
@@ -294,9 +316,16 @@
               label="折扣汇率"
               align="center"
               prop="discountRate"
-              :show-overflow-tooltip="true"
-            />
+            >
+              <template slot-scope="scope">
+                <el-input v-model="scope.row.discountRate" placeholder="折扣" type="number" />
+              </template>
+            </el-table-column>
           </el-table>
+          <div slot="footer" class="dialog-footer">
+            <el-button type="primary" @click="updateDiscount">确 定</el-button>
+            <el-button @click="openVisiable=false">取 消</el-button>
+          </div>
         </el-dialog>
       </el-card>
     </template>
@@ -307,7 +336,7 @@
 import { addOrdGiftcard, delOrdGiftcard, getOrdGiftcard, listOrdGiftcard, updateOrdGiftcard } from '@/api/admin/ord-giftcard'
 import { listOrdGiftcardRegion } from '@/api/admin/ord-giftcard-region'
 import { listOrdGiftcardCategory } from '@/api/admin/ord-giftcard-category'
-import { listOrdGiftcardDiscounts } from '@/api/admin/ord-giftcard-discounts'
+import { listOrdGiftcardDiscounts, batchInsertOrdGiftcardDiscounts, batchUpdateOrdGiftcardDiscounts } from '@/api/admin/ord-giftcard-discounts'
 export default {
   name: 'OrdGiftcard',
   components: {
@@ -357,7 +386,8 @@ export default {
       multipleValue: [],
       openVisiable: false,
       ordGiftcardDiscountsList: [],
-      regionList1: []
+      regionList1: [],
+      typeList: []
     }
   },
   created() {
@@ -390,6 +420,7 @@ export default {
       })
     },
     filterGiftcardCategory(categoryId) {
+      this.form.categoryName = this.cardCategory.find(item => item.id === Number(categoryId))?.name || ''
       this.getRegionList(categoryId)
     },
     getRegionList(categoryId) {
@@ -418,6 +449,12 @@ export default {
         extra: '{}',
         categoryId: ''
       }
+      this.multipleValue = []
+      this.cardType = 'fixed'
+      this.rangeValue = {
+        min: '',
+        max: ''
+      }
       this.resetForm('form')
     },
     getImgList: function() {
@@ -445,6 +482,7 @@ export default {
       this.open = true
       this.title = '添加礼品卡明细'
       this.isEdit = false
+      this.typeList = []
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
@@ -480,7 +518,6 @@ export default {
     submitForm: function() {
       this.$refs['form'].validate(valid => {
         if (valid) {
-          delete this.form.categoryId
           if (this.cardType === 'fixed') {
             const obj = {
               type: 'fixed',
@@ -518,7 +555,10 @@ export default {
               if (response.code === 200) {
                 this.msgSuccess(response.msg)
                 this.open = false
-                this.getList()
+                this.typeList.forEach(element => {
+                  element.giftcardId = response.data.id
+                })
+                this.saveTypeList()
               } else {
                 this.msgError(response.msg)
               }
@@ -573,6 +613,27 @@ export default {
       this.ordGiftcardDiscountsList = []
       listOrdGiftcardDiscounts({ pageIndex: 1, pageSize: 1000, giftcardId: row.id }).then(response => {
         this.ordGiftcardDiscountsList = response.data.list
+      })
+    },
+    saveTypeList() {
+      batchInsertOrdGiftcardDiscounts({ items: this.typeList }).then(response => {
+        if (response.code === 200) {
+          this.getList()
+        }
+      })
+    },
+    handleAddDiscount() {
+      this.typeList.push({ id: new Date().getTime(), cardType: 'code', discountRate: '', giftcardId: this.form.id || '' })
+    },
+    handleDelDiscount(index) {
+      this.typeList.splice(index, 1)
+    },
+    updateDiscount() {
+      batchUpdateOrdGiftcardDiscounts({ items: this.ordGiftcardDiscountsList }).then(response => {
+        if (response.code === 200) {
+          this.getList()
+          this.openVisiable = false
+        }
       })
     }
   }

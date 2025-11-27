@@ -57,35 +57,14 @@
           /><el-table-column
             label="银行名称"
             align="center"
-            prop="name"
+            prop="bankName"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="国家ISO2"
+            label="渠道类型"
             align="center"
-            prop="country"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="SWIFT/BIC"
-            align="center"
-            prop="swiftCode"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="路由/清算号"
-            align="center"
-            prop="routingNumber"
+            prop="channelType"
             :show-overflow-tooltip="true"
           />
-          <el-table-column
-            label="是否支持国际汇款"
-            align="center"
-            prop="supportsInternational"
-            :show-overflow-tooltip="true"
-          >
-            <template slot-scope="scope">
-              <el-tag v-if="scope.row.supportsInternational == 0">否</el-tag>
-              <el-tag v-else>是</el-tag>
-            </template>
-          </el-table-column>
           <el-table-column
             label="状态"
             align="center"
@@ -97,17 +76,6 @@
               <el-tag v-else>启用</el-tag>
             </template>
           </el-table-column>
-          <el-table-column
-            label=""
-            align="center"
-            prop="note"
-            :show-overflow-tooltip="true"
-          /><el-table-column
-            label="扩展字段，例如银行支付说明、证件要求等"
-            align="center"
-            prop="extra"
-            :show-overflow-tooltip="true"
-          />
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
@@ -149,42 +117,29 @@
         <!-- 添加或修改对话框 -->
         <el-dialog :title="title" :visible.sync="open" width="600px">
           <el-form ref="form" :model="form" :rules="rules" label-width="150px">
-
             <el-form-item label="银行编码/银行行号" prop="bankCode">
               <el-input
                 v-model="form.bankCode"
                 placeholder="银行编码/银行行号，如 SWIFT/BIC 或自定义编码"
               />
             </el-form-item>
-            <el-form-item label="银行名称" prop="name">
+            <el-form-item label="银行名称" prop="bankName">
               <el-input
-                v-model="form.name"
+                v-model="form.bankName"
                 placeholder="银行名称"
               />
             </el-form-item>
-            <el-form-item label="国家ISO2" prop="country">
+            <el-form-item label="银行简称" prop="bankNameShort">
               <el-input
-                v-model="form.country"
-                placeholder="国家ISO2"
+                v-model="form.bankNameShort"
+                placeholder="银行名称"
               />
             </el-form-item>
-            <el-form-item label="SWIFT/BIC" prop="swiftCode">
+            <el-form-item label="渠道类型" prop="channelType">
               <el-input
-                v-model="form.swiftCode"
-                placeholder="SWIFT/BIC (如适用)"
+                v-model="form.channelType"
+                placeholder="渠道类型"
               />
-            </el-form-item>
-            <el-form-item label="路由/清算号" prop="routingNumber">
-              <el-input
-                v-model="form.routingNumber"
-                placeholder="路由/清算号(如 ABA)"
-              />
-            </el-form-item>
-            <el-form-item label="是否支持国际汇款" prop="supportsInternational">
-              <el-radio-group v-model="form.supportsInternational">
-                <el-radio label="0">否</el-radio>
-                <el-radio label="1">是</el-radio>
-              </el-radio-group>
             </el-form-item>
             <el-form-item label="状态" prop="status">
               <el-radio-group v-model="form.status">
@@ -196,13 +151,6 @@
               <el-input
                 v-model="form.note"
                 placeholder=""
-              />
-            </el-form-item>
-            <el-form-item label="扩展字段" prop="extra">
-              <el-input
-                v-model="form.extra"
-                type="textarea"
-                placeholder="扩展字段，例如银行支付说明、证件要求等"
               />
             </el-form-item>
           </el-form>
@@ -284,14 +232,10 @@ export default {
 
         id: undefined,
         bankCode: undefined,
-        name: undefined,
-        country: undefined,
-        swiftCode: undefined,
-        routingNumber: undefined,
-        supportsInternational: undefined,
-        status: undefined,
-        note: undefined,
-        extra: undefined
+        bankName: undefined,
+        bankNameShort: undefined,
+        channelType: undefined,
+        status: undefined
       }
       this.resetForm('form')
     },

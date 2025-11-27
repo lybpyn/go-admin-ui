@@ -44,3 +44,20 @@ export function delOrdGiftcardDiscounts(data) {
   })
 }
 
+// 批量新增OrdGiftcardDiscounts
+export function batchInsertOrdGiftcardDiscounts(data) {
+  return request({
+    url: '/api/v1/ord-giftcard-discounts/batch-insert',
+    method: 'post',
+    data: data
+  })
+}
+
+// 批量修改OrdGiftcardDiscounts
+export function batchUpdateOrdGiftcardDiscounts(data) {
+  return request({
+    url: '/api/v1/ord-giftcard-discounts/batch-update',
+    method: 'put',
+    data: data
+  })
+}
