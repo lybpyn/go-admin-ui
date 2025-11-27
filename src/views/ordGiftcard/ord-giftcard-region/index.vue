@@ -175,16 +175,14 @@
               </el-select>
             </el-form-item>
             <el-form-item label="地区代码" prop="regionCode">
-              <el-input
-                v-model="form.regionCode"
-                placeholder="地区代码，如 US、UK、CN"
-              />
+              <el-select v-model="form.regionCode" placeholder="请选择地区代码" clearable size="small" @change="getOrdConfigCurrencyRatesList(form.regionCode)">
+                <el-option v-for="item in regionList" :key="item.currencyCode" :label="item.currencyCode" :value="item.currencyCode" />
+              </el-select>
             </el-form-item>
             <el-form-item label="货币代码" prop="currencyCode">
-              <el-input
-                v-model="form.currencyCode"
-                placeholder="货币代码，如 USD, GBP, CNY"
-              />
+              <el-select v-model="form.currencyCode" placeholder="请选择地区代码" clearable size="small">
+                <el-option v-for="item in currencyRatesList" :key="item.quoteCurrencyCode" :label="item.quoteCurrencyCode" :value="item.quoteCurrencyCode" />
+              </el-select>
             </el-form-item>
             <!-- <el-form-item label="货币简称" prop="quoteCurrencySymbol">
               <el-input
@@ -227,6 +225,8 @@
 <script>
 import { addOrdGiftcardRegion, delOrdGiftcardRegion, getOrdGiftcardRegion, listOrdGiftcardRegion, updateOrdGiftcardRegion } from '@/api/admin/ord-giftcard-region'
 import { listOrdGiftcardCategory } from '@/api/admin/ord-giftcard-category'
+import { listHsConfigRegions } from '@/api/admin/hs-config-regions'
+import { listOrdConfigCurrencyRates } from '@/api/admin/ord-config-currency-rates'
 export default {
   name: 'OrdGiftcardRegion',
   components: {
@@ -262,15 +262,19 @@ export default {
       },
       // 表单参数
       form: {
+        currencyCode: ''
       },
       // 表单校验
       rules: {},
-      cardCategory: []
+      cardCategory: [],
+      currencyRatesList: [],
+      regionList: []
     }
   },
   created() {
     this.getList()
     this.getOrdGiftcardCategoryList()
+    this.getHsConfigRegionList()
   },
   methods: {
     /** 查询参数列表 */
@@ -288,6 +292,24 @@ export default {
         this.cardCategory = response.data.list
       })
     },
+    getHsConfigRegionList() {
+      listHsConfigRegions({ pageIndex: 1, pageSize: 1000 }).then(response => {
+        this.regionList = response.data.list
+      })
+    },
+    getOrdConfigCurrencyRatesList(code) {
+      this.form.currencyCode = ''
+      if (!code) {
+        return
+      }
+      listOrdConfigCurrencyRates({ pageIndex: 1, pageSize: 1000, quoteCurrencyCode: code }).then(response => {
+        this.currencyRatesList = response.data.list
+        if (this.currencyRatesList.length > 0) {
+          this.form.currencyCode = this.currencyRatesList[0].quoteCurrencyCode
+        }
+      })
+    },
+
     filterGiftcardCategory(categoryId) {
       const category = this.cardCategory.find(item => item.id === Number(categoryId))
       return category ? category.name : ''
@@ -307,7 +329,8 @@ export default {
         quoteCurrencySymbol: undefined,
         rate: undefined,
         isMain: undefined,
-        status: undefined
+        status: undefined,
+        currencyCode: undefined
       }
       this.resetForm('form')
     },

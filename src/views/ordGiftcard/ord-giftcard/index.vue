@@ -72,17 +72,19 @@
             prop="name"
             :show-overflow-tooltip="true"
           />
-          <!-- <el-table-column
-            label="面额配置，支持区间和固定值"
-            align="center"
-            prop="valuesConfig"
-            :show-overflow-tooltip="true"
-          /> -->
           <el-table-column
             label="卡类型"
             align="center"
+            prop="valuesConfig"
+          >
+            <template slot-scope="scope">
+              <el-button size="mini" type="text" @click="openDetail(scope.row)">查看详情</el-button>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="面额类型"
+            align="center"
             prop="type"
-            :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
               {{ scope.row.valuesConfig1.type == 'range' ? '区间' : (scope.row.valuesConfig1.type == 'fixed' ? '固定值' : '固定+区间（多条）') }}
@@ -92,7 +94,6 @@
             label="面额配置"
             align="center"
             prop="valuesConfig"
-            :show-overflow-tooltip="true"
             width="200"
           >
             <template slot-scope="scope">
@@ -281,6 +282,22 @@
             <el-button @click="cancel">取 消</el-button>
           </div>
         </el-dialog>
+        <el-dialog title="类型详情" :visible.sync="openVisiable" width="500px">
+          <el-table v-loading="loading" :data="ordGiftcardDiscountsList">
+            <el-table-column
+              label="卡类型"
+              align="center"
+              prop="cardType"
+              :show-overflow-tooltip="true"
+            />
+            <el-table-column
+              label="折扣汇率"
+              align="center"
+              prop="discountRate"
+              :show-overflow-tooltip="true"
+            />
+          </el-table>
+        </el-dialog>
       </el-card>
     </template>
   </BasicLayout>
@@ -290,6 +307,7 @@
 import { addOrdGiftcard, delOrdGiftcard, getOrdGiftcard, listOrdGiftcard, updateOrdGiftcard } from '@/api/admin/ord-giftcard'
 import { listOrdGiftcardRegion } from '@/api/admin/ord-giftcard-region'
 import { listOrdGiftcardCategory } from '@/api/admin/ord-giftcard-category'
+import { listOrdGiftcardDiscounts } from '@/api/admin/ord-giftcard-discounts'
 export default {
   name: 'OrdGiftcard',
   components: {
@@ -336,7 +354,10 @@ export default {
         min: '',
         max: ''
       },
-      multipleValue: []
+      multipleValue: [],
+      openVisiable: false,
+      ordGiftcardDiscountsList: [],
+      regionList1: []
     }
   },
   created() {
@@ -360,7 +381,7 @@ export default {
     },
     getRegionList1() {
       listOrdGiftcardRegion({ pageIndex: 1, pageSize: 1000, categoryId: '' }).then(response => {
-        this.regionList = response.data.list
+        this.regionList1 = response.data.list
       })
     },
     getOrdGiftcardCategoryList() {
@@ -377,7 +398,7 @@ export default {
       })
     },
     filterRegionName(regionId) {
-      const region = this.regionList.find(item => item.id === Number(regionId))
+      const region = this.regionList1.find(item => item.id === Number(regionId))
       return region ? region.regionCode : ''
     },
     // 取消按钮
@@ -393,7 +414,7 @@ export default {
         name: undefined,
         valuesConfig: undefined,
         discountRate: undefined,
-        status: undefined,
+        status: '1',
         extra: '{}',
         categoryId: ''
       }
@@ -449,7 +470,7 @@ export default {
           this.cardType = 'multiple'
           this.multipleValue = valuesConfig.value
         }
-        this.form = response.data
+        this.form = JSON.parse(JSON.stringify(response.data))
         this.open = true
         this.title = '修改礼品卡明细'
         this.isEdit = true
@@ -546,6 +567,13 @@ export default {
     },
     handleDel(index) {
       this.multipleValue.splice(index, 1)
+    },
+    openDetail(row) {
+      this.openVisiable = true
+      this.ordGiftcardDiscountsList = []
+      listOrdGiftcardDiscounts({ pageIndex: 1, pageSize: 1000, giftcardId: row.id }).then(response => {
+        this.ordGiftcardDiscountsList = response.data.list
+      })
     }
   }
 }

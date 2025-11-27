@@ -28,13 +28,13 @@
             @keyup.enter.native="handleQuery"
           />
           </el-form-item>
-          <el-form-item label="汇率类型" prop="rateType">
+          <!-- <el-form-item label="汇率类型" prop="rateType">
             <el-select v-model="queryParams.rateType" placeholder="请选择汇率类型" clearable size="small">
               <el-option label="标准" value="standard" />
               <el-option label="买入" value="buying" />
               <el-option label="卖出" value="selling" />
             </el-select>
-          </el-form-item>
+          </el-form-item> -->
           <el-form-item label="状态" prop="status">
             <el-select v-model="queryParams.status" placeholder="请选择状态" clearable size="small">
               <el-option label="启用" value="1" />
@@ -110,7 +110,7 @@
             prop="regionCode"
             :show-overflow-tooltip="true"
           /> -->
-          <el-table-column
+          <!-- <el-table-column
             label="汇率类型"
             align="center"
             prop="rateType"
@@ -127,7 +127,7 @@
             align="center"
             prop="source"
             :show-overflow-tooltip="true"
-          />
+          /> -->
           <el-table-column
             label="状态"
             align="center"
@@ -224,7 +224,7 @@
                 placeholder="地区代码,为空表示全局汇率"
               />
             </el-form-item> -->
-            <el-form-item label="汇率类型" prop="rateType">
+            <!-- <el-form-item label="汇率类型" prop="rateType">
               <el-select v-model="form.rateType">
                 <el-option label="标准" value="standard" />
                 <el-option label="买入" value="buying" />
@@ -236,7 +236,7 @@
                 v-model="form.source"
                 placeholder="汇率来源,如 manual, api, coingecko"
               />
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item label="状态" prop="status">
               <el-switch v-model="form.status" active-value="1" inactive-value="0" />
             </el-form-item>

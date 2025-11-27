@@ -136,9 +136,9 @@
             <el-form-item label="卡类型" prop="cardType">
               <el-input v-model="form.cardType" placeholder="请输入卡类型" />
             </el-form-item>
-            <el-form-item label="折扣汇率" prop="rate">
+            <!-- <el-form-item label="折扣汇率" prop="rate">
               <el-input v-model="form.discountRate" placeholder="请输入折扣汇率，例如0.95 表示95折" />
-            </el-form-item>
+            </el-form-item> -->
           </el-form>
           <div slot="footer" class="dialog-footer">
             <el-button type="primary" @click="submitForm">确 定</el-button>
