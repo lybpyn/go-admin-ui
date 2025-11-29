@@ -44,3 +44,11 @@ export function delOrdGiftcard(data) {
   })
 }
 
+// 批量设置OrdGiftcard
+export function batchSetOrdGiftcard(data) {
+  return request({
+    url: '/api/v1/ord-giftcard/batch-set',
+    method: 'post',
+    data: data
+  })
+}
