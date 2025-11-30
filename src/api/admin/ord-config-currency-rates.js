@@ -44,3 +44,10 @@ export function delOrdConfigCurrencyRates(data) {
   })
 }
 
+export function batchQuery(data) {
+  return request({
+    url: '/api/v1/ord-config-currency-rates/batch-query',
+    method: 'post',
+    data: data
+  })
+}

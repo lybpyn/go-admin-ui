@@ -4,17 +4,7 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="80px">
-          <el-form-item label="国家" prop="categoryId">
-            <el-select v-model="currencyRatesId" placeholder="请选择国家" size="small" @change="handleCurrencyRatesIdChange">
-              <el-option
-                v-for="item in currencyRates"
-                :key="item.id"
-                :label="item.quoteCurrencyCode"
-                :value="item.id"
-              />
-            </el-select>
-          </el-form-item>
-          <!-- <el-form-item label="地区" prop="regionId">
+          <el-form-item label="地区" prop="regionId">
             <el-select v-model="queryParams.regionId" placeholder="请选择地区" clearable size="small">
               <el-option
                 v-for="item in regionList"
@@ -23,7 +13,7 @@
                 :value="item.id"
               />
             </el-select>
-          </el-form-item> -->
+          </el-form-item>
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
             <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -52,7 +42,7 @@
             >删除
             </el-button>
           </el-col> -->
-          <el-col :span="2">
+          <el-col :span="1.5">
             <el-button
               type="primary"
               icon="el-icon-download"
@@ -60,6 +50,16 @@
               @click="handleSaveAll"
             >全部保存
             </el-button>
+          </el-col>
+          <el-col :span="1.5">
+            <el-select v-model="currencyRatesId" placeholder="请选择国家" size="small" @change="handleCurrencyRatesIdChange">
+              <el-option
+                v-for="item in currencyRates"
+                :key="item.id"
+                :label="item.quoteCurrencyCode"
+                :value="item.id"
+              />
+            </el-select>
           </el-col>
         </el-row>
         <el-table v-loading="loading" row-key="idx" :data="ordGiftcardList" @selection-change="handleSelectionChange">
@@ -94,7 +94,7 @@
             prop="currencyCode"
           >
             <template slot-scope="scope">
-              {{ scope.row.currencyCode? scope.row.currencyCode + '-' : '' }}{{ currentCurrencyRate.quoteCurrencyCode }} {{ parseFloat(currentCurrencyRate.rate).toFixed(2) }}
+              {{ scope.row.currencyCode? scope.row.currencyCode + '-' : '' }}{{ currentCurrencyRate.quoteCurrencyCode }} {{ parseFloat(scope.row.currentCurrencyRate).toFixed(2) }}
             </template>
           </el-table-column>
           <el-table-column
@@ -113,7 +113,7 @@
             prop="cardType"
           >
             <template slot-scope="scope">
-              <el-select v-model="scope.row.cardType" placeholder="请选择折扣类型">
+              <el-select v-model="scope.row.cardType" placeholder="请选择折扣类型" multiple>
                 <el-option label="code" value="code" />
                 <el-option label="physical" value="physical" />
                 <el-option label="horizontal" value="horizontal" />
@@ -162,7 +162,7 @@
             :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
-              {{ filterCurrencyRate(scope.row.discountRate) }}
+              {{ filterCurrencyRate(scope.row) }}
             </template>
           </el-table-column>
           <!-- <el-table-column
@@ -307,7 +307,7 @@ import { delOrdGiftcard, listOrdGiftcard, updateOrdGiftcard, batchSetOrdGiftcard
 import { listOrdGiftcardRegion } from '@/api/admin/ord-giftcard-region'
 import { listOrdGiftcardCategory } from '@/api/admin/ord-giftcard-category'
 import { listOrdGiftcardDiscounts, batchInsertOrdGiftcardDiscounts, batchUpdateOrdGiftcardDiscounts } from '@/api/admin/ord-giftcard-discounts'
-import { listOrdConfigCurrencyRates } from '@/api/admin/ord-config-currency-rates'
+import { listOrdConfigCurrencyRates, batchQuery } from '@/api/admin/ord-config-currency-rates'
 export default {
   name: 'OrdGiftcard',
   components: {
@@ -363,7 +363,8 @@ export default {
       currencyRates: [],
       currencyRatesId: '',
       currentCurrencyRate: {},
-      currentIndex: -1
+      currentIndex: -1,
+      quoteCurrencyCode: ''
     }
   },
   async created() {
@@ -384,23 +385,26 @@ export default {
           item.affterDiscountRate = 0
           item.affterDiscountRateUsdt = 0
           item.idx = Date.now() + '' + Math.floor(Math.random() * 10000)
+          item.currentCurrencyRate = 0
+          item.cardType = item.cardType.split(',')
         })
-        console.log(response.data.list)
         this.ordGiftcardList = response.data.list
+        this.setBatchCurrencyRates()
         this.total = response.data.count
         this.loading = false
       }
       )
     },
-    filterCurrencyRate(rate) {
-      if (!rate) {
+    filterCurrencyRate(row) {
+      if (!row.discountRate) {
         return '0.00'
       }
-      const count = parseFloat(rate) * parseFloat(this.currentCurrencyRate.rate)
+      const count = parseFloat(row.discountRate) * parseFloat(row.currentCurrencyRate)
       return count.toFixed(2)
     },
     handleRegionChange(row) {
       row.currencyCode = this.regionList1.find(item => item.id === Number(row.regionId)).currencyCode
+      this.setBatchCurrencyRates()
     },
     filterCurrencyRateUsdt(rate) {
       if (!rate) {
@@ -411,6 +415,8 @@ export default {
     },
     handleCurrencyRatesIdChange() {
       this.currentCurrencyRate = this.currencyRates.find(item => item.id === Number(this.currencyRatesId))
+      this.quoteCurrencyCode = this.currencyRates.find(item => item.id === Number(this.currencyRatesId)).quoteCurrencyCode
+      this.setBatchCurrencyRates()
     },
     getRegionList1() {
       listOrdGiftcardRegion({ pageIndex: 1, pageSize: 1000, categoryId: '' }).then(response => {
@@ -421,6 +427,7 @@ export default {
       listOrdConfigCurrencyRates({ pageIndex: 1, pageSize: 1000 }).then(response => {
         this.currencyRates = response.data.list
         this.currencyRatesId = this.currencyRates[0].id
+        this.quoteCurrencyCode = this.currencyRates[0].quoteCurrencyCode
         this.handleCurrencyRatesIdChange()
       })
     },
@@ -714,11 +721,13 @@ export default {
         this.msgError('请选择地区')
         return
       }
-      if (!row.discountRate) {
+      if (!row.discountRate || row.discountRate === 0) {
         this.msgError('请输入折扣率')
         return
       }
-      batchSetOrdGiftcard({ items: [row] }).then(response => {
+      const items = JSON.parse(JSON.stringify(row))
+      items.cardType = String(row.cardType)
+      batchSetOrdGiftcard({ items: [items] }).then(response => {
         if (response.code === 200) {
           this.msgSuccess(response.msg)
           this.getList()
@@ -726,10 +735,59 @@ export default {
       })
     },
     handleSaveAll() {
-      batchSetOrdGiftcard({ items: this.ordGiftcardList }).then(response => {
+      const ordGiftcardList = JSON.parse(JSON.stringify(this.ordGiftcardList))
+      let currentIndex = -1
+      let currentIndex1 = -1
+      ordGiftcardList.forEach((element, index) => {
+        element.cardType = String(element.cardType)
+        if (!element.regionId) {
+          currentIndex = index
+        }
+        if (!element.discountRate || element.discountRate === 0) {
+          currentIndex1 = index
+        }
+      })
+      if (currentIndex !== -1) {
+        this.msgError(`第${currentIndex + 1}条数据请选择地区`)
+        return
+      }
+      if (currentIndex1 !== -1) {
+        this.msgError(`第${currentIndex1 + 1}条数据请输入折扣率`)
+        return
+      }
+      batchSetOrdGiftcard({ items: ordGiftcardList }).then(response => {
         if (response.code === 200) {
           this.msgSuccess(response.msg)
           this.getList()
+        }
+      })
+    },
+    setBatchCurrencyRates() {
+      const currencyPairs = []
+      this.ordGiftcardList.forEach(element => {
+        if (element.currencyCode) {
+          currencyPairs.push({
+            baseCurrencyCode: element.currencyCode,
+            quoteCurrencyCode: this.quoteCurrencyCode
+          })
+        }
+      })
+      if (currencyPairs.length === 0) {
+        return
+      }
+      batchQuery({ currencyPairs: currencyPairs }).then(response => {
+        if (response.code === 200) {
+          if (response.data.rates.length > 0) {
+            response.data.rates.forEach(element => {
+              const str = element.baseCurrencyCode + '-' + element.quoteCurrencyCode
+              this.ordGiftcardList.forEach(item => {
+                const str1 = item.currencyCode + '-' + this.quoteCurrencyCode
+                if (str1 === str) {
+                  item.currentCurrencyRate = element.rate
+                }
+              })
+            })
+          }
         }
       })
     }

@@ -48,6 +48,16 @@
             >删除
             </el-button>
           </el-col>
+          <el-col :span="1.5">
+            <el-select v-model="regionId" placeholder="请选择国家" size="small">
+              <el-option
+                v-for="item in regionList"
+                :key="item.id"
+                :label="item.name"
+                :value="item.currencyCode"
+              />
+            </el-select>
+          </el-col>
         </el-row>
 
         <el-table v-loading="loading" :data="ordGiftcardRegionList" @selection-change="handleSelectionChange">
@@ -174,14 +184,14 @@
                 <el-option v-for="item in cardCategory" :key="item.id" :label="item.name" :value="String(item.id)" />
               </el-select>
             </el-form-item>
-            <el-form-item label="地区代码" prop="regionCode">
-              <el-select v-model="form.regionCode" placeholder="请选择地区代码" clearable size="small" @change="getOrdConfigCurrencyRatesList(form.regionCode)">
-                <el-option v-for="item in regionList" :key="item.currencyCode" :label="item.currencyCode" :value="item.currencyCode" />
+            <el-form-item label="区域编码" prop="regionCode">
+              <el-select v-model="form.regionCode" placeholder="请选择区域编码" clearable size="small">
+                <el-option v-for="item in ordConfigGiftcardRegionList" :key="item.regionName" :label="item.regionName" :value="item.regionName" />
               </el-select>
             </el-form-item>
             <el-form-item label="货币代码" prop="currencyCode">
-              <el-select v-model="form.currencyCode" placeholder="请选择地区代码" clearable size="small">
-                <el-option v-for="item in currencyRatesList" :key="item.quoteCurrencyCode" :label="item.quoteCurrencyCode" :value="item.quoteCurrencyCode" />
+              <el-select v-model="form.currencyCode" placeholder="请选择货币代码" clearable size="small">
+                <el-option v-for="item in currencyRatesList" :key="item.id" :label="item.baseCurrencyCode" :value="item.baseCurrencyCode" />
               </el-select>
             </el-form-item>
             <!-- <el-form-item label="货币简称" prop="quoteCurrencySymbol">
@@ -227,6 +237,7 @@ import { addOrdGiftcardRegion, delOrdGiftcardRegion, getOrdGiftcardRegion, listO
 import { listOrdGiftcardCategory } from '@/api/admin/ord-giftcard-category'
 import { listHsConfigRegions } from '@/api/admin/hs-config-regions'
 import { listOrdConfigCurrencyRates } from '@/api/admin/ord-config-currency-rates'
+import { listOrdConfigGiftcardRegion } from '@/api/admin/ord-config-giftcard-region'
 export default {
   name: 'OrdGiftcardRegion',
   components: {
@@ -268,13 +279,16 @@ export default {
       rules: {},
       cardCategory: [],
       currencyRatesList: [],
-      regionList: []
+      regionList: [],
+      ordConfigGiftcardRegionList: [],
+      regionId: ''
     }
   },
   created() {
     this.getList()
     this.getOrdGiftcardCategoryList()
     this.getHsConfigRegionList()
+    this.getOrdConfigGiftcardRegionList()
   },
   methods: {
     /** 查询参数列表 */
@@ -295,18 +309,17 @@ export default {
     getHsConfigRegionList() {
       listHsConfigRegions({ pageIndex: 1, pageSize: 1000 }).then(response => {
         this.regionList = response.data.list
+        this.regionId = response.data.list[0].currencyCode
       })
     },
-    getOrdConfigCurrencyRatesList(code) {
-      this.form.currencyCode = ''
-      if (!code) {
-        return
-      }
-      listOrdConfigCurrencyRates({ pageIndex: 1, pageSize: 1000, quoteCurrencyCode: code }).then(response => {
+    getOrdConfigGiftcardRegionList() {
+      listOrdConfigGiftcardRegion({ pageIndex: 1, pageSize: 1000 }).then(response => {
+        this.ordConfigGiftcardRegionList = response.data.list
+      })
+    },
+    getOrdConfigCurrencyRatesList() {
+      listOrdConfigCurrencyRates({ pageIndex: 1, pageSize: 1000, quoteCurrencyCode: this.regionId }).then(response => {
         this.currencyRatesList = response.data.list
-        if (this.currencyRatesList.length > 0) {
-          this.form.currencyCode = this.currencyRatesList[0].quoteCurrencyCode
-        }
       })
     },
 
@@ -321,6 +334,7 @@ export default {
     },
     // 表单重置
     reset() {
+      this.getOrdConfigCurrencyRatesList()
       this.form = {
         id: undefined,
         categoryId: undefined,
@@ -329,7 +343,7 @@ export default {
         quoteCurrencySymbol: undefined,
         rate: undefined,
         isMain: undefined,
-        status: undefined,
+        status: '1',
         currencyCode: undefined
       }
       this.resetForm('form')

@@ -1,8 +1,7 @@
 <template>
   <section class="app-main">
     <transition name="fade-transform" mode="out-in">
-      <!-- <keep-alive :include="cachedViews"> -->
-      <keep-alive>
+      <keep-alive :include="cachedViews" exclude="OrderProcess">
         <router-view :key="key" />
       </keep-alive>
     </transition>
@@ -14,7 +13,7 @@ export default {
   name: 'AppMain',
   computed: {
     cachedViews() {
-      return this.$store.state.tagsView.cachedViews
+      return this.$store.state.tagsView.cachedViews.filter(item => item !== 'OrderProcess')
     },
     key() {
       return this.$route.fullPath
