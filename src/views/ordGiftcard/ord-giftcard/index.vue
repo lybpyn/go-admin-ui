@@ -7,7 +7,7 @@
           <el-form-item label="地区" prop="regionId">
             <el-select v-model="queryParams.regionId" placeholder="请选择地区" clearable size="small">
               <el-option
-                v-for="item in regionList"
+                v-for="item in regionList1"
                 :key="item.id"
                 :label="item.regionCode"
                 :value="item.id"
@@ -52,11 +52,19 @@
             </el-button>
           </el-col>
           <el-col :span="1.5">
-            <el-select v-model="currencyRatesId" placeholder="请选择国家" size="small" @change="handleCurrencyRatesIdChange">
+            <!-- <el-select v-model="currencyRatesId" placeholder="请选择国家" size="small" @change="handleCurrencyRatesIdChange">
               <el-option
                 v-for="item in currencyRates"
                 :key="item.id"
                 :label="item.quoteCurrencyCode"
+                :value="item.id"
+              />
+            </el-select> -->
+            <el-select v-model="currencyRatesId" placeholder="请选择国家" size="small" @change="handleCurrencyRatesIdChange">
+              <el-option
+                v-for="item in currencyRates"
+                :key="item.id"
+                :label="item.name"
                 :value="item.id"
               />
             </el-select>
@@ -94,7 +102,7 @@
             prop="currencyCode"
           >
             <template slot-scope="scope">
-              {{ scope.row.currencyCode? scope.row.currencyCode + '-' : '' }}{{ currentCurrencyRate.quoteCurrencyCode }} {{ parseFloat(scope.row.currentCurrencyRate).toFixed(2) }}
+              {{ scope.row.currencyCode? scope.row.currencyCode + '-' : '' }}{{ currentCurrencyRate.currencyCode }} {{ parseFloat(scope.row.currentCurrencyRate).toFixed(2) }}
             </template>
           </el-table-column>
           <el-table-column
@@ -156,7 +164,7 @@
             </template>
           </el-table-column>
           <el-table-column
-            :label="`折后汇率 ${ currentCurrencyRate.quoteCurrencyCode }`"
+            :label="`折后汇率 ${ currentCurrencyRate.currencyCode }`"
             align="center"
             prop="affterDiscountRate"
             :show-overflow-tooltip="true"
@@ -307,7 +315,9 @@ import { delOrdGiftcard, listOrdGiftcard, updateOrdGiftcard, batchSetOrdGiftcard
 import { listOrdGiftcardRegion } from '@/api/admin/ord-giftcard-region'
 import { listOrdGiftcardCategory } from '@/api/admin/ord-giftcard-category'
 import { listOrdGiftcardDiscounts, batchInsertOrdGiftcardDiscounts, batchUpdateOrdGiftcardDiscounts } from '@/api/admin/ord-giftcard-discounts'
-import { listOrdConfigCurrencyRates, batchQuery } from '@/api/admin/ord-config-currency-rates'
+import { batchQuery } from '@/api/admin/ord-config-currency-rates'
+import { listHsConfigRegions } from '@/api/admin/hs-config-regions'
+
 export default {
   name: 'OrdGiftcard',
   components: {
@@ -415,7 +425,8 @@ export default {
     },
     handleCurrencyRatesIdChange() {
       this.currentCurrencyRate = this.currencyRates.find(item => item.id === Number(this.currencyRatesId))
-      this.quoteCurrencyCode = this.currencyRates.find(item => item.id === Number(this.currencyRatesId)).quoteCurrencyCode
+      this.quoteCurrencyCode = this.currencyRates.find(item => item.id === Number(this.currencyRatesId)).currencyCode
+      console.log(this.currentCurrencyRate)
       this.setBatchCurrencyRates()
     },
     getRegionList1() {
@@ -424,10 +435,10 @@ export default {
       })
     },
     getlistOrdConfigCurrencyRates() {
-      listOrdConfigCurrencyRates({ pageIndex: 1, pageSize: 1000 }).then(response => {
+      listHsConfigRegions({ pageIndex: 1, pageSize: 1000 }).then(response => {
         this.currencyRates = response.data.list
-        this.currencyRatesId = this.currencyRates[0].id
-        this.quoteCurrencyCode = this.currencyRates[0].quoteCurrencyCode
+        this.currencyRatesId = response.data.list[0].id
+        this.quoteCurrencyCode = response.data.list[0].currencyCode
         this.handleCurrencyRatesIdChange()
       })
     },
@@ -765,6 +776,7 @@ export default {
     setBatchCurrencyRates() {
       const currencyPairs = []
       this.ordGiftcardList.forEach(element => {
+        element.currentCurrencyRate = 0
         if (element.currencyCode) {
           currencyPairs.push({
             baseCurrencyCode: element.currencyCode,
