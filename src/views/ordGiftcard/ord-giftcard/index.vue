@@ -92,7 +92,7 @@
           >
             <template slot-scope="scope">
               <el-select v-model="scope.row.regionId" placeholder="请选择地区" @focus="getRegionList(scope.row.categoryId,scope.row)" @change="handleRegionChange(scope.row)">
-                <el-option v-for="item in scope.row.regionList" :key="item.id" :label="item.regionCode" :value="String(item.id)" />
+                <el-option v-for="item in scope.row.regionList" :key="item.id" :label="`${item.regionCode}-${item.currencyCode}`" :value="String(item.id)" />
               </el-select>
             </template>
           </el-table-column>
@@ -348,7 +348,7 @@ export default {
       // 查询参数
       queryParams: {
         pageIndex: 1,
-        pageSize: 50
+        pageSize: 10
 
       },
       // 表单参数
@@ -388,7 +388,8 @@ export default {
     async getList() {
       this.loading = true
       const res = await listOrdGiftcardRegion({ pageIndex: 1, pageSize: 1000, categoryId: '' })
-      listOrdGiftcard(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+      console.log(this.queryParams)
+      listOrdGiftcard(this.addDateRange(this.addDateRange(this.queryParams, this.dateRange))).then(response => {
         response.data.list.forEach(item => {
           item.valuesConfig1 = JSON.parse(item.valuesConfig)
           item.regionList = res.data.list
