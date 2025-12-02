@@ -125,9 +125,9 @@
             prop="experience"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="区域id"
+            label="区域"
             align="center"
-            prop="regionId"
+            prop="regionName"
             :show-overflow-tooltip="true"
           /><el-table-column
             label="累计经验"

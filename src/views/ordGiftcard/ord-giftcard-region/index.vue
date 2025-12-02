@@ -89,12 +89,12 @@
             prop="currencyCode"
             :show-overflow-tooltip="true"
           />
-          <!-- <el-table-column
+          <el-table-column
             label="货币简称"
             align="center"
-            prop="quoteCurrencySymbol"
+            prop="currencySymbol"
             :show-overflow-tooltip="true"
-          /> -->
+          />
           <el-table-column
             label="汇率"
             align="center"
@@ -194,12 +194,12 @@
                 <el-option v-for="item in currencyRatesList" :key="item.id" :label="item.baseCurrencyCode" :value="item.baseCurrencyCode" />
               </el-select>
             </el-form-item>
-            <!-- <el-form-item label="货币简称" prop="quoteCurrencySymbol">
+            <el-form-item label="货币简称" prop="currencySymbol">
               <el-input
-                v-model="form.quoteCurrencySymbol"
-                placeholder=""
+                v-model="form.currencySymbol"
+                placeholder="$"
               />
-            </el-form-item> -->
+            </el-form-item>
             <el-form-item label="汇率" prop="discountRate">
               <el-input
                 v-model="form.discountRate"
