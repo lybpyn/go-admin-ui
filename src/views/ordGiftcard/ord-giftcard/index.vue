@@ -76,7 +76,6 @@
             label="礼品卡品牌"
             align="center"
             prop="categoryName"
-            :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
               <el-select v-model="scope.row.categoryId" placeholder="请选择礼品卡分类" @change="filterGiftcardCategory(scope.row.categoryId,scope.row)">
@@ -88,7 +87,6 @@
             label="礼品卡地区"
             align="center"
             prop="regionId"
-            :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
               <el-select v-model="scope.row.regionId" placeholder="请选择地区" @focus="getRegionList(scope.row.categoryId,scope.row)" @change="handleRegionChange(scope.row)">
@@ -109,7 +107,6 @@
             label="卡名称"
             align="center"
             prop="name"
-            :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
               <el-input v-model="scope.row.name" placeholder="礼品卡名称" />
@@ -157,7 +154,6 @@
             label="折扣"
             align="center"
             prop="discountRate"
-            :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
               <el-input v-model="scope.row.discountRate" placeholder="折扣" type="number" />
@@ -167,7 +163,6 @@
             :label="`折后汇率 ${ currentCurrencyRate.currencyCode }`"
             align="center"
             prop="affterDiscountRate"
-            :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
               {{ filterCurrencyRate(scope.row) }}

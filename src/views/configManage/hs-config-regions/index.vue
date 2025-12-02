@@ -92,6 +92,11 @@
             align="center"
             prop="code"
             :show-overflow-tooltip="true"
+          /><el-table-column
+            label="地区货币符号"
+            align="center"
+            prop="currencySymbol"
+            :show-overflow-tooltip="true"
           />
           <el-table-column
             label="是否启用"
@@ -162,6 +167,12 @@
               <el-input
                 v-model="form.code"
                 placeholder="地区代码，如 CN、US、JP 等"
+              />
+            </el-form-item>
+            <el-form-item label="地区货币符号" prop="currencySymbol">
+              <el-input
+                v-model="form.currencySymbol"
+                placeholder="地区货币符号，如 $、¥、€ 等"
               />
             </el-form-item>
             <el-form-item label="是否启用" prop="isActive">

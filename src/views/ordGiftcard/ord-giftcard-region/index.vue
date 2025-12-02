@@ -90,7 +90,7 @@
             :show-overflow-tooltip="true"
           />
           <el-table-column
-            label="货币简称"
+            label="货币符号"
             align="center"
             prop="currencySymbol"
             :show-overflow-tooltip="true"
@@ -194,7 +194,7 @@
                 <el-option v-for="item in currencyRatesList" :key="item.id" :label="item.baseCurrencyCode" :value="item.baseCurrencyCode" />
               </el-select>
             </el-form-item>
-            <el-form-item label="货币简称" prop="currencySymbol">
+            <el-form-item label="货币符号" prop="currencySymbol">
               <el-input
                 v-model="form.currencySymbol"
                 placeholder="$"
