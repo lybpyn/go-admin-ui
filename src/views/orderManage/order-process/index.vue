@@ -259,11 +259,11 @@
             v-if="processType == 1"
             label="折扣类型"
             align="center"
-            prop="giftCardDiscountId"
+            prop="cardType"
           >
             <template slot-scope="scope">
-              <el-select v-model="scope.row.giftCardDiscountId" size="small" @change="handleGiftCardDiscountChange(scope.row)">
-                <el-option v-for="item in scope.row.discounts" :key="item.id" :label="item.cardType" :value="item.id" />
+              <el-select v-model="scope.row.cardType" size="small">
+                <el-option v-for="item in scope.row.cardTypeArr" :key="item" :label="item" :value="item" />
               </el-select>
             </template>
           </el-table-column>
@@ -604,7 +604,6 @@ export default {
               platformSettlementAmount: '',
               recognizedCardValue: '',
               userLocalCurrencyAmount: '',
-              giftCardDiscountId: '',
               settlementRate: '',
               status: 1,
               supplierId: '',
@@ -614,7 +613,8 @@ export default {
               fileList: [],
               discountRate: '',
               remark: '',
-              discounts: []
+              discounts: [],
+              cardTypeArr: []
             })
           })
         })
@@ -627,7 +627,6 @@ export default {
           platformSettlementAmount: '',
           recognizedCardValue: '',
           userLocalCurrencyAmount: '',
-          giftCardDiscountId: '',
           settlementRate: '',
           status: 1,
           supplierId: '',
@@ -637,7 +636,7 @@ export default {
           fileList: [],
           discountRate: '',
           remark: '',
-          discounts: []
+          cardTypeArr: []
         }]
       }
     },
@@ -677,10 +676,10 @@ export default {
     },
     // 根据分类筛选礼品卡
     async handleGiftCardChange(row) {
-      const data = await this.getListOrdGiftcardDiscounts(row.giftCardId)
-      row.discounts = data || []
-      row.discountRate = ''
-      row.giftCardDiscountId = ''
+      const data = this.ordGiftcardList.find(item => item.id === row.giftCardId)
+      row.cardTypeArr = data.cardType.split(',') || []
+      row.cardType = this.form.cardType
+      row.discountRate = data.discountRate
       this.handleValueInput('', row)
     },
     handleGiftCardDiscountChange(row) {
@@ -759,13 +758,12 @@ export default {
           row.recognizedCardValue !== '0' &&
           row.discountRate &&
           row.discountRate !== '0' &&
-          row.giftCardId &&
-          row.giftCardDiscountId
+          row.giftCardId
         ) {
           const params = {
             orderId: this.form.id,
             recognizedCardValue: row.recognizedCardValue,
-            giftCardDiscountId: row.giftCardDiscountId,
+            giftCardId: row.giftCardId,
             discountRate: row.discountRate
           }
           const res = await calculateOrdGiftcardWriteoffs(params)
