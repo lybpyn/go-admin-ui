@@ -165,13 +165,19 @@
             prop="accountInfo"
             :show-overflow-tooltip="true"
             width="200px"
-          /><el-table-column
+          />
+          <el-table-column
             label="状态"
             align="center"
             prop="status"
             :show-overflow-tooltip="true"
             width="120px"
-          /><el-table-column
+          >
+            <template slot-scope="scope">
+              <el-tag :type="scope.row.status == 'review' ? 'info' : (scope.row.status == 'pending' ? 'info' : (scope.row.status == 'processing' ? 'info' : (scope.row.status == 'success' ? 'success' : (scope.row.status == 'failed' ? 'danger' : 'danger'))))">{{ scope.row.status == 'review' ? '审核中' : (scope.row.status == 'pending' ? '待处理' : (scope.row.status == 'processing' ? '处理中' : (scope.row.status == 'success' ? '成功' : (scope.row.status == 'failed' ? '失败' : '已取消')))) }}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column
             label="接单管理员ID"
             align="center"
             prop="handlerId"
@@ -239,18 +245,18 @@
               <span>{{ parseTime(scope.row.processedAt) }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+          <el-table-column label="操作" align="center" class-name="small-padding fixed-width" fixed="right">
             <template slot-scope="scope">
               <el-button
+                v-if="scope.row.status == 'review' || scope.row.status == 'pending'"
                 slot="reference"
-                v-permisaction="['admin:hsUserWithdrawal:edit']"
                 size="mini"
                 type="text"
                 icon="el-icon-edit"
-                @click="handleUpdate(scope.row)"
-              >修改
+                @click="handleApprove(scope.row)"
+              >审核
               </el-button>
-              <el-popconfirm
+              <!-- <el-popconfirm
                 class="delete-popconfirm"
                 title="确认要删除吗?"
                 confirm-button-text="删除"
@@ -264,7 +270,7 @@
                   icon="el-icon-delete"
                 >删除
                 </el-button>
-              </el-popconfirm>
+              </el-popconfirm> -->
             </template>
           </el-table-column>
         </el-table>
@@ -278,7 +284,7 @@
         />
 
         <!-- 添加或修改对话框 -->
-        <el-dialog :title="title" :visible.sync="open" width="500px">
+        <!-- <el-dialog :title="title" :visible.sync="open" width="500px">
           <el-form ref="form" :model="form" :rules="rules" label-width="80px">
 
             <el-form-item label="状态：pending/review/processing/success/failed/canceled" prop="status">
@@ -343,6 +349,20 @@
             <el-button type="primary" @click="submitForm">确 定</el-button>
             <el-button @click="cancel">取 消</el-button>
           </div>
+        </el-dialog> -->
+        <el-dialog title="审核提现" :visible.sync="open" width="500px">
+          <el-form ref="form" :model="form" label-width="80px">
+            <el-form-item label="备注" prop="status">
+              <el-input
+                v-model="form.remark"
+                placeholder=""
+              />
+            </el-form-item>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button type="primary" @click="submitFormApprove">确 定</el-button>
+            <el-button @click="cancel">取 消</el-button>
+          </div>
         </el-dialog>
       </el-card>
     </template>
@@ -350,7 +370,7 @@
 </template>
 
 <script>
-import { addHsUserWithdrawal, delHsUserWithdrawal, getHsUserWithdrawal, listHsUserWithdrawal, updateHsUserWithdrawal } from '@/api/admin/hs-user-withdrawal'
+import { addHsUserWithdrawal, delHsUserWithdrawal, getHsUserWithdrawal, listHsUserWithdrawal, updateHsUserWithdrawal, approveHsUserWithdrawal } from '@/api/admin/hs-user-withdrawal'
 
 export default {
   name: 'HsUserWithdrawal',
@@ -448,7 +468,6 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-
         id: undefined,
         status: undefined,
         handlerId: undefined,
@@ -458,7 +477,8 @@ export default {
         reason: undefined,
         channelTxnId: undefined,
         requestedAt: undefined,
-        processedAt: undefined
+        processedAt: undefined,
+        remark: ''
       }
       this.resetForm('form')
     },
@@ -531,6 +551,27 @@ export default {
               }
             })
           }
+        }
+      })
+    },
+    /** 审核按钮操作 */
+    handleApprove(row) {
+      this.form = row
+      this.open = true
+    },
+    /** 提交审核按钮 */
+    submitFormApprove: function() {
+      this.$refs['form'].validate(valid => {
+        if (valid) {
+          approveHsUserWithdrawal(this.form).then(response => {
+            if (response.code === 200) {
+              this.msgSuccess(response.msg)
+              this.open = false
+              this.getList()
+            } else {
+              this.msgError(response.msg)
+            }
+          })
         }
       })
     },

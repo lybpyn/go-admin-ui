@@ -96,7 +96,7 @@
             :show-overflow-tooltip="true"
           />
           <el-table-column
-            label="汇率"
+            label="折扣汇率"
             align="center"
             prop="discountRate"
             :show-overflow-tooltip="true"

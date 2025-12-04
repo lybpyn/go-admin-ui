@@ -44,3 +44,12 @@ export function delHsUserWithdrawal(data) {
   })
 }
 
+// 审批HsUserWithdrawal
+export function approveHsUserWithdrawal(data) {
+  return request({
+    url: '/api/v1/hs-user-withdrawal/' + data.id + '/approve',
+    method: 'post',
+    data: data
+  })
+}
+
