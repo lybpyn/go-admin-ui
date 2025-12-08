@@ -252,6 +252,7 @@
             <template slot-scope="scope">
               <el-select v-model="scope.row.giftCardId" filterable size="small" @change="handleGiftCardChange(scope.row)">
                 <el-option v-for="item in ordGiftcardList" :key="item.id" :label="item.name" :value="item.id" />
+                <el-option label="其他" :value="0" />
               </el-select>
             </template>
           </el-table-column>

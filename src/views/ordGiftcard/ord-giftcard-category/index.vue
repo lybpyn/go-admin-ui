@@ -268,6 +268,7 @@ export default {
         discountRate: undefined,
         sortOrder: undefined
       }
+      this.fileList = []
       this.resetForm('form')
     },
     getImgList: function() {
