@@ -362,6 +362,7 @@ export default {
 
       // 查询参数
       queryParams: {
+        status: 1,
         pageIndex: 1,
         pageSize: 10
       },
