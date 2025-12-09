@@ -347,6 +347,7 @@ export default {
         currencyCode: undefined
       }
       this.resetForm('form')
+      this.getOrdConfigGiftcardRegionList()
     },
     getImgList: function() {
       this.form[this.fileIndex] = this.$refs['fileChoose'].resultList[0].fullUrl

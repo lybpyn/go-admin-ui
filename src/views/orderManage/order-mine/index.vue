@@ -81,7 +81,7 @@
             align="center"
             prop="OrderNo"
             :show-overflow-tooltip="true"
-            width="150"
+            width="200"
           />
           <el-table-column
             label="礼品卡"

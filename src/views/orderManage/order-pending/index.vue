@@ -365,7 +365,8 @@ export default {
       rules: {},
       cardCategory: [],
       ordGiftcardList: [],
-      regionList: []
+      regionList: [],
+      refreshTimer: null
     }
   },
   created() {
@@ -373,6 +374,10 @@ export default {
     this.getOrdGiftcardCategoryList()
     this.getGiftcardList()
     this.getRegionList()
+    this.refreshList()
+  },
+  beforeDestroy() {
+    clearTimeout(this.refreshTimer)
   },
   methods: {
     /** 查询参数列表 */
@@ -558,6 +563,15 @@ export default {
       } else {
         this.msgError(res.msg)
       }
+    },
+    // 写一个10s刷新列表,记得销毁
+    refreshList() {
+      if (this.refreshTimer) {
+        clearInterval(this.refreshTimer)
+      }
+      this.refreshTimer = setInterval(() => {
+        this.getList()
+      }, 10000)
     }
   }
 }

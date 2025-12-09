@@ -1,57 +1,34 @@
 <template>
   <section class="app-main">
     <transition name="fade-transform" mode="out-in">
-      <keep-alive :include="cachedViews" exclude="OrderProcess">
-        <router-view :key="key" />
-      </keep-alive>
+      <template v-if="$route.name === 'OrderProcess'">
+        <keep-alive>
+          <router-view :key="'OrderProcess-' + ($route.query.OrderNo || '')" />
+        </keep-alive>
+      </template>
+      <template v-else>
+        <keep-alive>
+          <router-view />
+        </keep-alive>
+      </template>
     </transition>
   </section>
 </template>
 
 <script>
 export default {
-  name: 'AppMain',
-  computed: {
-    cachedViews() {
-      return this.$store.state.tagsView.cachedViews.filter(item => item !== 'OrderProcess')
-    },
-    key() {
-      return this.$route.fullPath
-    }
-  }
+  name: 'AppMain'
 }
 </script>
-
-<style lang="scss" scoped>
+<style scoped>
 .app-main {
-  /* 50= navbar  50  */
   min-height: calc(100vh - 93px);
   width: 100%;
   position: relative;
   overflow: hidden;
 }
 
-.fixed-header+.app-main {
+.fixed-header + .app-main {
   padding-top: 93px;
-}
-
-// .hasTagsView {
-//   .app-main {
-//     /* 84 = navbar + tags-view = 50 + 34 */
-//     min-height: calc(100vh - 93px);
-//   }
-
-//   .fixed-header+.app-main {
-//     padding-top: 93px;
-//   }
-// }
-</style>
-
-<style lang="scss">
-// fix css style bug in open el-dialog
-.el-popup-parent--hidden {
-  .fixed-header {
-    padding-right: 15px;
-  }
 }
 </style>

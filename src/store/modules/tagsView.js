@@ -1,67 +1,66 @@
 const state = {
-  visitedViews: [],
+  visitedViews: [], // tabs
   cachedViews: []
 }
 
 const mutations = {
+  // ADD_VISITED_VIEW: (state, view) => {
+  //   if (state.visitedViews.some(v => v.fullPath === view.fullPath)) return
+  //   state.visitedViews.push({
+  //     ...view,
+  //     title: view.meta.title || 'no-name'
+  //   })
+  // },
   ADD_VISITED_VIEW: (state, view) => {
-    if (state.visitedViews.some(v => v.path === view.path)) return
-    state.visitedViews.push(
-      Object.assign({}, view, {
-        title: view.meta.title || 'no-name'
-      })
-    )
+    if (state.visitedViews.some(v => v.fullPath === view.fullPath)) return
+    let title = view.meta.title || 'no-name'
+    // 如果是 OrderProcess，加上订单号
+    console.log(view)
+    if (view.name === 'OrderProcess' && view.query && view.query.OrderNo) {
+      title += ` - ${view.query.OrderNo}`
+    }
+    state.visitedViews.push({
+      ...view,
+      title
+    })
   },
   ADD_CACHED_VIEW: (state, view) => {
-    if (state.cachedViews.includes(view.name)) return
-    if (!view.meta.noCache) {
-      state.cachedViews.push(view.name)
+    if (view.name === 'OrderProcess' && !state.cachedViews.includes(view.fullPath)) {
+      state.cachedViews.push(view.fullPath)
     }
   },
 
   DEL_VISITED_VIEW: (state, view) => {
-    for (const [i, v] of state.visitedViews.entries()) {
-      if (v.path === view.path) {
-        state.visitedViews.splice(i, 1)
-        break
-      }
-    }
+    state.visitedViews = state.visitedViews.filter(v => v.fullPath !== view.fullPath)
   },
   DEL_CACHED_VIEW: (state, view) => {
-    const index = state.cachedViews.indexOf(view.name)
-    index > -1 && state.cachedViews.splice(index, 1)
+    if (view.name === 'OrderProcess') {
+      state.cachedViews = state.cachedViews.filter(v => v !== view.fullPath)
+    }
   },
 
   DEL_OTHERS_VISITED_VIEWS: (state, view) => {
-    state.visitedViews = state.visitedViews.filter(v => {
-      return v.meta.affix || v.path === view.path
-    })
+    state.visitedViews = state.visitedViews.filter(v => v.meta.affix || v.fullPath === view.fullPath)
   },
   DEL_OTHERS_CACHED_VIEWS: (state, view) => {
-    if (state.cachedViews.length > 0) {
-      const index = state.cachedViews.indexOf(view.name)
-      if (index > -1) {
-        state.cachedViews = state.cachedViews.slice(index, index + 1)
-      } else {
-      // if index = -1, there is no cached tags
-        state.cachedViews = []
-      }
+    if (view.name === 'OrderProcess') {
+      state.cachedViews = state.cachedViews.filter(v => v === view.fullPath)
+    } else {
+      state.cachedViews = []
     }
   },
 
   DEL_ALL_VISITED_VIEWS: state => {
-    // keep affix tags
-    const affixTags = state.visitedViews.filter(tag => tag.meta.affix)
-    state.visitedViews = affixTags
+    state.visitedViews = state.visitedViews.filter(v => v.meta.affix)
   },
   DEL_ALL_CACHED_VIEWS: state => {
     state.cachedViews = []
   },
 
   UPDATE_VISITED_VIEW: (state, view) => {
-    for (let v of state.visitedViews) {
-      if (v.path === view.path) {
-        v = Object.assign(v, view)
+    for (const v of state.visitedViews) {
+      if (v.fullPath === view.fullPath) {
+        Object.assign(v, view)
         break
       }
     }
@@ -128,8 +127,8 @@ const actions = {
 
   delAllViews({ dispatch, state }, view) {
     return new Promise(resolve => {
-      dispatch('delAllVisitedViews', view)
-      dispatch('delAllCachedViews', view)
+      dispatch('delAllVisitedViews')
+      dispatch('delAllCachedViews')
       resolve({
         visitedViews: [...state.visitedViews],
         cachedViews: [...state.cachedViews]
