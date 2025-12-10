@@ -7,6 +7,9 @@
           <el-form-item label="用户ID:">
             <el-input v-model="queryParams.userId" placeholder="请输入用户ID" clearable size="small" @keyup.enter.native="handleQuery" />
           </el-form-item>
+          <el-form-item label="订单号:">
+            <el-input v-model="queryParams.OrderNo" placeholder="请输入订单号" clearable size="small" @keyup.enter.native="handleQuery" />
+          </el-form-item>
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
             <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>

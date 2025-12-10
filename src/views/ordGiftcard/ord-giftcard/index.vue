@@ -156,7 +156,7 @@
             prop="discountRate"
           >
             <template slot-scope="scope">
-              <el-input v-model="scope.row.discountRate" placeholder="折扣" type="number" />
+              <el-input v-model="scope.row.discountRate" placeholder="折扣" type="number" @input="handleDiscountRate(scope.row)" />
             </template>
           </el-table-column>
           <el-table-column
@@ -165,7 +165,8 @@
             prop="affterDiscountRate"
           >
             <template slot-scope="scope">
-              {{ filterCurrencyRate(scope.row) }}
+              <!-- <div v-show="false">{{ filterCurrencyRate(scope.row) }}</div> -->
+              <el-input v-model="scope.row.affterDiscountRate" placeholder="折后汇率" @input="handleDiscountRateChange(scope.row)" />
             </template>
           </el-table-column>
           <!-- <el-table-column
@@ -393,6 +394,7 @@ export default {
           item.idx = Date.now() + '' + Math.floor(Math.random() * 10000)
           item.currentCurrencyRate = 0
           item.cardType = item.cardType.split(',')
+          // item.affterDiscountRate = this.filterCurrencyRate(item)
         })
         this.ordGiftcardList = response.data.list
         this.setBatchCurrencyRates()
@@ -402,11 +404,24 @@ export default {
       )
     },
     filterCurrencyRate(row) {
+      // if (!row.discountRate) {
+      //   return '0.00'
+      // }
+      // const count = parseFloat(row.discountRate) * parseFloat(row.currentCurrencyRate)
+      // row.affterDiscountRate = count.toFixed(2)
+      // return count.toFixed(2)
+    },
+    handleDiscountRateChange(row) {
+      if (row.affterDiscountRate) {
+        row.discountRate = (row.affterDiscountRate / row.currentCurrencyRate).toFixed(4)
+      }
+    },
+    handleDiscountRate(row) {
       if (!row.discountRate) {
         return '0.00'
       }
       const count = parseFloat(row.discountRate) * parseFloat(row.currentCurrencyRate)
-      return count.toFixed(2)
+      row.affterDiscountRate = count.toFixed(2)
     },
     handleRegionChange(row) {
       row.currencyCode = this.regionList1.find(item => item.id === Number(row.regionId)).currencyCode
@@ -444,6 +459,9 @@ export default {
       })
     },
     filterGiftcardCategory(categoryId, row) {
+      row.regionId = ''
+      row.cardType = []
+      row.affterDiscountRate = ''
       this.getRegionList(categoryId, row)
     },
     getRegionList(categoryId, row) {
@@ -792,6 +810,10 @@ export default {
                 const str1 = item.currencyCode + '-' + this.quoteCurrencyCode
                 if (str1 === str) {
                   item.currentCurrencyRate = element.rate
+                  if (item.discountRate) {
+                    const count = parseFloat(item.discountRate) * parseFloat(item.currentCurrencyRate)
+                    item.affterDiscountRate = count.toFixed(2)
+                  }
                 }
               })
             })
