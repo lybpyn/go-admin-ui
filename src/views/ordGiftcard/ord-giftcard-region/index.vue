@@ -60,7 +60,7 @@
           </el-col>
         </el-row>
 
-        <el-table v-loading="loading" :data="ordGiftcardRegionList" @selection-change="handleSelectionChange">
+        <el-table v-loading="loading" height="74vh" :data="ordGiftcardRegionList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
           <!-- <el-table-column
             label="排序"
@@ -161,13 +161,13 @@
           </el-table-column>
         </el-table>
 
-        <pagination
+        <!-- <pagination
           v-show="total>0"
           :total="total"
           :page.sync="queryParams.pageIndex"
           :limit.sync="queryParams.pageSize"
           @pagination="getList"
-        />
+        /> -->
 
         <!-- 添加或修改对话框 -->
         <el-dialog :title="title" :visible.sync="open" width="550px">
@@ -268,7 +268,7 @@ export default {
       // 查询参数
       queryParams: {
         pageIndex: 1,
-        pageSize: 10
+        pageSize: 10000
 
       },
       // 表单参数

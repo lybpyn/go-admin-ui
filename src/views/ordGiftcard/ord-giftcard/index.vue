@@ -70,7 +70,7 @@
             </el-select>
           </el-col>
         </el-row>
-        <el-table v-loading="loading" row-key="idx" :data="ordGiftcardList" @selection-change="handleSelectionChange">
+        <el-table v-loading="loading" row-key="idx" height="74vh" :data="ordGiftcardList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
           <el-table-column
             label="礼品卡品牌"
@@ -229,13 +229,13 @@
           </el-table-column>
         </el-table>
 
-        <pagination
+        <!-- <pagination
           v-show="total>0"
           :total="total"
           :page.sync="queryParams.pageIndex"
           :limit.sync="queryParams.pageSize"
           @pagination="getList"
-        />
+        /> -->
 
         <!-- 添加或修改对话框 -->
         <el-dialog title="修改面值" :visible.sync="open" width="650px">
@@ -344,7 +344,7 @@ export default {
       // 查询参数
       queryParams: {
         pageIndex: 1,
-        pageSize: 10
+        pageSize: 10000
 
       },
       // 表单参数

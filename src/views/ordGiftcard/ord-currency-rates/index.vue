@@ -207,10 +207,9 @@
               />
             </el-form-item>
             <el-form-item label="报价货币代码" prop="quoteCurrencyCode">
-              <el-input
-                v-model="form.quoteCurrencyCode"
-                placeholder="报价货币代码 (ISO 4217)"
-              />
+              <el-select v-model="form.quoteCurrencyCode" placeholder="请选择报价货币">
+                <el-option v-for="item in regionList" :key="item.currencyCode" :label="item.currencyCode" :value="item.currencyCode" />
+              </el-select>
             </el-form-item>
             <el-form-item label="汇率" prop="rate">
               <el-input
@@ -267,7 +266,7 @@
 
 <script>
 import { addOrdConfigCurrencyRates, delOrdConfigCurrencyRates, getOrdConfigCurrencyRates, listOrdConfigCurrencyRates, updateOrdConfigCurrencyRates } from '@/api/admin/ord-config-currency-rates'
-
+import { listHsConfigRegions } from '@/api/admin/hs-config-regions'
 export default {
   name: 'OrdConfigCurrencyRates',
   components: {
@@ -328,6 +327,7 @@ export default {
   },
   created() {
     this.getList()
+    this.getRegionList()
   },
   methods: {
     /** 查询参数列表 */
@@ -339,6 +339,11 @@ export default {
         this.loading = false
       }
       )
+    },
+    getRegionList() {
+      listHsConfigRegions({ pageIndex: 1, pageSize: 1000 }).then(response => {
+        this.regionList = response.data.list
+      })
     },
     // 取消按钮
     cancel() {

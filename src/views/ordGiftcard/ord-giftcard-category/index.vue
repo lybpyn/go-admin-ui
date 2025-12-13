@@ -48,7 +48,7 @@
           </el-col>
         </el-row>
 
-        <el-table v-loading="loading" :data="ordGiftcardCategoryList" @selection-change="handleSelectionChange">
+        <el-table v-loading="loading" height="70vh" :data="ordGiftcardCategoryList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
           <el-table-column
             label="排序"
