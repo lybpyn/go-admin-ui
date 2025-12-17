@@ -1,9 +1,9 @@
 <template>
   <section class="app-main">
     <transition name="fade-transform" mode="out-in">
-      <template v-if="$route.name === 'OrderProcess'">
+      <template v-if="$route.name === 'OrderProcess'||$route.name === 'OrderDetail'">
         <keep-alive>
-          <router-view :key="'OrderProcess-' + ($route.query.OrderNo || '')" />
+          <router-view :key=" ($route.name === 'OrderProcess' ? 'OrderProcess-' : 'OrderDetail-') + ($route.query.OrderNo || '')" />
         </keep-alive>
       </template>
       <template v-else>

@@ -171,7 +171,7 @@
               <span>{{ parseTime(scope.row.canceledAt) }}</span>
             </template>
           </el-table-column>
-          <!-- <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="200">
+          <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="100" fixed="right">
             <template slot-scope="scope">
               <el-button
                 slot="reference"
@@ -179,36 +179,11 @@
                 size="mini"
                 type="text"
                 icon="el-icon-edit"
-                @click="handleUpdate(scope.row)"
-              >
-                处理
+                @click="handleView(scope.row)"
+              > 查看详情
               </el-button>
-              <el-button
-                slot="reference"
-                v-permisaction="['admin:ordUserOrders:edit']"
-                size="mini"
-                type="text"
-                icon="el-icon-edit"
-                @click="handleUpdate(scope.row)"
-              >修改
-              </el-button>
-              <el-popconfirm
-                class="delete-popconfirm"
-                title="确认要删除吗?"
-                confirm-button-text="删除"
-                @confirm="handleDelete(scope.row)"
-              >
-                <el-button
-                  slot="reference"
-                  v-permisaction="['admin:ordUserOrders:remove']"
-                  size="mini"
-                  type="text"
-                  icon="el-icon-delete"
-                >删除
-                </el-button>
-              </el-popconfirm>
             </template>
-          </el-table-column> -->
+          </el-table-column>
         </el-table>
 
         <pagination
@@ -380,6 +355,12 @@ export default {
     this.getGiftcardList()
     this.getRegionList()
   },
+  activated() {
+    this.getList()
+    this.getOrdGiftcardCategoryList()
+    this.getGiftcardList()
+    this.getRegionList()
+  },
   methods: {
     /** 查询参数列表 */
     getList() {
@@ -537,6 +518,16 @@ export default {
           this.msgError(response.msg)
         }
       }).catch(function() {
+      })
+    },
+    handleView(row) {
+      this.$router.push({
+        path: '/orderManage/order-detail',
+        query: {
+          id: row.id,
+          giftCardCode: row.giftCardCode,
+          OrderNo: row.OrderNo
+        }
       })
     }
   }

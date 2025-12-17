@@ -94,7 +94,7 @@
             </el-col>
           </el-row>
         </el-form>
-        <el-table v-loading="loading" :data="ordUserOrdersList" size="small">
+        <el-table v-if="false" v-loading="loading" :data="ordUserOrdersList" size="small">
           <el-table-column
             v-if="form.cardType === 'physical'"
             label="图片"
@@ -485,20 +485,6 @@
             </template>
           </el-table-column>
         </el-table>
-        <div class="oprate-box" style="margin-top: 20px; display: flex; justify-content: center;">
-          <!-- <el-button
-            type="primary"
-            @click="handleAdd"
-          >
-            保存
-          </el-button> -->
-          <el-button
-            type="primary"
-            @click="handleComplete"
-          >
-            完成
-          </el-button>
-        </div>
       </el-card>
     </template>
   </BasicLayout>

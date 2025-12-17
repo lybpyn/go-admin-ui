@@ -16,7 +16,7 @@ const mutations = {
     let title = view.meta.title || 'no-name'
     // 如果是 OrderProcess，加上订单号
     console.log(view)
-    if (view.name === 'OrderProcess' && view.query && view.query.OrderNo) {
+    if ((view.name === 'OrderProcess' || view.name === 'OrderDetail') && view.query && view.query.OrderNo) {
       title += ` - ${view.query.OrderNo}`
     }
     state.visitedViews.push({
@@ -25,7 +25,7 @@ const mutations = {
     })
   },
   ADD_CACHED_VIEW: (state, view) => {
-    if (view.name === 'OrderProcess' && !state.cachedViews.includes(view.fullPath)) {
+    if ((view.name === 'OrderProcess' || view.name === 'OrderDetail') && !state.cachedViews.includes(view.fullPath)) {
       state.cachedViews.push(view.fullPath)
     }
   },
@@ -34,7 +34,7 @@ const mutations = {
     state.visitedViews = state.visitedViews.filter(v => v.fullPath !== view.fullPath)
   },
   DEL_CACHED_VIEW: (state, view) => {
-    if (view.name === 'OrderProcess') {
+    if (view.name === 'OrderProcess' || view.name === 'OrderDetail') {
       state.cachedViews = state.cachedViews.filter(v => v !== view.fullPath)
     }
   },
@@ -43,7 +43,7 @@ const mutations = {
     state.visitedViews = state.visitedViews.filter(v => v.meta.affix || v.fullPath === view.fullPath)
   },
   DEL_OTHERS_CACHED_VIEWS: (state, view) => {
-    if (view.name === 'OrderProcess') {
+    if (view.name === 'OrderProcess' || view.name === 'OrderDetail') {
       state.cachedViews = state.cachedViews.filter(v => v === view.fullPath)
     } else {
       state.cachedViews = []
