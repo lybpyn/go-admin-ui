@@ -199,7 +199,7 @@
           >
             <template slot-scope="scope">
               <div style="display: flex;align-items: center;justify-content: center;">
-                <el-input v-model="scope.row.failureImageUrl" size="small" placeholder="粘贴复制图片" style="width: 100px;" readonly @click.native="(event)=>setActiveRow(scope.row, event)" @input="(event)=>handleFailureImageUrl(event, scope.row)" />
+                <el-input v-model="scope.row.failureImageUrl" size="small" placeholder="粘贴复制图片" style="width: 200px;" readonly @click.native="(event)=>setActiveRow(scope.row, event)" @input="(event)=>handleFailureImageUrl(event, scope.row)" />
                 <div style="display: flex;align-items: center;justify-content: center;">
                   <!-- <el-input v-model="scope.row.failureImageUrl" size="small" placeholder="粘贴复制图片" @click="setActiveRow(scope.row)" /> -->
                   <el-upload
