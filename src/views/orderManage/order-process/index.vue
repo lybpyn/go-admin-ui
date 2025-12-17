@@ -94,7 +94,7 @@
             </el-col>
           </el-row>
         </el-form>
-        <el-table v-loading="loading" :data="ordUserOrdersList" size="small">
+        <el-table v-if="form.processingStatus == 1" v-loading="loading" :data="ordUserOrdersList" size="small">
           <el-table-column
             v-if="form.cardType === 'physical'"
             label="图片"
@@ -485,7 +485,7 @@
             </template>
           </el-table-column>
         </el-table>
-        <div class="oprate-box" style="margin-top: 20px; display: flex; justify-content: center;">
+        <div v-if="form.processingStatus == 1" class="oprate-box" style="margin-top: 20px; display: flex; justify-content: center;">
           <!-- <el-button
             type="primary"
             @click="handleAdd"
@@ -707,7 +707,7 @@ export default {
     },
     submit(list) {
       list.forEach(item => {
-        item.supplierId = Number(item.supplierId) || ''
+        item.giftCardId = String(item.giftCardId) || ''
       })
       const params = {
         giftCardId: this.form.giftcardId,
