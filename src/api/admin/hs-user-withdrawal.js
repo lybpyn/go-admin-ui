@@ -52,4 +52,11 @@ export function approveHsUserWithdrawal(data) {
     data: data
   })
 }
-
+// 手动转账HsUserWithdrawal
+export function manualTransferHsUserWithdrawal(data) {
+  return request({
+    url: '/api/v1/hs-user-withdrawal/' + data.id + '/manual-transfer',
+    method: 'post',
+    data: data
+  })
+}

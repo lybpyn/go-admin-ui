@@ -43,4 +43,12 @@ export function delHsUsers(data) {
     data: data
   })
 }
+// 调整用户余额
+export function adjustBalance(data) {
+  return request({
+    url: '/api/v1/hs-users/adjust-balance',
+    method: 'post',
+    data: data
+  })
+}
 

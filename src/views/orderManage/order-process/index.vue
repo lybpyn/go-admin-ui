@@ -199,7 +199,7 @@
           >
             <template slot-scope="scope">
               <div style="display: flex;align-items: center;justify-content: center;">
-                <el-input v-model="scope.row.failureImageUrl" size="small" placeholder="粘贴复制图片" style="width: 200px;" readonly @click.native="(event)=>setActiveRow(scope.row, event)" @input="(event)=>handleFailureImageUrl(event, scope.row)" />
+                <el-input v-model="scope.row.failureImageUrl" size="small" placeholder="粘贴复制图片" style="width: 200px;" @click.native="(event)=>setActiveRow(scope.row, event)" @input="(event)=>handleFailureImageUrl(event, scope.row)" />
                 <div style="display: flex;align-items: center;justify-content: center;">
                   <!-- <el-input v-model="scope.row.failureImageUrl" size="small" placeholder="粘贴复制图片" @click="setActiveRow(scope.row)" /> -->
                   <el-upload
@@ -211,10 +211,20 @@
                     :file-list="scope.row.fileList"
                     :limit="1"
                     :on-remove="(file, fileList) => handleRemove(file, fileList, scope.row)"
-                    :show-file-list="true"
+                    :show-file-list="false"
                   >
                     <el-button size="small" type="primary" @click="setActiveRow(scope.row)">上传</el-button>
                   </el-upload>
+                </div>
+                <div v-if="scope.row.failureImageUrl" style="position: relative;">
+                  <el-image
+                    :src="scope.row.failureImageUrl"
+                    alt="图片"
+                    style="width: 80px; height: 40px;"
+                    fit="contain"
+                    :preview-src-list="[scope.row.failureImageUrl]"
+                  />
+                  <i class="el-icon-delete" style="position: absolute; top: 0; right: 0;" @click="handleDeleteFailureImage(scope.row)" />
                 </div>
               </div>
             </template>
@@ -857,7 +867,16 @@ export default {
     onSelectReson(item, row) {
       console.log(item)
       this.$set(row, 'remark', item)
+    },
+    handleDeleteFailureImage(row) {
+      row.failureImageUrl = ''
+      row.fileList = []
     }
   }
 }
 </script>
+<style lang="scss" scoped>
+:deep(.el-upload-list__item-name){
+  width: 50px;
+}
+</style>

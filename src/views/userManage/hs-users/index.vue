@@ -157,7 +157,7 @@
             prop="version"
             :show-overflow-tooltip="true"
           />
-          <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+          <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="200">
             <template slot-scope="scope">
               <el-button
                 slot="reference"
@@ -167,6 +167,15 @@
                 icon="el-icon-edit"
                 @click="handleUpdate(scope.row)"
               >修改
+              </el-button>
+              <el-button
+                slot="reference"
+                v-permisaction="['admin:hsUsers:adjustBalance']"
+                size="mini"
+                type="text"
+                icon="el-icon-edit"
+                @click="handleAdjustBalance(scope.row)"
+              >余额调整
               </el-button>
               <el-popconfirm
                 class="delete-popconfirm"
@@ -211,13 +220,36 @@
             <el-button @click="cancel">取 消</el-button>
           </div>
         </el-dialog>
+        <!-- 调整用户余额对话框 -->
+        <el-dialog title="余额调整" :visible.sync="openVisible" width="500px">
+          <el-form ref="amountForm" :model="amountForm" :rules="amountFormRules" label-width="80px">
+            <el-form-item label="金额类型" prop="balanceType">
+              <el-select v-model="amountForm.balanceType" placeholder="请选择金额类型" @change="handleBalanceTypeChange">
+                <el-option label="法币余额" value="balance" />
+                <el-option label="虚拟币余额" value="crypto_balance" />
+                <el-option label="法币冻结余额" value="frozen_balance" />
+                <el-option label="虚拟币冻结余额" value="crypto_frozen_balance" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="金额" prop="amount">
+              <el-input v-model="amountForm.amount" placeholder="请输入调整金额" />
+            </el-form-item>
+            <el-form-item label="备注" prop="remark">
+              <el-input v-model="amountForm.remark" placeholder="请输入备注" />
+            </el-form-item>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button type="primary" @click="submitAmountForm">确 定</el-button>
+            <el-button @click="cancelAdjustBalance">取 消</el-button>
+          </div>
+        </el-dialog>
       </el-card>
     </template>
   </BasicLayout>
 </template>
 
 <script>
-import { addHsUsers, delHsUsers, getHsUsers, listHsUsers, updateHsUsers } from '@/api/admin/hs-users'
+import { addHsUsers, delHsUsers, getHsUsers, listHsUsers, updateHsUsers, adjustBalance } from '@/api/admin/hs-users'
 
 export default {
   name: 'HsUsers',
@@ -270,6 +302,11 @@ export default {
       // 表单参数
       form: {
       },
+      amountForm: {
+        balanceType: 'balance',
+        amount: '',
+        remark: ''
+      },
       // 表单校验
       rules: { username: [{ required: true, message: '用户名（可选展示用）不能为空', trigger: 'blur' }],
         firstname: [{ required: true, message: '姓不能为空', trigger: 'blur' }],
@@ -285,7 +322,14 @@ export default {
         totalExperience: [{ required: true, message: '累计经验不能为空', trigger: 'blur' }],
         inviteCode: [{ required: true, message: '邀请码不能为空', trigger: 'blur' }],
         status: [{ required: true, message: '状态：1正常，0封禁不能为空', trigger: 'blur' }]
-      }
+      },
+      amountFormRules: {
+        balanceType: [{ required: true, message: '请选择金额类型', trigger: 'change' }],
+        amount: [{ required: true, message: '请输入调整金额', trigger: 'blur' }],
+        reason: [{ required: true, message: '请输入调整原因', trigger: 'blur' }]
+      },
+      openVisible: false,
+      currentRow: {}
     }
   },
   created() {
@@ -408,6 +452,51 @@ export default {
         }
       }).catch(function() {
       })
+    },
+    submitAmountForm: function() {
+      this.$refs['amountForm'].validate(valid => {
+        if (valid) {
+          adjustBalance(this.amountForm).then(response => {
+            if (response.code === 200) {
+              this.msgSuccess(response.msg)
+              this.openVisible = false
+              this.getList()
+            } else {
+              this.msgError(response.msg)
+            }
+          })
+        }
+      })
+    },
+    handleAdjustBalance(row) {
+      this.currentRow = row
+      this.amountForm = {
+        userId: row.id,
+        remark: '',
+        balanceType: 'balance',
+        amount: row.balance
+      }
+      this.openVisible = true
+    },
+    cancelAdjustBalance() {
+      this.amountForm = {
+        userId: undefined,
+        remark: '',
+        balanceType: 'balance',
+        amount: 0
+      }
+      this.openVisible = false
+    },
+    handleBalanceTypeChange() {
+      if (this.amountForm.balanceType === 'balance') {
+        this.amountForm.amount = this.currentRow.balance
+      } else if (this.amountForm.balanceType === 'crypto_balance') {
+        this.amountForm.amount = this.currentRow.cryptoBalance
+      } else if (this.amountForm.balanceType === 'frozen_balance') {
+        this.amountForm.amount = this.currentRow.frozenBalance
+      } else {
+        this.amountForm.amount = this.currentRow.cryptoFrozenBalance
+      }
     }
   }
 }

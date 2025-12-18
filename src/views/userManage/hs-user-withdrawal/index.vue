@@ -254,7 +254,7 @@
                 type="text"
                 icon="el-icon-edit"
                 @click="handleApprove(scope.row)"
-              >审核
+              >手动转账
               </el-button>
               <!-- <el-popconfirm
                 class="delete-popconfirm"
@@ -352,10 +352,35 @@
         </el-dialog> -->
         <el-dialog title="审核提现" :visible.sync="open" width="500px">
           <el-form ref="form" :model="form" label-width="80px">
-            <el-form-item label="备注" prop="status">
+            <el-form-item label="转账结果" prop="success">
+              <el-radio-group v-model="form.success">
+                <el-radio :label="true">成功</el-radio>
+                <el-radio :label="false">失败</el-radio>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item label="转账图片" prop="transferImage">
+              <!-- <el-input
+                v-model="form.imageUrl"
+                placeholder="图片地址"
+              /> -->
+              <el-upload
+                class="upload-demo"
+                :headers="headers"
+                :limit="1"
+                action="https://adminapi.cardpartner.io/api/v1/public/uploadFile"
+                :on-success="handleUploadChange"
+                :file-list="fileList"
+                list-type="picture"
+                :on-remove="handleRemove"
+              >
+                <el-button size="small" type="primary">点击上传</el-button>
+              </el-upload>
+            </el-form-item>
+            <el-form-item label="备注" prop="remark">
               <el-input
                 v-model="form.remark"
                 placeholder=""
+                type="textarea"
               />
             </el-form-item>
           </el-form>
@@ -370,14 +395,17 @@
 </template>
 
 <script>
-import { addHsUserWithdrawal, delHsUserWithdrawal, getHsUserWithdrawal, listHsUserWithdrawal, updateHsUserWithdrawal, approveHsUserWithdrawal } from '@/api/admin/hs-user-withdrawal'
-
+import { addHsUserWithdrawal, delHsUserWithdrawal, getHsUserWithdrawal, listHsUserWithdrawal, updateHsUserWithdrawal, manualTransferHsUserWithdrawal } from '@/api/admin/hs-user-withdrawal'
+import { getToken } from '@/utils/auth'
 export default {
   name: 'HsUserWithdrawal',
   components: {
   },
   data() {
     return {
+      headers: {
+        Authorization: 'Bearer ' + getToken()
+      },
       // 遮罩层
       loading: true,
       // 选中数组
@@ -424,26 +452,31 @@ export default {
       },
       // 表单参数
       form: {
+        success: true,
+        id: undefined,
+        transferImage: undefined,
+        remark: '2323'
       },
       // 表单校验
-      rules: { withdrawNo: [{ required: true, message: '提现单号，唯一不能为空', trigger: 'blur' }],
-        userId: [{ required: true, message: '用户ID不能为空', trigger: 'blur' }],
-        currencyCode: [{ required: true, message: 'ISO 4217币种代码，如 USD/CNY不能为空', trigger: 'blur' }],
-        amount: [{ required: true, message: '提现金额不能为空', trigger: 'blur' }],
-        fee: [{ required: true, message: '提现手续费不能为空', trigger: 'blur' }],
-        netAmount: [{ required: true, message: '实际出账金额（amount - fee）不能为空', trigger: 'blur' }],
-        method: [{ required: true, message: '提现方式：bank/crypto不能为空', trigger: 'blur' }],
-        accountInfo: [{ required: true, message: '提现账户信息（脱敏）不能为空', trigger: 'blur' }],
-        status: [{ required: true, message: '状态：pending/review/processing/success/failed/canceled不能为空', trigger: 'blur' }],
-        handlerId: [{ required: true, message: '接单管理员ID（关联sys_user.user_id）不能为空', trigger: 'blur' }],
-        handlerName: [{ required: true, message: '接单管理员名称（冗余字段）不能为空', trigger: 'blur' }],
-        claimedAt: [{ required: true, message: '接单时间不能为空', trigger: 'blur' }],
-        isClaimed: [{ required: true, message: '是否已接单：0=未接单(可接单), 1=已接单(已锁定)不能为空', trigger: 'blur' }],
-        reason: [{ required: true, message: '失败/取消原因不能为空', trigger: 'blur' }],
-        channelTxnId: [{ required: true, message: '通道回执流水号不能为空', trigger: 'blur' }],
-        requestedAt: [{ required: true, message: '发起时间不能为空', trigger: 'blur' }],
-        processedAt: [{ required: true, message: '处理完成时间不能为空', trigger: 'blur' }]
-      }
+      // rules: { withdrawNo: [{ required: true, message: '提现单号，唯一不能为空', trigger: 'blur' }],
+      //   userId: [{ required: true, message: '用户ID不能为空', trigger: 'blur' }],
+      //   currencyCode: [{ required: true, message: 'ISO 4217币种代码，如 USD/CNY不能为空', trigger: 'blur' }],
+      //   amount: [{ required: true, message: '提现金额不能为空', trigger: 'blur' }],
+      //   fee: [{ required: true, message: '提现手续费不能为空', trigger: 'blur' }],
+      //   netAmount: [{ required: true, message: '实际出账金额（amount - fee）不能为空', trigger: 'blur' }],
+      //   method: [{ required: true, message: '提现方式：bank/crypto不能为空', trigger: 'blur' }],
+      //   accountInfo: [{ required: true, message: '提现账户信息（脱敏）不能为空', trigger: 'blur' }],
+      //   status: [{ required: true, message: '状态：pending/review/processing/success/failed/canceled不能为空', trigger: 'blur' }],
+      //   handlerId: [{ required: true, message: '接单管理员ID（关联sys_user.user_id）不能为空', trigger: 'blur' }],
+      //   handlerName: [{ required: true, message: '接单管理员名称（冗余字段）不能为空', trigger: 'blur' }],
+      //   claimedAt: [{ required: true, message: '接单时间不能为空', trigger: 'blur' }],
+      //   isClaimed: [{ required: true, message: '是否已接单：0=未接单(可接单), 1=已接单(已锁定)不能为空', trigger: 'blur' }],
+      //   reason: [{ required: true, message: '失败/取消原因不能为空', trigger: 'blur' }],
+      //   channelTxnId: [{ required: true, message: '通道回执流水号不能为空', trigger: 'blur' }],
+      //   requestedAt: [{ required: true, message: '发起时间不能为空', trigger: 'blur' }],
+      //   processedAt: [{ required: true, message: '处理完成时间不能为空', trigger: 'blur' }]
+      // },
+      fileList: []
     }
   },
   created() {
@@ -556,14 +589,24 @@ export default {
     },
     /** 审核按钮操作 */
     handleApprove(row) {
-      this.form = row
+      this.form.id = row.id
+      this.form.success = true
+      this.form.remark = ''
+      this.form.transferImage = ''
       this.open = true
+    },
+    handleUploadChange(res) {
+      this.form.transferImage = res.data ? res.data.full_path : ''
+    },
+    handleRemove() {
+      this.form.transferImage = ''
+      this.fileList = []
     },
     /** 提交审核按钮 */
     submitFormApprove: function() {
       this.$refs['form'].validate(valid => {
         if (valid) {
-          approveHsUserWithdrawal(this.form).then(response => {
+          manualTransferHsUserWithdrawal(this.form).then(response => {
             if (response.code === 200) {
               this.msgSuccess(response.msg)
               this.open = false
