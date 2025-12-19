@@ -254,7 +254,7 @@
                 type="text"
                 icon="el-icon-edit"
                 @click="handleApprove(scope.row)"
-              >手动转账
+              >审核
               </el-button>
               <!-- <el-popconfirm
                 class="delete-popconfirm"
@@ -352,13 +352,19 @@
         </el-dialog> -->
         <el-dialog title="审核提现" :visible.sync="open" width="500px">
           <el-form ref="form" :model="form" label-width="80px">
-            <el-form-item label="转账结果" prop="success">
+            <el-form-item label="操作类型" prop="success">
+              <el-radio-group v-model="form.type">
+                <el-radio label="1">自动转账</el-radio>
+                <el-radio label="2">手动转账</el-radio>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item v-if="form.type === '2'" label="转账结果" prop="success">
               <el-radio-group v-model="form.success">
                 <el-radio :label="true">成功</el-radio>
                 <el-radio :label="false">失败</el-radio>
               </el-radio-group>
             </el-form-item>
-            <el-form-item label="转账图片" prop="transferImage">
+            <el-form-item v-if="form.type === '2'" label="转账图片" prop="transferImage">
               <!-- <el-input
                 v-model="form.imageUrl"
                 placeholder="图片地址"
@@ -395,7 +401,7 @@
 </template>
 
 <script>
-import { addHsUserWithdrawal, delHsUserWithdrawal, getHsUserWithdrawal, listHsUserWithdrawal, updateHsUserWithdrawal, manualTransferHsUserWithdrawal } from '@/api/admin/hs-user-withdrawal'
+import { addHsUserWithdrawal, delHsUserWithdrawal, getHsUserWithdrawal, listHsUserWithdrawal, updateHsUserWithdrawal, manualTransferHsUserWithdrawal, approveHsUserWithdrawal } from '@/api/admin/hs-user-withdrawal'
 import { getToken } from '@/utils/auth'
 export default {
   name: 'HsUserWithdrawal',
@@ -452,6 +458,7 @@ export default {
       },
       // 表单参数
       form: {
+        type: '1',
         success: true,
         id: undefined,
         transferImage: undefined,
@@ -593,6 +600,7 @@ export default {
       this.form.success = true
       this.form.remark = ''
       this.form.transferImage = ''
+      this.form.type = '1'
       this.open = true
     },
     handleUploadChange(res) {
@@ -606,15 +614,27 @@ export default {
     submitFormApprove: function() {
       this.$refs['form'].validate(valid => {
         if (valid) {
-          manualTransferHsUserWithdrawal(this.form).then(response => {
-            if (response.code === 200) {
-              this.msgSuccess(response.msg)
-              this.open = false
-              this.getList()
-            } else {
-              this.msgError(response.msg)
-            }
-          })
+          if (this.form.type === '2') {
+            manualTransferHsUserWithdrawal(this.form).then(response => {
+              if (response.code === 200) {
+                this.msgSuccess(response.msg)
+                this.open = false
+                this.getList()
+              } else {
+                this.msgError(response.msg)
+              }
+            })
+          } else {
+            approveHsUserWithdrawal(this.form).then(response => {
+              if (response.code === 200) {
+                this.msgSuccess(response.msg)
+                this.open = false
+                this.getList()
+              } else {
+                this.msgError(response.msg)
+              }
+            })
+          }
         }
       })
     },

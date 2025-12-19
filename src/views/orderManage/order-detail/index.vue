@@ -94,7 +94,7 @@
             </el-col>
           </el-row>
         </el-form>
-        <el-table v-if="false" v-loading="loading" :data="ordUserOrdersList" size="small">
+        <el-table v-loading="loading" :data="ordUserOrdersList" size="small">
           <el-table-column
             v-if="form.cardType === 'physical'"
             label="图片"
@@ -114,32 +114,6 @@
             </template>
           </el-table-column>
           <el-table-column
-            label="操作"
-            align="center"
-            prop="regionId"
-            fixed="left"
-            :show-overflow-tooltip="true"
-          >
-            <template slot-scope="scope">
-              <div v-if="form.status < 3" style="padding: 2px;">
-                <el-button
-                  type="primary"
-                  size="mini"
-                  @click="handleProcess(scope.row,1)"
-                >通过
-                </el-button>
-              </div>
-              <div style="padding: 2px;">
-                <el-button
-                  type="danger"
-                  size="mini"
-                  @click="handleProcess(scope.row,2)"
-                >拒绝
-                </el-button>
-              </div>
-            </template>
-          </el-table-column>
-          <el-table-column
             label="卡密"
             align="center"
             prop="adminRecognizedCode"
@@ -148,6 +122,7 @@
             <template slot-scope="scope">
               <el-input
                 v-model="scope.row.adminRecognizedCode"
+                disabled
                 type="text"
                 clearable
                 size="small"
@@ -155,7 +130,7 @@
               />
             </template>
           </el-table-column>
-          <!-- <el-table-column
+          <el-table-column
             label="售卡状态"
             align="center"
             prop="status"
@@ -163,13 +138,13 @@
             width="150"
           >
             <template slot-scope="scope">
-              <el-select v-model="scope.row.status" size="small">
+              <el-select v-model="scope.row.status" disabled size="small">
                 <el-option label="待核销" :value="0" />
                 <el-option label="已核销" :value="1" />
                 <el-option label="售卡失败" :value="2" />
               </el-select>
             </template>
-          </el-table-column> -->
+          </el-table-column>
           <el-table-column
             v-if="processType == 2"
             label="失败原因"
@@ -199,23 +174,13 @@
           >
             <template slot-scope="scope">
               <div style="display: flex;align-items: center;justify-content: center;">
-                <el-input v-model="scope.row.failureImageUrl" size="small" placeholder="粘贴复制图片" style="width: 100px;" readonly @click.native="(event)=>setActiveRow(scope.row, event)" @input="(event)=>handleFailureImageUrl(event, scope.row)" />
-                <div style="display: flex;align-items: center;justify-content: center;">
-                  <!-- <el-input v-model="scope.row.failureImageUrl" size="small" placeholder="粘贴复制图片" @click="setActiveRow(scope.row)" /> -->
-                  <el-upload
-                    :ref="'uploader_' + scope.row.id"
-                    class="upload-demo"
-                    :headers="headers"
-                    action="https://adminapi.cardpartner.io/api/v1/public/uploadFile"
-                    :on-success="(response, file, fileList) => handleUploadChange(response, file, fileList, scope.row)"
-                    :file-list="scope.row.fileList"
-                    :limit="1"
-                    :on-remove="(file, fileList) => handleRemove(file, fileList, scope.row)"
-                    :show-file-list="true"
-                  >
-                    <el-button size="small" type="primary" @click="setActiveRow(scope.row)">上传</el-button>
-                  </el-upload>
-                </div>
+                <el-image
+                  :src="scope.row.failureImageUrl"
+                  alt="图片"
+                  style="width: 80px; height: 40px;"
+                  fit="contain"
+                  :preview-src-list="[scope.row.failureImageUrl]"
+                />
               </div>
             </template>
           </el-table-column>
@@ -244,6 +209,7 @@
             <template slot-scope="scope">
               <el-input
                 v-model="scope.row.recognizedCardValue"
+                disabled
                 type="number"
                 clearable
                 size="small"
@@ -258,7 +224,7 @@
             prop="giftCardId"
           >
             <template slot-scope="scope">
-              <el-select v-model="scope.row.giftCardId" filterable size="small" @change="handleGiftCardChange(scope.row)">
+              <el-select v-model="scope.row.giftCardId" disabled filterable size="small" @change="handleGiftCardChange(scope.row)">
                 <el-option v-for="item in ordGiftcardList" :key="item.id" :label="item.name" :value="item.id" />
                 <el-option label="其他" :value="0" />
               </el-select>
@@ -271,7 +237,7 @@
             prop="cardType"
           >
             <template slot-scope="scope">
-              <el-select v-model="scope.row.cardType" size="small">
+              <el-select v-model="scope.row.cardType" disabled size="small">
                 <el-option v-for="item in scope.row.cardTypeArr" :key="item" :label="item" :value="item" />
               </el-select>
             </template>
@@ -284,7 +250,8 @@
           >
             <template slot-scope="scope">
               <el-input
-                v-model="scope.row.discountRate"
+                v-model="scope.row.platformSaleRate"
+                disabled
                 type="text"
                 clearable
                 size="small"
@@ -299,7 +266,7 @@
             prop="status"
           >
             <template slot-scope="scope">
-              <el-select v-model="scope.row.supplierId" filterable size="small" @change="handleSupplierChange(scope.row)">
+              <el-select v-model="scope.row.supplierId" disabled filterable size="small" @change="handleSupplierChange(scope.row)">
                 <el-option v-for="item in supplierOptions" :key="item.id" :label="item.name+'('+item.settlementCurrencyCode+')'" :value="item.id" filterable />
               </el-select>
             </template>
@@ -314,6 +281,7 @@
             <template slot-scope="scope">
               <el-input
                 v-model="scope.row.platformSettlementAmount"
+                disabled
                 type="text"
                 clearable
                 size="small"
@@ -330,6 +298,7 @@
             <template slot-scope="scope">
               <el-input
                 v-model="scope.row.userLocalCurrencyAmount"
+                disabled
                 type="text"
                 clearable
                 size="small"
@@ -497,7 +466,7 @@ import { listOrdGiftcardCategory } from '@/api/admin/ord-giftcard-category'
 import { listOrdGiftcard } from '@/api/admin/ord-giftcard'
 import { listOrdGiftcardRegion } from '@/api/admin/ord-giftcard-region'
 import { listOrdGiftcardDiscounts } from '@/api/admin/ord-giftcard-discounts'
-import { calculateOrdGiftcardWriteoffs } from '@/api/admin/ord-giftcard-writeoffs'
+import { calculateOrdGiftcardWriteoffs, listOrdGiftcardWriteoffs } from '@/api/admin/ord-giftcard-writeoffs'
 // import { listOrdConfigCurrencyRates } from '@/api/admin/ord-config-currency-rates'
 export default {
   name: 'OrdUserOrdersProcess',
@@ -596,6 +565,10 @@ export default {
       })
       this.supplierOptions = supplierList.data.list || []
       this.loading = false
+      const response2 = await listOrdGiftcardWriteoffs({ orderId: this.orderId })
+      if (response2.data) {
+        this.processType = response2.data.list[0].status
+      }
       if (this.form.cardType === 'physical') {
         getOrdOrderGiftcardImages({ orderId: this.orderId }).then(response => {
           const list = response.data.list || []
@@ -618,7 +591,8 @@ export default {
               discountRate: '',
               remark: '',
               discounts: [],
-              cardTypeArr: []
+              cardTypeArr: [],
+              ...response2.data.list[0]
             })
           })
         })
@@ -640,7 +614,8 @@ export default {
           fileList: [],
           discountRate: '',
           remark: '',
-          cardTypeArr: []
+          cardTypeArr: [],
+          ...response2.data.list[0]
         }]
       }
     },
