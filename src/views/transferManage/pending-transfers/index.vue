@@ -462,7 +462,7 @@ export default {
         success: true,
         id: undefined,
         transferImage: undefined,
-        remark: '2323'
+        remark: ''
       },
       // 表单校验
       // rules: { withdrawNo: [{ required: true, message: '提现单号，唯一不能为空', trigger: 'blur' }],
@@ -518,7 +518,9 @@ export default {
         channelTxnId: undefined,
         requestedAt: undefined,
         processedAt: undefined,
-        remark: ''
+        remark: '',
+        transferImage: '',
+        type: '1'
       }
       this.resetForm('form')
     },

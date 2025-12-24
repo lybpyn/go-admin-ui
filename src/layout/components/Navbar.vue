@@ -4,13 +4,26 @@
 
     <breadcrumb v-if="!topNav" id="breadcrumb-container" class="breadcrumb-container" />
     <top-nav v-if="topNav" id="topmenu-container" class="breadcrumb-container" />
-
-    <div class="right-menu">
+    <div class="right-menu" style="display: flex;align-items:center ;">
+      <audio
+        id="audio"
+        ref="audio"
+        src="../../assets/yx.mp3"
+        controls="controls"
+        style="z-index: 999999; display: none;"
+      />
+      <span>声音：</span>
+      <el-switch
+        v-model="isPlay"
+        active-color="#13ce66"
+        inactive-color="#000"
+      />
+      <el-badge style="cursor: pointer;margin-left: 20px;" :value="total" class="item-badge">
+        <i class="el-icon-message-solid" style="font-size: 18px;" @click="handleClick" />
+      </el-badge>
       <template v-if="device!=='mobile'">
         <search id="header-search" class="right-menu-item" />
-
         <screenfull id="screenfull" class="right-menu-item hover-effect" />
-
       </template>
 
       <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="hover">
@@ -38,7 +51,7 @@ import TopNav from '@/components/TopNav'
 import Hamburger from '@/components/Hamburger'
 import Screenfull from '@/components/Screenfull'
 import Search from '@/components/HeaderSearch'
-
+import { listOrdUserOrders } from '@/api/admin/ord-user-orders'
 export default {
   components: {
     Breadcrumb,
@@ -46,6 +59,15 @@ export default {
     Hamburger,
     Screenfull,
     Search
+  },
+  data() {
+    return {
+      total: 0,
+      ordUserOrdersList: [],
+      timer: null,
+      lastOrderIds: new Set(),
+      isPlay: false
+    }
   },
   computed: {
     ...mapGetters([
@@ -71,7 +93,61 @@ export default {
     }
 
   },
+  beforeDestroy() {
+    clearInterval(this.timer)
+  },
+  created() {
+    this.getList()
+    if (this.timer) {
+      clearInterval(this.timer)
+    }
+    this.timer = setInterval(() => {
+      this.getList()
+    }, 5000)
+  },
   methods: {
+    getList() {
+      this.loading = true
+      listOrdUserOrders({ status: 5, pageIndex: 1, pageSize: 1000 })
+        .then(response => {
+          const newList = response.data.list || []
+          // 提取新数据的 id（假设用 id）
+          const newIds = new Set(newList.map(item => item.id))
+          // 判断是否有新数据
+          let hasNew = false
+          for (const id of newIds) {
+            if (!this.lastOrderIds.has(id)) {
+              hasNew = true
+              break
+            }
+          }
+          // ⭐ 有新数据 → 播放声音
+          if (hasNew && this.lastOrderIds.size > 0) {
+            this.playSound()
+          }
+          // 更新数据
+          this.ordUserOrdersList = newList
+          this.total = response.data.count
+          // 更新缓存的 id
+          this.lastOrderIds = newIds
+        })
+        .finally(() => {
+          this.loading = false
+        })
+    },
+    playSound() {
+      if (!this.isPlay) return
+      const audio = this.$refs.audio
+      if (!audio) return
+      audio.currentTime = 0
+      audio.play().catch(err => {
+        console.warn('音频播放被浏览器拦截:', err)
+      })
+    },
+    handleClick() {
+      console.log('handleClick')
+      this.$router.push({ path: '/orderManage/order-pending/index' })
+    },
     toggleSideBar() {
       this.$store.dispatch('app/toggleSideBar')
     },
@@ -128,7 +204,6 @@ export default {
     &:focus {
       outline: none;
     }
-
     .right-menu-item {
       display: inline-block;
       padding: 0 8px;
@@ -172,4 +247,12 @@ export default {
     }
   }
 }
+</style>
+<style>
+  .item-badge{
+    margin-right: 20px;
+  }
+  .item-badge .el-badge__content{
+    top: 15px;
+  }
 </style>

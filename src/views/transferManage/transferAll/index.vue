@@ -81,18 +81,18 @@
           </el-form-item>
         </el-form>
 
-        <!-- <el-row :gutter="10" class="mb8">
-          <el-col :span="1.5">
+        <el-row :gutter="10" class="mb8">
+          <!-- <el-col :span="1.5">
             <el-button
               v-permisaction="['admin:hsUserWithdrawal:add']"
               type="primary"
               icon="el-icon-plus"
               size="mini"
-              @click="handleAdd"
-            >新增
+              @click="handleView"
+            >查看详情
             </el-button>
-          </el-col>
-          <el-col :span="1.5">
+          </el-col> -->
+          <!-- <el-col :span="1.5">
             <el-button
               v-permisaction="['admin:hsUserWithdrawal:edit']"
               type="success"
@@ -113,8 +113,8 @@
               @click="handleDelete"
             >删除
             </el-button>
-          </el-col>
-        </el-row> -->
+          </el-col> -->
+        </el-row>
 
         <el-table v-loading="loading" :data="hsUserWithdrawalList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" /><el-table-column
@@ -248,13 +248,12 @@
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width" fixed="right">
             <template slot-scope="scope">
               <el-button
-                v-if="scope.row.status == 'review' || scope.row.status == 'pending'"
                 slot="reference"
                 size="mini"
                 type="text"
                 icon="el-icon-edit"
-                @click="handleApprove(scope.row)"
-              >审核
+                @click="handleView(scope.row)"
+              >查看详情
               </el-button>
               <!-- <el-popconfirm
                 class="delete-popconfirm"
@@ -395,6 +394,82 @@
             <el-button @click="cancel">取 消</el-button>
           </div>
         </el-dialog>
+        <el-drawer
+          title="提现详情"
+          :visible.sync="drawer"
+          custom-class="drawer-class"
+          :before-close="handleClose"
+        >
+          <el-form v-if="formDetail" ref="form" :model="formDetail" label-width="120px">
+            <el-divider content-position="left">持卡人信息</el-divider>
+            <el-row :gutter="10">
+              <el-col :span="6">
+                <el-form-item label="持卡人姓名">{{ formDetail.accountInfo.card_holder_name }}</el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item label="银行名称">{{ formDetail.accountInfo.bank_name }}</el-form-item>
+              </el-col>
+              <el-col :span="10">
+                <el-form-item label="卡号">{{ formDetail.accountInfo.card_number }}</el-form-item>
+              </el-col>
+            </el-row>
+            <el-divider content-position="left">提现信息</el-divider>
+            <el-row :gutter="10">
+              <el-col :span="8">
+                <el-form-item label="通道交易号">{{ formDetail.channelTxnId || '-' }}</el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item label="提现时间">{{ parseTime(formDetail.createdAt) || '-' }}</el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item label="提现方式">{{ formDetail.method === 'bank' ? '银行转账' : '加密货币转账' }}</el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item label="提现金额"><span style="color: red;font-weight: bold;">{{ formDetail.amount || '-' }}</span> </el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item label="实际金额"><span style="color: red;font-weight: bold;">{{ formDetail.netAmount || '-' }}</span> </el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item label="手续费">{{ formDetail.fee || '-' }}</el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item label="货币代码">{{ formDetail.currencyCode ? formDetail.currencyCode : '-' }}</el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item label="提现单号">{{ formDetail.withdrawNo || '-' }}</el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item label="处理时间">{{ parseTime(formDetail.processedAt) || '-' }}</el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item label="状态">
+                  <el-tag v-if="formDetail.status === 'pending'" type="info">待处理</el-tag>
+                  <el-tag v-if="formDetail.status === 'review'" type="info">待审核</el-tag>
+                  <el-tag v-if="formDetail.status === 'processing'" type="info">处理中</el-tag>
+                  <el-tag v-if="formDetail.status === 'success'" type="success">成功</el-tag>
+                  <el-tag v-if="formDetail.status === 'failed'" type="danger">失败</el-tag>
+                  <el-tag v-if="formDetail.status === 'canceled'" type="danger">已取消</el-tag>
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
+                <el-form-item label="人工转账截图">
+                  <el-image v-if="formDetail.transferImage" :src="formDetail.transferImage" fit="fill" :preview-src-list="[formDetail.transferImage]" style="width: 100px; height: 100px;" />
+                  <span v-else>无</span>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-divider content-position="left">管理员处理</el-divider>
+            <el-row :gutter="10">
+              <el-col :span="8">
+                <el-form-item label="管理员处理时间">{{ parseTime(formDetail.reason.time) }}</el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item label="管理员处理备注">{{ formDetail.reason.remark }}</el-form-item>
+              </el-col>
+            </el-row>
+          </el-form>
+        </el-drawer>
       </el-card>
     </template>
   </BasicLayout>
@@ -483,7 +558,17 @@ export default {
       //   requestedAt: [{ required: true, message: '发起时间不能为空', trigger: 'blur' }],
       //   processedAt: [{ required: true, message: '处理完成时间不能为空', trigger: 'blur' }]
       // },
-      fileList: []
+      fileList: [],
+      drawer: false,
+      formDetail: {
+        accountInfo: {
+          account: ''
+        },
+        reason: {
+          time: '',
+          remark: ''
+        }
+      }
     }
   },
   created() {
@@ -658,7 +743,28 @@ export default {
         }
       }).catch(function() {
       })
+    },
+    handleView(row) {
+      const id = row.id
+      getHsUserWithdrawal(id).then(response => {
+        if (response.data.accountInfo) {
+          response.data.accountInfo = JSON.parse(response.data.accountInfo)
+        }
+        if (response.data.reason) {
+          response.data.reason = JSON.parse(response.data.reason)
+        }
+        this.formDetail = response.data
+        this.drawer = true
+      })
+    },
+    handleClose() {
+      this.drawer = false
     }
   }
 }
 </script>
+<style>
+.drawer-class {
+  width: 850px !important;
+}
+</style>
