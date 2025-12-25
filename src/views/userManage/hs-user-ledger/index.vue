@@ -14,8 +14,8 @@
           </el-form-item>
           <el-form-item label="方向" prop="direction">
             <el-select v-model="queryParams.direction" placeholder="请选择" clearable>
-              <el-option label="入账(credit)" value="1" />
-              <el-option label="出账(debit)" value="-1" />
+              <el-option label="转入" value="1" />
+              <el-option label="转出" value="2" />
             </el-select>
           </el-form-item>
           <el-form-item label="状态" prop="status">
@@ -86,8 +86,8 @@
             :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
-              <el-tag v-if="scope.row.direction === 1">入账(credit)</el-tag>
-              <el-tag v-else>出账(debit)</el-tag>
+              <el-tag v-if="scope.row.direction === '1'">转入</el-tag>
+              <el-tag v-else>转出</el-tag>
             </template>
           </el-table-column>
           <el-table-column
