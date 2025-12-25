@@ -145,7 +145,7 @@
             :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
-              {{ scope.row.direction === 1 ? '冻结' : '解冻' }}
+              {{ scope.row.direction === '1' ? '冻结' : '解冻' }}
             </template>
           </el-table-column>
           <el-table-column
