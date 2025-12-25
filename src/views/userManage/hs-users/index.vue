@@ -47,7 +47,7 @@
             >修改
             </el-button>
           </el-col>
-          <el-col :span="1.5">
+          <!-- <el-col :span="1.5">
             <el-button
               v-permisaction="['admin:hsUsers:remove']"
               type="danger"
@@ -57,7 +57,7 @@
               @click="handleDelete"
             >删除
             </el-button>
-          </el-col>
+          </el-col> -->
         </el-row>
 
         <el-table v-loading="loading" :data="hsUsersList" @selection-change="handleSelectionChange">
@@ -110,7 +110,7 @@
             prop="frozenBalance"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label="冻结虚拟币余额(USDT计价)"
+            label="冻结虚拟币余额(USDT)"
             align="center"
             prop="cryptoFrozenBalance"
             :show-overflow-tooltip="true"
@@ -151,13 +151,13 @@
               <el-tag v-else size="small" type="danger">封禁</el-tag>
             </template>
           </el-table-column>
-          <el-table-column
+          <!-- <el-table-column
             label=""
             align="center"
             prop="version"
             :show-overflow-tooltip="true"
-          />
-          <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="200">
+          /> -->
+          <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="150">
             <template slot-scope="scope">
               <el-button
                 slot="reference"
@@ -177,7 +177,7 @@
                 @click="handleAdjustBalance(scope.row)"
               >余额调整
               </el-button>
-              <el-popconfirm
+              <!-- <el-popconfirm
                 class="delete-popconfirm"
                 title="确认要删除吗?"
                 confirm-button-text="删除"
@@ -191,7 +191,7 @@
                   icon="el-icon-delete"
                 >删除
                 </el-button>
-              </el-popconfirm>
+              </el-popconfirm> -->
             </template>
           </el-table-column>
         </el-table>

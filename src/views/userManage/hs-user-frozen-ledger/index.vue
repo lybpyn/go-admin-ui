@@ -128,7 +128,7 @@
 
         <el-table v-loading="loading" :data="hsUserFrozenLedgerList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" /><el-table-column
-            label=""
+            label="用户ID"
             align="center"
             prop="userId"
             :show-overflow-tooltip="true"
@@ -145,7 +145,7 @@
             :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
-              {{ scope.row.direction === 1 ? '冻结增加' : '冻结减少(解冻)' }}
+              {{ scope.row.direction === 1 ? '冻结' : '解冻' }}
             </template>
           </el-table-column>
           <el-table-column
@@ -179,7 +179,7 @@
             prop="idempotencyKey"
             :show-overflow-tooltip="true"
           /><el-table-column
-            label=""
+            label="备注"
             align="center"
             prop="remark"
             :show-overflow-tooltip="true"
