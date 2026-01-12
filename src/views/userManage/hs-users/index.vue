@@ -18,7 +18,19 @@
               <el-option label="封禁" value="0" />
             </el-select>
           </el-form-item>
-
+          <el-form-item label="时间范围" prop="dateRange">
+            <el-date-picker
+              v-model="dateRange"
+              size="small"
+              style="width: 240px"
+              value-format="yyyy-MM-dd"
+              type="daterange"
+              range-separator="-"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              @change="handleQuery"
+            />
+          </el-form-item>
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
             <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -98,31 +110,37 @@
             label="法币可用余额"
             align="center"
             prop="balance"
+            width="200px"
             :show-overflow-tooltip="true"
           /><el-table-column
             label="虚拟币可用余额"
             align="center"
             prop="cryptoBalance"
+            width="200px"
             :show-overflow-tooltip="true"
           /><el-table-column
             label="法币冻结余额"
             align="center"
             prop="frozenBalance"
+            width="200px"
             :show-overflow-tooltip="true"
           /><el-table-column
             label="冻结虚拟币余额(USDT)"
             align="center"
             prop="cryptoFrozenBalance"
+            width="200px"
             :show-overflow-tooltip="true"
           /><el-table-column
             label="用户等级ID"
             align="center"
             prop="levelId"
+            width="100px"
             :show-overflow-tooltip="true"
           /><el-table-column
             label="当前经验"
             align="center"
             prop="experience"
+            width="200px"
             :show-overflow-tooltip="true"
           /><el-table-column
             label="区域"
@@ -133,11 +151,13 @@
             label="累计经验"
             align="center"
             prop="totalExperience"
+            width="200px"
             :show-overflow-tooltip="true"
           /><el-table-column
             label="邀请码"
             align="center"
             prop="inviteCode"
+            width="200px"
             :show-overflow-tooltip="true"
           />
           <el-table-column
@@ -145,10 +165,22 @@
             align="center"
             prop="status"
             :show-overflow-tooltip="true"
+            width="100px"
           >
             <template slot-scope="scope">
               <el-tag v-if="scope.row.status == 1" size="small" type="success">正常</el-tag>
               <el-tag v-else size="small" type="danger">封禁</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="注册时间"
+            align="center"
+            prop="createdAt"
+            :show-overflow-tooltip="true"
+            width="200px"
+          >
+            <template slot-scope="scope">
+              <span>{{ parseTime(scope.row.createdAt) }}</span>
             </template>
           </el-table-column>
           <!-- <el-table-column
@@ -329,7 +361,8 @@ export default {
         reason: [{ required: true, message: '请输入调整原因', trigger: 'blur' }]
       },
       openVisible: false,
-      currentRow: {}
+      currentRow: {},
+      dateRange: []
     }
   },
   created() {

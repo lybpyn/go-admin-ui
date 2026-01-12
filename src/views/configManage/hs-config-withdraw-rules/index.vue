@@ -121,6 +121,7 @@
             <template slot-scope="scope">
               <span v-if="scope.row.feeType=='fixed'">固定</span>
               <span v-else-if="scope.row.feeType=='rate'">按比例</span>
+              <span v-else-if="scope.row.feeType=='tiered'">阶梯收费</span>
               <span v-else>固定+比例</span>
             </template>
           </el-table-column>
@@ -245,7 +246,71 @@
                 <el-option label="固定" value="fixed" />
                 <el-option label="按比例" value="rate" />
                 <el-option label="固定+比例" value="mixed" />
+                <el-option label="阶梯收费" value="tiered" />
               </el-select>
+            </el-form-item>
+            <el-form-item v-if="form.feeType=='tiered'" label="阶梯收费配置" prop="feeType">
+              <el-button @click="addTiered">添加配置</el-button>
+              <el-table :data="tieredList" border>
+                <el-table-column
+                  label="区间最小金额"
+                  align="center"
+                  prop="minAmount"
+                >
+                  <template slot-scope="scope">
+                    <el-input
+                      v-model="scope.row.minAmount"
+                      placeholder="区间最小金额"
+                    />
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  label="区间最大金额"
+                  align="center"
+                  prop="maxAmount"
+                >
+                  <template slot-scope="scope">
+                    <el-input
+                      v-model="scope.row.maxAmount"
+                      placeholder="区间最大金额"
+                    />
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  label="手续费金额"
+                  align="center"
+                  prop="feeAmount"
+                >
+                  <template slot-scope="scope">
+                    <el-input
+                      v-model="scope.row.feeAmount"
+                      placeholder="手续费金额"
+                    />
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  label="排序"
+                  align="center"
+                  prop="sortOrder"
+                >
+                  <template slot-scope="scope">
+                    <el-input
+                      v-model="scope.row.sortOrder"
+                      placeholder="排序"
+                    />
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  label="操作"
+                  align="center"
+                  width="150"
+                >
+                  <template slot-scope="scope">
+                    <el-button @click="removeTiered(scope.$index)">删除</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+
             </el-form-item>
             <el-form-item label="固定手续费数量/金额" prop="feeFixed">
               <el-input
@@ -334,7 +399,8 @@ export default {
       rules: { currencyCode: [{ required: true, message: '币种代码，如 USD、CNY、USDT、BTC不能为空', trigger: 'blur' }],
         currencyType: [{ required: true, message: '币种类型：fiat=法币，crypto=虚拟币不能为空', trigger: 'blur' }],
         chainType: [{ required: true, message: '链类型（仅虚拟币适用），如 ERC20/TRC20/BEP20不能为空', trigger: 'blur' }]
-      }
+      },
+      tieredList: []
     }
   },
   created() {
@@ -468,6 +534,17 @@ export default {
           this.msgError(response.msg)
         }
       }).catch(function() {
+      })
+    },
+    removeTiered(index) {
+      this.tieredList.splice(index, 1)
+    },
+    addTiered() {
+      this.tieredList.push({
+        minAmount: undefined,
+        maxAmount: undefined,
+        feeAmount: undefined,
+        sortOrder: undefined
       })
     }
   }

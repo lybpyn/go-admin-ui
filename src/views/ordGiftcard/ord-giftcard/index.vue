@@ -69,6 +69,9 @@
               />
             </el-select>
           </el-col>
+          <el-col :span="1.5">
+            <el-input-number v-model="allRate" placeholder="请输入全局汇率" size="small" @change="handleCurrencyRatesIdChange1" />
+          </el-col>
         </el-row>
         <el-table v-loading="loading" row-key="idx" height="74vh" :data="ordGiftcardList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
@@ -123,6 +126,9 @@
                 <el-option label="physical" value="physical" />
                 <el-option label="horizontal" value="horizontal" />
                 <el-option label="whiteboard" value="whiteboard" />
+                <el-option label="whiteboard" value="whiteboard" />
+                <el-option label="Debit Receipt" value="Debit Receipt" />
+                <el-option label="Cash Receipt" value="Cash Receipt" />
               </el-select>
             </template>
           </el-table-column>
@@ -370,7 +376,8 @@ export default {
       currencyRatesId: '',
       currentCurrencyRate: {},
       currentIndex: -1,
-      quoteCurrencyCode: ''
+      quoteCurrencyCode: '',
+      allRate: 0
     }
   },
   async created() {
@@ -437,8 +444,24 @@ export default {
     handleCurrencyRatesIdChange() {
       this.currentCurrencyRate = this.currencyRates.find(item => item.id === Number(this.currencyRatesId))
       this.quoteCurrencyCode = this.currencyRates.find(item => item.id === Number(this.currencyRatesId)).currencyCode
-      console.log(this.currentCurrencyRate)
       this.setBatchCurrencyRates()
+    },
+    handleCurrencyRatesIdChange1() {
+      if (this.allRate) {
+        // 写一个防抖函数
+        const debounce = (fn, delay) => {
+          let timer = null
+          return function(...args) {
+            if (timer) {
+              clearTimeout(timer)
+            }
+            timer = setTimeout(() => {
+              fn.apply(this, args)
+            }, delay)
+          }
+        }
+        debounce(this.handleCurrencyRatesIdChange, 500)()
+      }
     },
     getRegionList1() {
       listOrdGiftcardRegion({ pageIndex: 1, pageSize: 1000, categoryId: '' }).then(response => {
@@ -810,6 +833,9 @@ export default {
                 const str1 = item.currencyCode + '-' + this.quoteCurrencyCode
                 if (str1 === str) {
                   item.currentCurrencyRate = element.rate
+                  if (this.allRate) {
+                    item.currentCurrencyRate = this.allRate
+                  }
                   if (item.discountRate) {
                     const count = parseFloat(item.discountRate) * parseFloat(item.currentCurrencyRate)
                     item.affterDiscountRate = count.toFixed(2)

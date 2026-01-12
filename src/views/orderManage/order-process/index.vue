@@ -96,7 +96,7 @@
         </el-form>
         <el-table v-if="form.processingStatus == 1" v-loading="loading" :data="ordUserOrdersList" size="small">
           <el-table-column
-            v-if="form.cardType === 'physical'"
+            v-if="form.cardType === 'physical' || form.cardType === 'Debit Receipt' || form.cardType === 'Cash Receipt'"
             label="图片"
             align="center"
             prop="userId"
@@ -269,7 +269,7 @@
           >
             <template slot-scope="scope">
               <el-select v-model="scope.row.giftCardId" filterable size="small" @change="handleGiftCardChange(scope.row)">
-                <el-option v-for="item in ordGiftcardList" :key="item.id" :label="item.name" :value="item.id" />
+                <el-option v-for="item in ordGiftcardList" :key="item.id" :label="item.categoryName+'/'+item.name" :value="item.id" />
                 <el-option label="其他" :value="0" />
               </el-select>
             </template>
@@ -620,7 +620,7 @@ export default {
       })
       this.supplierOptions = supplierList.data.list || []
       this.loading = false
-      if (this.form.cardType === 'physical') {
+      if (this.form.cardType === 'physical' || this.form.cardType === 'Debit Receipt' || this.form.cardType === 'Cash Receipt') {
         getOrdOrderGiftcardImages({ orderId: this.orderId }).then(response => {
           const list = response.data.list || []
           list.forEach(item => {
@@ -687,6 +687,13 @@ export default {
     getGiftcardList() {
       listOrdGiftcard({ pageIndex: 1, pageSize: 1000 }).then(response => {
         this.ordGiftcardList = response.data.list
+        this.cardCategory.forEach(item => {
+          this.ordGiftcardList.forEach(el => {
+            if (el.categoryId === item.id) {
+              el.categoryName = item.name
+            }
+          })
+        })
       })
     },
     filterGiftcardId(giftCardId) {

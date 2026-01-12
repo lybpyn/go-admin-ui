@@ -43,7 +43,7 @@
           <el-form-item label="状态" prop="status">
             <el-select v-model="queryParams.status" placeholder="请选择状态" clearable size="small" @change="handleQuery">
               <el-option label="待处理" value="pending" />
-              <!-- <el-option label="审核中" value="review" /> -->
+              <el-option label="审核中" value="review" />
               <el-option label="处理中" value="processing" />
               <el-option label="成功" value="success" />
               <el-option label="失败" value="failed" />
@@ -74,7 +74,19 @@
               value-format="yyyy-MM-dd HH:mm:ss"
             />
           </el-form-item>
-
+          <el-form-item label="时间范围" prop="dateRange">
+            <el-date-picker
+              v-model="dateRange"
+              size="small"
+              style="width: 240px"
+              value-format="yyyy-MM-dd"
+              type="daterange"
+              range-separator="-"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              @change="handleQuery"
+            />
+          </el-form-item>
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
             <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -568,7 +580,8 @@ export default {
           time: '',
           remark: ''
         }
-      }
+      },
+      dateRange: []
     }
   },
   created() {

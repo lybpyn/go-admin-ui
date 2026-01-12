@@ -121,6 +121,7 @@
             <template slot-scope="scope">
               <span v-if="scope.row.feeType=='fixed'">固定</span>
               <span v-else-if="scope.row.feeType=='rate'">按比例</span>
+              <span v-else-if="scope.row.feeType=='tiered'">阶梯收费</span>
               <span v-else>固定+比例</span>
             </template>
           </el-table-column>
@@ -195,7 +196,7 @@
         />
 
         <!-- 添加或修改对话框 -->
-        <el-dialog :title="title" :visible.sync="open" width="700px">
+        <el-dialog :title="title" :visible.sync="open" width="1000px">
           <el-form ref="form" :model="form" :rules="rules" label-width="180px">
 
             <el-form-item label="币种代码" prop="currencyCode">
@@ -210,7 +211,7 @@
                 <el-option label="虚拟币" value="crypto" />
               </el-select>
             </el-form-item>
-            <el-form-item label="链类型" prop="chainType">
+            <el-form-item v-if="form.currencyType === 'crypto'" label="链类型" prop="chainType">
               <el-input
                 v-model="form.chainType"
                 placeholder="链类型（仅虚拟币适用），如 ERC20/TRC20/BEP20"
@@ -245,7 +246,70 @@
                 <el-option label="固定" value="fixed" />
                 <el-option label="按比例" value="rate" />
                 <el-option label="固定+比例" value="mixed" />
+                <el-option label="阶梯收费" value="tiered" />
               </el-select>
+            </el-form-item>
+            <el-form-item v-if="form.feeType === 'tiered'" label="阶梯收费配置" prop="feeType">
+              <el-button type="primary" style="margin-bottom: 10px;" @click="addTiered">添加配置</el-button>
+              <el-table :data="tieredList" border>
+                <el-table-column
+                  label="区间最小金额"
+                  align="center"
+                  prop="minAmount"
+                >
+                  <template slot-scope="scope">
+                    <el-input
+                      v-model="scope.row.minAmount"
+                      placeholder="区间最小金额"
+                    />
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  label="区间最大金额"
+                  align="center"
+                  prop="maxAmount"
+                >
+                  <template slot-scope="scope">
+                    <el-input
+                      v-model="scope.row.maxAmount"
+                      placeholder="区间最大金额"
+                    />
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  label="手续费金额"
+                  align="center"
+                  prop="feeAmount"
+                >
+                  <template slot-scope="scope">
+                    <el-input
+                      v-model="scope.row.feeAmount"
+                      placeholder="手续费金额"
+                    />
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  label="排序"
+                  align="center"
+                  prop="sortOrder"
+                >
+                  <template slot-scope="scope">
+                    <el-input-number
+                      v-model="scope.row.sortOrder"
+                      placeholder="排序"
+                    />
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  label="操作"
+                  align="center"
+                  width="150"
+                >
+                  <template slot-scope="scope">
+                    <el-button @click="removeTiered(scope.$index)">删除</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
             </el-form-item>
             <el-form-item label="固定手续费数量/金额" prop="feeFixed">
               <el-input
@@ -334,7 +398,8 @@ export default {
       rules: { currencyCode: [{ required: true, message: '币种代码，如 USD、CNY、USDT、BTC不能为空', trigger: 'blur' }],
         currencyType: [{ required: true, message: '币种类型：fiat=法币，crypto=虚拟币不能为空', trigger: 'blur' }],
         chainType: [{ required: true, message: '链类型（仅虚拟币适用），如 ERC20/TRC20/BEP20不能为空', trigger: 'blur' }]
-      }
+      },
+      tieredList: []
     }
   },
   created() {
@@ -373,7 +438,7 @@ export default {
         feeRate: undefined,
         minFee: undefined,
         maxFee: undefined,
-        isActive: undefined
+        isActive: '1'
       }
       this.resetForm('form')
     },
@@ -426,6 +491,15 @@ export default {
       this.$refs['form'].validate(valid => {
         if (valid) {
           if (this.form.id !== undefined) {
+            if (this.form.feeType === 'tiered') {
+              if (this.tieredList.length === 0) {
+                this.msgError('请先添加阶梯费率配置')
+                return
+              }
+              this.form.feeFixed = '0'
+              this.form.feeRate = '0'
+              this.form.feeTiers = this.tieredList
+            }
             updateHsConfigWithdrawRules(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess(response.msg)
@@ -436,6 +510,15 @@ export default {
               }
             })
           } else {
+            if (this.form.feeType === 'tiered') {
+              if (this.tieredList.length === 0) {
+                this.msgError('请先添加阶梯费率配置')
+                return
+              }
+              this.form.feeFixed = '0'
+              this.form.feeRate = '0'
+              this.form.feeTiers = this.tieredList
+            }
             addHsConfigWithdrawRules(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess(response.msg)
@@ -468,6 +551,17 @@ export default {
           this.msgError(response.msg)
         }
       }).catch(function() {
+      })
+    },
+    removeTiered(index) {
+      this.tieredList.splice(index, 1)
+    },
+    addTiered() {
+      this.tieredList.push({
+        minAmount: '0',
+        maxAmount: '0',
+        feeAmount: '0',
+        sortOrder: 0
       })
     }
   }

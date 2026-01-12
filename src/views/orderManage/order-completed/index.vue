@@ -3,12 +3,34 @@
   <BasicLayout>
     <template #wrapper>
       <el-card class="box-card">
-        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
+        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="80px">
           <el-form-item label="用户ID:">
             <el-input v-model="queryParams.userId" placeholder="请输入用户ID" clearable size="small" @keyup.enter.native="handleQuery" />
           </el-form-item>
           <el-form-item label="订单号:">
             <el-input v-model="queryParams.orderNo" placeholder="请输入订单号" clearable size="small" @keyup.enter.native="handleQuery" />
+          </el-form-item>
+          <el-form-item label="状态:">
+            <el-select v-model="queryParams.status" placeholder="请选择状态" clearable size="small" @keyup.enter.native="handleQuery">
+              <el-option label="待处理" :value="5" />
+              <el-option label="已经接单" :value="1" />
+              <el-option label="已完成" :value="2" />
+              <el-option label="已取消" :value="3" />
+              <el-option label="已经驳回" :value="4" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="时间范围:">
+            <el-date-picker
+              v-model="dateRange"
+              size="small"
+              style="width: 240px"
+              value-format="yyyy-MM-dd"
+              type="daterange"
+              range-separator="-"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              @change="handleQuery"
+            />
           </el-form-item>
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -151,7 +173,8 @@
             align="center"
             prop="cardExtra"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          />
+          <el-table-column
             label="完成时间"
             align="center"
             prop="completedAt"
@@ -161,7 +184,8 @@
             <template slot-scope="scope">
               <span>{{ parseTime(scope.row.completedAt) }}</span>
             </template>
-          </el-table-column><el-table-column
+          </el-table-column>
+          <el-table-column
             label="取消时间"
             align="center"
             prop="canceledAt"
@@ -346,7 +370,8 @@ export default {
       rules: {},
       cardCategory: [],
       ordGiftcardList: [],
-      regionList: []
+      regionList: [],
+      dateRange: []
     }
   },
   created() {

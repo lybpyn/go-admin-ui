@@ -96,6 +96,12 @@
             :show-overflow-tooltip="true"
           />
           <el-table-column
+            label="货币符号展示"
+            align="center"
+            prop="currencyCodeShow"
+            :show-overflow-tooltip="true"
+          />
+          <el-table-column
             label="折扣汇率"
             align="center"
             prop="discountRate"
@@ -197,6 +203,12 @@
             <el-form-item label="货币符号" prop="currencySymbol">
               <el-input
                 v-model="form.currencySymbol"
+                placeholder="$"
+              />
+            </el-form-item>
+            <el-form-item label="货币符号展示" prop="currencyCodeShow">
+              <el-input
+                v-model="form.currencyCodeShow"
                 placeholder="$"
               />
             </el-form-item>
