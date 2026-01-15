@@ -389,6 +389,9 @@ export default {
     this.getGiftcardList()
     this.getRegionList()
   },
+  activated() {
+    this.getList()
+  },
   methods: {
     /** 查询参数列表 */
     getList() {
