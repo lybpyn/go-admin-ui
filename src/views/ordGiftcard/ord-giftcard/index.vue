@@ -127,8 +127,8 @@
                 <el-option label="horizontal" value="horizontal" />
                 <el-option label="whiteboard" value="whiteboard" />
                 <el-option label="whiteboard" value="whiteboard" />
-                <el-option label="Debit Receipt" value="Debit Receipt" />
-                <el-option label="Cash Receipt" value="Cash Receipt" />
+                <el-option label="cash_receipt" value="cash_receipt" />
+                <el-option label="debit_receipt" value="debit_receipt" />
               </el-select>
             </template>
           </el-table-column>

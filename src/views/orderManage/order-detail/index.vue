@@ -96,7 +96,7 @@
         </el-form>
         <el-table v-loading="loading" :data="ordUserOrdersList" size="small">
           <el-table-column
-            v-if="form.cardType === 'physical' || form.cardType === 'Debit Receipt' || form.cardType === 'Cash Receipt'"
+            v-if="form.cardType === 'physical' || form.cardType === 'debit_receipt' || form.cardType === 'cash_receipt'"
             label="图片"
             align="center"
             prop="userId"
@@ -569,7 +569,7 @@ export default {
       if (response2.data) {
         this.processType = response2.data.list[0].status
       }
-      if (this.form.cardType === 'physical' || this.form.cardType === 'Debit Receipt' || this.form.cardType === 'Cash Receipt') {
+      if (this.form.cardType === 'physical' || this.form.cardType === 'debit_receipt' || this.form.cardType === 'cash_receipt') {
         getOrdOrderGiftcardImages({ orderId: this.orderId }).then(response => {
           const list = response.data.list || []
           list.forEach(item => {

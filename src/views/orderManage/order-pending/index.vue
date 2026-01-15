@@ -380,7 +380,10 @@ export default {
     this.refreshList()
   },
   beforeDestroy() {
-    clearTimeout(this.refreshTimer)
+    clearInterval(this.refreshTimer)
+  },
+  activated() {
+    this.getList()
   },
   methods: {
     /** 查询参数列表 */
