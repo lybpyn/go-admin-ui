@@ -3,8 +3,8 @@
   <BasicLayout>
     <template #wrapper>
       <el-card class="box-card">
-        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-          <el-form-item label="目标用户ID（仅 target_type=user 时有效）" prop="targetUserId"><el-input
+        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="100px">
+          <el-form-item label="目标用户ID" prop="targetUserId"><el-input
             v-model="queryParams.targetUserId"
             placeholder="请输入目标用户ID（仅 target_type=user 时有效）"
             clearable
@@ -65,27 +65,44 @@
             align="center"
             prop="content"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          />
+          <el-table-column
             label="消息类型"
             align="center"
             prop="type"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="目标类型：all=全体用户, user=单用户"
+          >
+            <template slot-scope="scope">
+              {{ scope.row.type === 'system' ? '系统消息' : (scope.row.type === 'order' ? '订单消息' : (scope.row.type === 'security' ? '安全消息' : (scope.row.type === 'promotion' ? '推广消息' : '其他消息'))) }}
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="目标类型"
             align="center"
             prop="targetType"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="目标用户ID（仅 target_type=user 时有效）"
+          >
+            <template slot-scope="scope">
+              {{ scope.row.targetType === 'all' ? '全体用户' : '单用户' }}
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="目标用户ID"
             align="center"
             prop="targetUserId"
             :show-overflow-tooltip="true"
-          /><el-table-column
-            label="是否已读：0=未读,1=已读"
+          />
+          <el-table-column
+            label="是否已读"
             align="center"
             prop="isRead"
             :show-overflow-tooltip="true"
-          /><el-table-column
+          >
+            <template slot-scope="scope">
+              {{ scope.row.isRead === 0 ? '未读' : '已读' }}
+            </template>
+          </el-table-column>
+          <el-table-column
             label="读取时间"
             align="center"
             prop="readAt"
@@ -94,12 +111,17 @@
             <template slot-scope="scope">
               <span>{{ parseTime(scope.row.readAt) }}</span>
             </template>
-          </el-table-column><el-table-column
-            label="状态：1=正常，0=禁用/撤回"
+          </el-table-column>
+          <el-table-column
+            label="状态"
             align="center"
             prop="status"
             :show-overflow-tooltip="true"
-          />
+          >
+            <template slot-scope="scope">
+              {{ scope.row.status === 1 ? '正常' : '禁用/撤回' }}
+            </template>
+          </el-table-column>
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
@@ -155,28 +177,30 @@
               />
             </el-form-item>
             <el-form-item label="消息类型" prop="type">
-              <el-input
-                v-model="form.type"
-                placeholder="消息类型"
-              />
+              <el-select v-model="form.type" placeholder="请选择消息类型">
+                <el-option label="系统消息" value="system" />
+                <el-option label="订单消息" value="order" />
+                <el-option label="安全消息" value="security" />
+                <el-option label="促销消息" value="promotion" />
+                <el-option label="其他消息" value="other" />
+              </el-select>
             </el-form-item>
-            <el-form-item label="目标类型：all=全体用户, user=单用户" prop="targetType">
-              <el-input
-                v-model="form.targetType"
-                placeholder="目标类型：all=全体用户, user=单用户"
-              />
+            <el-form-item label="目标类型" prop="targetType">
+              <el-radio-group v-model="form.targetType">
+                <el-radio label="all">全体用户</el-radio>
+                <el-radio label="user">单用户</el-radio>
+              </el-radio-group>
             </el-form-item>
-            <el-form-item label="目标用户ID（仅 target_type=user 时有效）" prop="targetUserId">
+            <el-form-item v-if="form.targetType === 'user'" label="目标用户ID" prop="targetUserId">
               <el-input
                 v-model="form.targetUserId"
-                placeholder="目标用户ID（仅 target_type=user 时有效）"
               />
             </el-form-item>
-            <el-form-item label="是否已读：0=未读,1=已读" prop="isRead">
-              <el-input
-                v-model="form.isRead"
-                placeholder="是否已读：0=未读,1=已读"
-              />
+            <el-form-item label="是否已读" prop="isRead">
+              <el-radio-group v-model="form.isRead">
+                <el-radio label="0">未读</el-radio>
+                <el-radio label="1">已读</el-radio>
+              </el-radio-group>
             </el-form-item>
             <el-form-item label="读取时间" prop="readAt">
               <el-date-picker
@@ -185,11 +209,11 @@
                 placeholder="选择日期"
               />
             </el-form-item>
-            <el-form-item label="状态：1=正常，0=禁用/撤回" prop="status">
-              <el-input
-                v-model="form.status"
-                placeholder="状态：1=正常，0=禁用/撤回"
-              />
+            <el-form-item label="状态" prop="status">
+              <el-radio-group v-model="form.status">
+                <el-radio label="1">正常</el-radio>
+                <el-radio label="0">禁用/撤回</el-radio>
+              </el-radio-group>
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
@@ -275,7 +299,7 @@ export default {
         content: undefined,
         type: undefined,
         targetType: undefined,
-        targetUserId: undefined,
+        targetUserId: '0',
         isRead: undefined,
         readAt: undefined,
         status: undefined
