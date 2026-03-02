@@ -3,13 +3,13 @@
   <BasicLayout>
     <template #wrapper>
       <el-card class="box-card">
-        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="80px">
-          <el-form-item label="地区" prop="regionId">
-            <el-select v-model="queryParams.regionId" placeholder="请选择地区" clearable size="small">
+        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="120px">
+          <el-form-item label="礼品卡品牌" prop="categoryId">
+            <el-select v-model="queryParams.categoryId" placeholder="请选择礼品卡品牌" clearable size="small">
               <el-option
-                v-for="item in regionList1"
+                v-for="item in cardCategory"
                 :key="item.id"
-                :label="item.regionCode"
+                :label="item.name"
                 :value="item.id"
               />
             </el-select>
@@ -79,6 +79,7 @@
             label="礼品卡品牌"
             align="center"
             prop="categoryName"
+            sortable
           >
             <template slot-scope="scope">
               <el-select v-model="scope.row.categoryId" placeholder="请选择礼品卡分类" @change="filterGiftcardCategory(scope.row.categoryId,scope.row)">
@@ -90,6 +91,7 @@
             label="礼品卡地区"
             align="center"
             prop="regionId"
+            sortable
           >
             <template slot-scope="scope">
               <el-select v-model="scope.row.regionId" placeholder="请选择地区" @focus="getRegionList(scope.row.categoryId,scope.row)" @change="handleRegionChange(scope.row)">
@@ -101,6 +103,7 @@
             label="币种"
             align="center"
             prop="currencyCode"
+            sortable
           >
             <template slot-scope="scope">
               {{ scope.row.currencyCode? scope.row.currencyCode + '-' : '' }}{{ currentCurrencyRate.currencyCode }} {{ parseFloat(scope.row.currentCurrencyRate).toFixed(2) }}
@@ -110,6 +113,7 @@
             label="卡名称"
             align="center"
             prop="name"
+            sortable
           >
             <template slot-scope="scope">
               <el-input v-model="scope.row.name" placeholder="礼品卡名称" />
@@ -119,6 +123,7 @@
             label="折扣类型"
             align="center"
             prop="cardType"
+            sortable
           >
             <template slot-scope="scope">
               <el-select v-model="scope.row.cardType" placeholder="请选择折扣类型" multiple>
@@ -391,7 +396,6 @@ export default {
     async getList() {
       this.loading = true
       const res = await listOrdGiftcardRegion({ pageIndex: 1, pageSize: 1000, categoryId: '' })
-      console.log(this.queryParams)
       listOrdGiftcard(this.addDateRange(this.addDateRange(this.queryParams, this.dateRange))).then(response => {
         response.data.list.forEach(item => {
           item.valuesConfig1 = JSON.parse(item.valuesConfig)

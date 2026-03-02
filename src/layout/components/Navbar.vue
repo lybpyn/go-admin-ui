@@ -111,25 +111,11 @@ export default {
       listOrdUserOrders({ status: 5, pageIndex: 1, pageSize: 1000 })
         .then(response => {
           const newList = response.data.list || []
-          // 提取新数据的 id（假设用 id）
-          const newIds = new Set(newList.map(item => item.id))
-          // 判断是否有新数据
-          let hasNew = false
-          for (const id of newIds) {
-            if (!this.lastOrderIds.has(id)) {
-              hasNew = true
-              break
-            }
-          }
-          // ⭐ 有新数据 → 播放声音
-          if (hasNew && this.lastOrderIds.size > 0) {
+          if (newList.length > 0) {
             this.playSound()
           }
-          // 更新数据
           this.ordUserOrdersList = newList
           this.total = response.data.count
-          // 更新缓存的 id
-          this.lastOrderIds = newIds
         })
         .finally(() => {
           this.loading = false
