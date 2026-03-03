@@ -382,7 +382,8 @@ export default {
       currentCurrencyRate: {},
       currentIndex: -1,
       quoteCurrencyCode: '',
-      allRate: 0
+      allRate: 0,
+      originalOrdGiftcardMap: {}
     }
   },
   async created() {
@@ -411,8 +412,35 @@ export default {
         this.setBatchCurrencyRates()
         this.total = response.data.count
         this.loading = false
+        this.buildOriginalMap()
       }
       )
+    },
+    buildOriginalMap() {
+      const map = {}
+      this.ordGiftcardList.forEach(item => {
+        const key = item.idx || item.id
+        map[key] = JSON.stringify(this.normalizeForCompare(item))
+      })
+      this.originalOrdGiftcardMap = map
+    },
+    normalizeForCompare(item) {
+      return {
+        id: item.id || '',
+        regionId: item.regionId || '',
+        name: item.name || '',
+        valuesConfig: item.valuesConfig || '',
+        discountRate: item.discountRate === 0 ? 0 : (item.discountRate || ''),
+        categoryId: item.categoryId || '',
+        cardType: String(item.cardType || '')
+      }
+    },
+    chunkArray(arr, size) {
+      const result = []
+      for (let i = 0; i < arr.length; i += size) {
+        result.push(arr.slice(i, i + size))
+      }
+      return result
     },
     filterCurrencyRate(row) {
       // if (!row.discountRate) {
@@ -787,32 +815,54 @@ export default {
       })
     },
     handleSaveAll() {
-      const ordGiftcardList = JSON.parse(JSON.stringify(this.ordGiftcardList))
-      let currentIndex = -1
-      let currentIndex1 = -1
-      ordGiftcardList.forEach((element, index) => {
-        element.cardType = String(element.cardType)
-        if (!element.regionId) {
-          currentIndex = index
-        }
-        if (!element.discountRate || element.discountRate === 0) {
-          currentIndex1 = index
+      if (!this.originalOrdGiftcardMap) {
+        this.buildOriginalMap()
+      }
+      const clone = JSON.parse(JSON.stringify(this.ordGiftcardList))
+      const dirty = []
+      let invalidIndexRegion = -1
+      let invalidIndexRate = -1
+      clone.forEach((element, index) => {
+        const norm = this.normalizeForCompare(element)
+        const key = element.idx || element.id
+        const original = this.originalOrdGiftcardMap[key]
+        const changed = !original || JSON.stringify(norm) !== original
+        if (changed) {
+          element.cardType = String(element.cardType)
+          if (!element.regionId && invalidIndexRegion === -1) {
+            invalidIndexRegion = index
+          }
+          if ((!element.discountRate || element.discountRate === 0) && invalidIndexRate === -1) {
+            invalidIndexRate = index
+          }
+          dirty.push(element)
         }
       })
-      if (currentIndex !== -1) {
-        this.msgError(`第${currentIndex + 1}条数据请选择地区`)
+      if (dirty.length === 0) {
+        this.msgSuccess('没有改动，无需保存')
         return
       }
-      if (currentIndex1 !== -1) {
-        this.msgError(`第${currentIndex1 + 1}条数据请输入折扣率`)
+      if (invalidIndexRegion !== -1) {
+        this.msgError(`第${invalidIndexRegion + 1}条数据请选择地区`)
         return
       }
-      batchSetOrdGiftcard({ items: ordGiftcardList }).then(response => {
-        if (response.code === 200) {
-          this.msgSuccess(response.msg)
-          this.getList()
+      if (invalidIndexRate !== -1) {
+        this.msgError(`第${invalidIndexRate + 1}条数据请输入折扣率`)
+        return
+      }
+      const chunks = this.chunkArray(dirty, 20)
+      const run = async() => {
+        for (let i = 0; i < chunks.length; i++) {
+          const res = await batchSetOrdGiftcard({ items: chunks[i] })
+          if (res.code !== 200) {
+            this.msgError(res.msg || '保存失败')
+            return
+          }
         }
-      })
+        this.msgSuccess('保存成功')
+        this.getList()
+      }
+      run()
     },
     setBatchCurrencyRates() {
       const currencyPairs = []
