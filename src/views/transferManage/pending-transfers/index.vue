@@ -22,7 +22,7 @@
           </el-form-item>
           <el-form-item label="币种代码" prop="currencyCode"><el-input
             v-model="queryParams.currencyCode"
-            placeholder="请输入ISO 4217币种代码，如 USD/CNY"
+            placeholder="请输币种代码，如 USD/CNY"
             clearable
             size="small"
             @keyup.enter.native="handleQuery"
@@ -520,6 +520,7 @@ export default {
         processedAt: undefined,
         remark: '',
         transferImage: '',
+        success: true,
         type: '1'
       }
       this.resetForm('form')

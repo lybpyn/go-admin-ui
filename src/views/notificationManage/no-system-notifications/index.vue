@@ -119,7 +119,7 @@
             :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
-              {{ scope.row.status === 1 ? '正常' : '禁用/撤回' }}
+              {{ scope.row.status === '1' ? '正常' : '禁用/撤回' }}
             </template>
           </el-table-column>
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
