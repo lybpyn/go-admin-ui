@@ -52,6 +52,7 @@ import Hamburger from '@/components/Hamburger'
 import Screenfull from '@/components/Screenfull'
 import Search from '@/components/HeaderSearch'
 import { listOrdUserOrders } from '@/api/admin/ord-user-orders'
+import { listHsUserWithdrawal } from '@/api/admin/hs-user-withdrawal'
 export default {
   components: {
     Breadcrumb,
@@ -62,11 +63,12 @@ export default {
   },
   data() {
     return {
-      total: 0,
       ordUserOrdersList: [],
       timer: null,
       lastOrderIds: new Set(),
-      isPlay: false
+      isPlay: false,
+      withdrawalCount: 0,
+      orderCount: 0
     }
   },
   computed: {
@@ -90,8 +92,14 @@ export default {
       get() {
         return this.$store.state.settings.topNav
       }
+    },
+    total() {
+      if (this.withdrawalCount > 0 || this.orderCount > 0) {
+        this.playSound()
+        return this.withdrawalCount + this.orderCount
+      }
+      return 0
     }
-
   },
   beforeDestroy() {
     clearInterval(this.timer)
@@ -108,16 +116,17 @@ export default {
   methods: {
     getList() {
       this.loading = true
-      listOrdUserOrders({ status: 5, pageIndex: 1, pageSize: 1000 })
+      listOrdUserOrders({ status: 5, pageIndex: 1, pageSize: 10 })
         .then(response => {
-          const newList = response.data.list || []
-          if (newList.length > 0) {
-            this.playSound()
-          }
-          this.ordUserOrdersList = newList
-          this.total = response.data.count
+          this.orderCount = response.data.count
         })
         .finally(() => {
+          this.loading = false
+        })
+
+      listHsUserWithdrawal({ status: 'review', pageIndex: 1, pageSize: 10 })
+        .then(response => {
+          this.withdrawalCount = response.data.count
           this.loading = false
         })
     },
@@ -131,8 +140,11 @@ export default {
       })
     },
     handleClick() {
-      console.log('handleClick')
-      this.$router.push({ path: '/orderManage/order-pending/index' })
+      if (this.orderCount > 0) {
+        this.$router.push({ path: '/orderManage/order-pending/index' })
+      } else if (this.withdrawalCount > 0) {
+        this.$router.push({ path: '/transferManage/pending-transfers' })
+      }
     },
     toggleSideBar() {
       this.$store.dispatch('app/toggleSideBar')
