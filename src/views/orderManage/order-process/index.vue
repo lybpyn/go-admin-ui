@@ -119,12 +119,11 @@
             align="center"
             prop="regionId"
             fixed="left"
-            :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
               <div v-if="form.status < 3" style="padding: 2px;">
                 <el-button
-                  type="primary"
+                  type="success"
                   size="mini"
                   @click="handleProcess(scope.row,1)"
                 >通过
@@ -132,11 +131,15 @@
               </div>
               <div style="padding: 2px;">
                 <el-button
-                  type="danger"
+                  type="info"
                   size="mini"
                   @click="handleProcess(scope.row,2)"
                 >拒绝
                 </el-button>
+                <!-- <el-radio-group v-model="scope.row.status" size="mini">
+                  <el-radio :label="1">通过</el-radio>
+                  <el-radio :label="2">拒绝</el-radio>
+                </el-radio-group> -->
               </div>
             </template>
           </el-table-column>
@@ -172,13 +175,12 @@
             </template>
           </el-table-column> -->
           <el-table-column
-            v-if="processType == 2"
             label="失败原因"
             align="center"
             prop="remark"
           >
             <template slot-scope="scope">
-              <el-dropdown>
+              <el-dropdown v-if="scope.row.status === 2">
                 <el-input
                   v-model="scope.row.remark"
                   type="text"
@@ -193,13 +195,12 @@
             </template>
           </el-table-column>
           <el-table-column
-            v-if="processType == 2"
             label="失败图片"
             align="center"
             prop="failureImageUrl"
           >
             <template slot-scope="scope">
-              <div style="display: flex;align-items: center;justify-content: center;">
+              <div v-if="scope.row.status === 2" style="display: flex;align-items: center;justify-content: center;">
                 <el-input v-model="scope.row.failureImageUrl" size="small" placeholder="粘贴复制图片" style="width: 200px;" @click.native="(event)=>setActiveRow(scope.row, event)" @input="(event)=>handleFailureImageUrl(event, scope.row)" />
                 <div style="display: flex;align-items: center;justify-content: center;">
                   <!-- <el-input v-model="scope.row.failureImageUrl" size="small" placeholder="粘贴复制图片" @click="setActiveRow(scope.row)" /> -->
@@ -246,7 +247,6 @@
             </template>
           </el-table-column> -->
           <el-table-column
-            v-if="processType == 1"
             label="卡片真实面值"
             align="center"
             prop="recognizedCardValue"
@@ -254,6 +254,7 @@
           >
             <template slot-scope="scope">
               <el-input
+                v-if="scope.row.status === 1"
                 v-model="scope.row.recognizedCardValue"
                 type="number"
                 clearable
@@ -263,38 +264,36 @@
             </template>
           </el-table-column>
           <el-table-column
-            v-if="processType == 1"
             label="礼品卡"
             align="center"
             prop="giftCardId"
           >
             <template slot-scope="scope">
-              <el-select v-model="scope.row.giftCardId" filterable size="small" @change="handleGiftCardChange(scope.row)">
+              <el-select v-if="scope.row.status === 1" v-model="scope.row.giftCardId" filterable size="small" @change="handleGiftCardChange(scope.row)">
                 <el-option v-for="item in ordGiftcardList" :key="item.id" :label="item.categoryName+'/'+item.name" :value="item.id" />
                 <el-option label="其他" :value="0" />
               </el-select>
             </template>
           </el-table-column>
           <el-table-column
-            v-if="processType == 1"
             label="折扣类型"
             align="center"
             prop="cardType"
           >
             <template slot-scope="scope">
-              <el-select v-model="scope.row.cardType" size="small">
+              <el-select v-if="scope.row.status === 1" v-model="scope.row.cardType" size="small">
                 <el-option v-for="item in scope.row.cardTypeArr" :key="item" :label="item" :value="item" />
               </el-select>
             </template>
           </el-table-column>
           <el-table-column
-            v-if="processType == 1"
             label="折扣"
             align="center"
             prop="discountRate"
           >
             <template slot-scope="scope">
               <el-input
+                v-if="scope.row.status === 1"
                 v-model="scope.row.discountRate"
                 type="text"
                 clearable
@@ -304,19 +303,17 @@
             </template>
           </el-table-column>
           <el-table-column
-            v-if="processType == 1"
             label="品牌商"
             align="center"
             prop="status"
           >
             <template slot-scope="scope">
-              <el-select v-model="scope.row.supplierId" filterable size="small" @change="handleSupplierChange(scope.row)">
+              <el-select v-if="scope.row.status === 1" v-model="scope.row.supplierId" filterable size="small" @change="handleSupplierChange(scope.row)">
                 <el-option v-for="item in supplierOptions" :key="item.id" :label="item.name+'('+item.settlementCurrencyCode+')'" :value="item.id" filterable />
               </el-select>
             </template>
           </el-table-column>
           <el-table-column
-            v-if="processType == 1"
             label="卡商成交金额"
             align="center"
             prop="platformSettlementAmount"
@@ -324,6 +321,7 @@
           >
             <template slot-scope="scope">
               <el-input
+                v-if="scope.row.status === 1"
                 v-model="scope.row.platformSettlementAmount"
                 type="text"
                 clearable
@@ -333,13 +331,13 @@
             </template>
           </el-table-column>
           <el-table-column
-            v-if="processType == 1"
             label="用户付款金额"
             align="center"
             prop="userLocalCurrencyAmount"
           >
             <template slot-scope="scope">
               <el-input
+                v-if="scope.row.status === 1"
                 v-model="scope.row.userLocalCurrencyAmount"
                 type="text"
                 clearable
@@ -744,7 +742,7 @@ export default {
       //   this.$message.error('请输入卡面值')
       //   return
       // }
-      this.processType = type
+      // this.processType = type
       if (type === 1) {
         row.status = 1
         // this.submit([row])
@@ -887,4 +885,5 @@ export default {
 :deep(.el-upload-list__item-name){
   width: 50px;
 }
+:deep(.el-radio-group){}
 </style>
