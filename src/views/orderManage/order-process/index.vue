@@ -756,20 +756,72 @@ export default {
         this.$message.error('请添加核销信息')
         return
       }
-      if (this.processType === 1) {
-        const hasEmpty = this.ordUserOrdersList.some(item => !item.userLocalCurrencyAmount)
-        if (hasEmpty) {
-          this.$message.error('必填项不能为空')
+      // if (this.processType === 1) {
+      //   const hasEmpty = this.ordUserOrdersList.some(item => !item.userLocalCurrencyAmount)
+      //   if (hasEmpty) {
+      //     this.$message.error('必填项不能为空')
+      //     return
+      //   }
+      // } else {
+      //   const hasEmpty = this.ordUserOrdersList.some(item => !item.remark)
+      //   if (hasEmpty) {
+      //     this.$message.error('失败原因不能为空')
+      //     return
+      //   }
+      // }
+      let isInputRemark = false
+      let isInputAmount = false
+      let currentIndex = -1
+      this.ordUserOrdersList.forEach((item, index) => {
+        if (item.status === 2 && !item.remark) {
+          isInputRemark = true
+          currentIndex = index
           return
         }
-      } else {
-        const hasEmpty = this.ordUserOrdersList.some(item => !item.remark)
-        if (hasEmpty) {
-          this.$message.error('失败原因不能为空')
+        if (item.status === 1 && !item.userLocalCurrencyAmount) {
+          isInputAmount = true
+          currentIndex = index
           return
         }
+      })
+      if (isInputRemark) {
+        this.$message.error(`请输入失败原因${currentIndex === 0 ? '（第一行）' : `（第${currentIndex + 1}行）`}`)
+        return
       }
-      this.submit(this.ordUserOrdersList)
+      if (isInputAmount) {
+        this.$message.error(`请输入售卡金额${currentIndex === 0 ? '（第一行）' : `（第${currentIndex + 1}行）`}`)
+        return
+      }
+      const { receiveAmount, sellAmount } = this.computeConfirmStats()
+      const html =
+        `<div style="line-height:24px;">、、、
+           <div>收卡金额(¥)：<b>${receiveAmount.toFixed(2)}</b></div>
+           <div>售卡金额(元)：<b>${sellAmount.toFixed(2)}</b></div>
+         </div>`
+      this.$confirm(html, '请确认金额信息', {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'warning',
+        dangerouslyUseHTMLString: true
+      }).then(() => {
+        this.submit(this.ordUserOrdersList)
+      }).catch(() => {})
+    },
+    computeConfirmStats() {
+      let receiveAmount = 0 // 收卡金额
+      let sellAmount = 0 // 售卡金额
+      let discountAmount = 0 // 优惠金额
+      this.ordUserOrdersList.forEach(item => {
+        const recv = Number(item.platformSettlementAmount) || 0
+        const sell = Number(item.userLocalCurrencyAmount) || 0
+        receiveAmount += recv
+        sellAmount += sell
+        const face = Number(item.recognizedCardValue) || 0
+        const rate = Number(item.discountRate) || 0
+        const disc = face && rate ? face * (1 - rate) : 0
+        discountAmount += disc
+      })
+      return { receiveAmount, sellAmount, discountAmount }
     },
     handleAdd(row) {
       this.ordUserOrdersList.push({
