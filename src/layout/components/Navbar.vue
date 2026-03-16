@@ -111,7 +111,7 @@ export default {
     }
     this.timer = setInterval(() => {
       this.getList()
-    }, 5000)
+    }, 10000)
   },
   methods: {
     getList() {

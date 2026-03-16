@@ -241,7 +241,7 @@
           <el-form ref="form" :model="form" :rules="rules" label-width="80px">
 
             <el-form-item label="状态" prop="status">
-              <el-radio-group v-model="form.status" @change="handleStatusChange">
+              <el-radio-group v-model="form.status">
                 <el-radio label="1">正常</el-radio>
                 <el-radio label="0">封禁</el-radio>
               </el-radio-group>

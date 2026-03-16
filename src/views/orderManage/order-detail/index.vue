@@ -146,7 +146,6 @@
             </template>
           </el-table-column>
           <el-table-column
-            v-if="processType == 2"
             label="失败原因"
             align="center"
             prop="remark"
@@ -154,6 +153,7 @@
             <template slot-scope="scope">
               <el-dropdown>
                 <el-input
+                  v-if="scope.row.status == 2"
                   v-model="scope.row.remark"
                   type="text"
                   clearable
@@ -167,13 +167,12 @@
             </template>
           </el-table-column>
           <el-table-column
-            v-if="processType == 2"
             label="失败图片"
             align="center"
             prop="failureImageUrl"
           >
             <template slot-scope="scope">
-              <div style="display: flex;align-items: center;justify-content: center;">
+              <div v-if="scope.row.status == 2" style="display: flex;align-items: center;justify-content: center;">
                 <el-image
                   :src="scope.row.failureImageUrl"
                   alt="图片"
@@ -200,7 +199,6 @@
             </template>
           </el-table-column> -->
           <el-table-column
-            v-if="processType == 1"
             label="卡片真实面值"
             align="center"
             prop="recognizedCardValue"
@@ -208,6 +206,7 @@
           >
             <template slot-scope="scope">
               <el-input
+                v-if="scope.row.status == 1"
                 v-model="scope.row.recognizedCardValue"
                 disabled
                 type="number"
@@ -218,38 +217,36 @@
             </template>
           </el-table-column>
           <el-table-column
-            v-if="processType == 1"
             label="礼品卡"
             align="center"
             prop="giftCardId"
           >
             <template slot-scope="scope">
-              <el-select v-model="scope.row.giftCardId" disabled filterable size="small" @change="handleGiftCardChange(scope.row)">
+              <el-select v-if="scope.row.status == 1" v-model="scope.row.giftCardId" disabled filterable size="small" @change="handleGiftCardChange(scope.row)">
                 <el-option v-for="item in ordGiftcardList" :key="item.id" :label="item.name" :value="item.id" />
                 <el-option label="其他" :value="0" />
               </el-select>
             </template>
           </el-table-column>
           <el-table-column
-            v-if="processType == 1"
             label="折扣类型"
             align="center"
             prop="cardType"
           >
             <template slot-scope="scope">
-              <el-select v-model="scope.row.cardType" disabled size="small">
+              <el-select v-if="scope.row.status == 1" v-model="scope.row.cardType" disabled size="small">
                 <el-option v-for="item in scope.row.cardTypeArr" :key="item" :label="item" :value="item" />
               </el-select>
             </template>
           </el-table-column>
           <el-table-column
-            v-if="processType == 1"
             label="折扣"
             align="center"
             prop="discountRate"
           >
             <template slot-scope="scope">
               <el-input
+                v-if="scope.row.status == 1"
                 v-model="scope.row.platformSaleRate"
                 disabled
                 type="text"
@@ -260,19 +257,17 @@
             </template>
           </el-table-column>
           <el-table-column
-            v-if="processType == 1"
             label="品牌商"
             align="center"
             prop="status"
           >
             <template slot-scope="scope">
-              <el-select v-model="scope.row.supplierId" disabled filterable size="small" @change="handleSupplierChange(scope.row)">
+              <el-select v-if="scope.row.status == 1" v-model="scope.row.supplierId" disabled filterable size="small" @change="handleSupplierChange(scope.row)">
                 <el-option v-for="item in supplierOptions" :key="item.id" :label="item.name+'('+item.settlementCurrencyCode+')'" :value="item.id" filterable />
               </el-select>
             </template>
           </el-table-column>
           <el-table-column
-            v-if="processType == 1"
             label="卡商成交金额"
             align="center"
             prop="platformSettlementAmount"
@@ -280,6 +275,7 @@
           >
             <template slot-scope="scope">
               <el-input
+                v-if="scope.row.status == 1"
                 v-model="scope.row.platformSettlementAmount"
                 disabled
                 type="text"
@@ -290,13 +286,13 @@
             </template>
           </el-table-column>
           <el-table-column
-            v-if="processType == 1"
             label="用户付款金额"
             align="center"
             prop="userLocalCurrencyAmount"
           >
             <template slot-scope="scope">
               <el-input
+                v-if="scope.row.status == 1"
                 v-model="scope.row.userLocalCurrencyAmount"
                 disabled
                 type="text"
@@ -434,7 +430,7 @@
               />
             </template>
           </el-table-column> -->
-          <el-table-column label="添加|删除" align="center" width="200" fixed="right">
+          <!-- <el-table-column label="添加|删除" align="center" width="200" fixed="right">
             <template slot-scope="scope">
               <el-button
                 size="small"
@@ -452,7 +448,7 @@
                 删除
               </el-button>
             </template>
-          </el-table-column>
+          </el-table-column> -->
         </el-table>
       </el-card>
     </template>

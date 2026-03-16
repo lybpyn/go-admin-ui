@@ -123,7 +123,7 @@
             <template slot-scope="scope">
               <div v-if="form.status < 3" style="padding: 2px;">
                 <el-button
-                  type="success"
+                  :type="scope.row.status === 1 ? 'success' : 'info'"
                   size="mini"
                   @click="handleProcess(scope.row,1)"
                 >通过
@@ -131,7 +131,7 @@
               </div>
               <div style="padding: 2px;">
                 <el-button
-                  type="info"
+                  :type="scope.row.status === 2 ? 'success' : 'info'"
                   size="mini"
                   @click="handleProcess(scope.row,2)"
                 >拒绝
@@ -197,15 +197,17 @@
           <el-table-column
             label="失败图片"
             align="center"
+            width="200"
             prop="failureImageUrl"
           >
             <template slot-scope="scope">
               <div v-if="scope.row.status === 2" style="display: flex;align-items: center;justify-content: center;">
-                <el-input v-model="scope.row.failureImageUrl" size="small" placeholder="粘贴复制图片" style="width: 200px;" @click.native="(event)=>setActiveRow(scope.row, event)" @input="(event)=>handleFailureImageUrl(event, scope.row)" />
-                <div style="display: flex;align-items: center;justify-content: center;">
+                <el-input v-model="scope.row.failureImageUrl" size="small" placeholder="粘贴复制图片" style="width: 200px;" @focus="(event)=>setActiveRow1(event,scope.row)" @paste.native="(e)=>handlePasteInput(e, scope.row)" @input="(event)=>handleFailureImageUrl(event, scope.row)" />
+                <div v-if="!scope.row.failureImageUrl" style="display: flex;align-items: center;justify-content: center;">
                   <!-- <el-input v-model="scope.row.failureImageUrl" size="small" placeholder="粘贴复制图片" @click="setActiveRow(scope.row)" /> -->
                   <el-upload
-                    :ref="'uploader_' + scope.row.id"
+                    :ref="'uploader_' + (scope.row.uid || scope.row.id)"
+                    :key="scope.row.uid || scope.row.id"
                     class="upload-demo"
                     :headers="headers"
                     action="https://adminapi.cardpartner.io/api/v1/public/uploadFile"
@@ -586,7 +588,8 @@ export default {
         'Dearthis code are not complete',
         'Dearwe have no way to use this kind ofcard',
         'Dear,this card is bad'
-      ]
+      ],
+      pasteGuardTs: 0
     }
   },
   created() {
@@ -600,10 +603,8 @@ export default {
     // this.getListOrdGiftcardDiscounts()
   },
   mounted() {
-    window.addEventListener('paste', this.handlePaste)
   },
   beforeDestroy() {
-    window.removeEventListener('paste', this.handlePaste)
   },
   methods: {
     // 获取订单详情
@@ -623,8 +624,10 @@ export default {
         getOrdOrderGiftcardImages({ orderId: this.orderId }).then(response => {
           const list = response.data.list || []
           list.forEach(item => {
+            const uid = Date.now() + '' + Math.floor(Math.random() * 100000)
             this.ordUserOrdersList.push({
               id: new Date().getTime(),
+              uid,
               physicalImageUrl: item.imageUrl,
               adminRecognizedCode: '',
               failureImageUrl: '',
@@ -646,8 +649,10 @@ export default {
           })
         })
       } else {
+        const uid = Date.now() + '' + Math.floor(Math.random() * 100000)
         this.ordUserOrdersList = [{
           id: new Date().getTime(),
+          uid,
           physicalImageUrl: '',
           adminRecognizedCode: this.giftCardCode || '',
           failureImageUrl: '',
@@ -795,8 +800,8 @@ export default {
       const { receiveAmount, sellAmount } = this.computeConfirmStats()
       const html =
         `<div style="line-height:24px;">、、、
-           <div>收卡金额(¥)：<b>${receiveAmount.toFixed(2)}</b></div>
-           <div>售卡金额(元)：<b>${sellAmount.toFixed(2)}</b></div>
+           <div>收卡金额(${this.form.currency})：<b>${sellAmount.toFixed(2)}</b></div>
+           <div>售卡金额(${this.form.currency})：<b>${receiveAmount.toFixed(2)}</b></div>
          </div>`
       this.$confirm(html, '请确认金额信息', {
         confirmButtonText: '确认',
@@ -826,7 +831,8 @@ export default {
     handleAdd(row) {
       this.ordUserOrdersList.push({
         ...row,
-        id: new Date().getTime()
+        id: new Date().getTime(),
+        uid: Date.now() + '' + Math.floor(Math.random() * 100000)
       })
     },
     handleDel(row, index) {
@@ -864,8 +870,44 @@ export default {
     //   row.fileList = []
     // },
     setActiveRow(row) {
-      console.log(row)
+      if (!row.fileList) {
+        this.$set(row, 'fileList', [])
+      }
       this.activeRow = row
+    },
+    setActiveRow1(event, row) {
+      if (!row.fileList) {
+        this.$set(row, 'fileList', [])
+      }
+      this.activeRow = row
+    },
+    handlePasteInput(e, row) {
+      if (!row) return
+      const now = Date.now()
+      if (now - this.pasteGuardTs < 500) {
+        e.preventDefault()
+        e.stopPropagation && e.stopPropagation()
+        return
+      }
+      if (row.fileList && row.fileList.length > 0) {
+        this.$message.error('请先删除已上传的图片')
+        e.preventDefault()
+        e.stopPropagation && e.stopPropagation()
+        return
+      }
+      const items = e.clipboardData?.items || []
+      for (const item of items) {
+        if (item.kind === 'file') {
+          const file = item.getAsFile()
+          if (file) {
+            this.pasteGuardTs = now
+            this.uploadByPaste(file, row)
+            e.preventDefault()
+            e.stopPropagation && e.stopPropagation()
+            break
+          }
+        }
+      }
     },
     handleUploadChange(response, file, fileList, row) {
       const newList = fileList.map(f => ({
@@ -874,7 +916,6 @@ export default {
       }))
 
       this.$set(row, 'fileList', newList)
-      this.activeRow.fileList = newList
       // 保存图片地址
       this.$set(row, 'failureImageUrl', response.data?.full_path || '')
       row.failureImageUrl = response.data?.full_path || ''
@@ -884,7 +925,6 @@ export default {
     handleRemove(file, fileList, row) {
       this.$set(row, 'fileList', [])
       row.fileList = []
-      this.activeRow.fileList = []
       console.log(row)
       if (fileList.length === 0) {
         row.failureImageUrl = ''
@@ -896,31 +936,16 @@ export default {
         row.fileList = []
       }
     },
-    handlePaste(e) {
-      console.log(this.activeRow)
-      if (this.activeRow.fileList.length > 0) {
-        this.$message.error('请先删除已上传的图片')
-        return
-      }
-      if (!this.activeRow) return // 必须先点按钮，才能知道是哪一行
-      const items = e.clipboardData?.items || []
-      for (const item of items) {
-        if (item.kind === 'file') {
-          const file = item.getAsFile()
-          if (file) {
-            this.uploadByPaste(file, this.activeRow)
-          }
-        }
-      }
-    },
+    handlePaste(e) {},
 
     uploadByPaste(file, row) {
-      const ref = 'uploader_' + row.id
+      const ref = 'uploader_' + (row.uid || row.id)
       const uploader = this.$refs[ref]
       if (!uploader) return
       // 手动上传
-      uploader.handleStart(file)
-      uploader.submit()
+      const instance = Array.isArray(uploader) ? uploader[0] : uploader
+      instance.handleStart(file)
+      instance.submit()
     },
     onSelectReson(item, row) {
       console.log(item)
