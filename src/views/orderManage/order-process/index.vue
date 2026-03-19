@@ -589,7 +589,8 @@ export default {
         'Dearwe have no way to use this kind ofcard',
         'Dear,this card is bad'
       ],
-      pasteGuardTs: 0
+      pasteGuardTs: 0,
+      initialRowMap: {}
     }
   },
   created() {
@@ -625,7 +626,7 @@ export default {
           const list = response.data.list || []
           list.forEach(item => {
             const uid = Date.now() + '' + Math.floor(Math.random() * 100000)
-            this.ordUserOrdersList.push({
+            const row = {
               id: new Date().getTime(),
               uid,
               physicalImageUrl: item.imageUrl,
@@ -645,12 +646,14 @@ export default {
               remark: '',
               discounts: [],
               cardTypeArr: []
-            })
+            }
+            this.ordUserOrdersList.push(row)
+            this.initialRowMap[uid] = this.buildInitialRow(row)
           })
         })
       } else {
         const uid = Date.now() + '' + Math.floor(Math.random() * 100000)
-        this.ordUserOrdersList = [{
+        const row = {
           id: new Date().getTime(),
           uid,
           physicalImageUrl: '',
@@ -669,7 +672,9 @@ export default {
           discountRate: '',
           remark: '',
           cardTypeArr: []
-        }]
+        }
+        this.ordUserOrdersList = [row]
+        this.initialRowMap[uid] = this.buildInitialRow(row)
       }
     },
 
@@ -755,6 +760,7 @@ export default {
         row.status = 2
         // this.submit([row])
       }
+      this.resetRowToInitial(row)
     },
     handleComplete() {
       if (!this.ordUserOrdersList.length) {
@@ -799,9 +805,9 @@ export default {
       }
       const { receiveAmount, sellAmount } = this.computeConfirmStats()
       const html =
-        `<div style="line-height:24px;">、、、
-           <div>收卡金额(${this.form.currency})：<b>${sellAmount.toFixed(2)}</b></div>
-           <div>售卡金额(${this.form.currency})：<b>${receiveAmount.toFixed(2)}</b></div>
+        `<div style="line-height:24px;">
+           <div>收卡金额(₦)：<b>${sellAmount.toFixed(2)}</b></div>
+           <div>售卡金额(￥)：<b>${receiveAmount.toFixed(2)}</b></div>
          </div>`
       this.$confirm(html, '请确认金额信息', {
         confirmButtonText: '确认',
@@ -829,11 +835,13 @@ export default {
       return { receiveAmount, sellAmount, discountAmount }
     },
     handleAdd(row) {
-      this.ordUserOrdersList.push({
+      const newRow = {
         ...row,
         id: new Date().getTime(),
         uid: Date.now() + '' + Math.floor(Math.random() * 100000)
-      })
+      }
+      this.ordUserOrdersList.push(newRow)
+      this.initialRowMap[newRow.uid] = this.buildInitialRow(newRow)
     },
     handleDel(row, index) {
       this.ordUserOrdersList.splice(index, 1)
@@ -874,6 +882,30 @@ export default {
         this.$set(row, 'fileList', [])
       }
       this.activeRow = row
+    },
+    buildInitialRow(row) {
+      return {
+        adminRecognizedCode: '',
+        failureImageUrl: '',
+        platformSettlementAmount: '',
+        recognizedCardValue: '',
+        userLocalCurrencyAmount: '',
+        settlementRate: '',
+        supplierId: '',
+        giftCardId: '',
+        fileList: [],
+        discountRate: '',
+        remark: '',
+        cardType: '',
+        giftCardDiscountId: ''
+      }
+    },
+    resetRowToInitial(row) {
+      const key = row.uid || row.id
+      const baseline = this.initialRowMap[key] || this.buildInitialRow(row)
+      Object.keys(baseline).forEach(k => {
+        this.$set(row, k, baseline[k])
+      })
     },
     setActiveRow1(event, row) {
       if (!row.fileList) {

@@ -21,6 +21,10 @@
       <el-badge style="cursor: pointer;margin-left: 20px;" :value="total" class="item-badge">
         <i class="el-icon-message-solid" style="font-size: 18px;" @click="handleClick" />
       </el-badge>
+      <div>
+        订单:<span style="color:red;margin-right: 2px;">{{ orderCount }}</span>
+        转账:<span style="color:red;margin-right: 2px;">{{ withdrawalCount }}</span>
+      </div>
       <template v-if="device!=='mobile'">
         <search id="header-search" class="right-menu-item" />
         <screenfull id="screenfull" class="right-menu-item hover-effect" />
