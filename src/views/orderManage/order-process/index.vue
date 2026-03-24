@@ -885,7 +885,7 @@ export default {
     },
     buildInitialRow(row) {
       return {
-        adminRecognizedCode: '',
+        adminRecognizedCode: row.adminRecognizedCode || '',
         failureImageUrl: '',
         platformSettlementAmount: '',
         recognizedCardValue: '',
@@ -904,7 +904,9 @@ export default {
       const key = row.uid || row.id
       const baseline = this.initialRowMap[key] || this.buildInitialRow(row)
       Object.keys(baseline).forEach(k => {
-        this.$set(row, k, baseline[k])
+        if (k !== 'adminRecognizedCode') {
+          this.$set(row, k, baseline[k])
+        }
       })
     },
     setActiveRow1(event, row) {
